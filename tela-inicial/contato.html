@@ -160,14 +160,20 @@
               mensagem: document.getElementById("mensagem").value,
             };
 
+            // Timeout de 60 segundos (Render free tier pode demorar ao acordar)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 60000);
+
             const response = await fetch(API_URL, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify(formData),
+              signal: controller.signal,
             });
 
+            clearTimeout(timeoutId);
             const result = await response.json();
 
             if (response.ok && result.success) {
@@ -186,8 +192,18 @@
             }
           } catch (error) {
             console.error("Erro ao enviar contato:", error);
-            status.textContent =
-              "❌ Erro ao enviar mensagem. Tente novamente em alguns momentos.";
+
+            let mensagemErro = "❌ Erro ao enviar mensagem.";
+
+            if (error.name === "AbortError") {
+              mensagemErro =
+                "⏱️ Tempo esgotado. O servidor demorou muito para responder. Tente novamente.";
+            } else if (error.message.includes("Failed to fetch")) {
+              mensagemErro =
+                "🌐 Erro de conexão. Verifique sua internet e tente novamente.";
+            }
+
+            status.textContent = mensagemErro;
             status.style.color = "#ef4444";
             button.disabled = false;
             button.style.opacity = "1";
