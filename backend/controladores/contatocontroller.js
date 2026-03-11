@@ -115,9 +115,7 @@ const enviarContato = async (req, res) => {
 
     // Enviar emails usando Resend
     try {
-      // MODO TESTE: Resend só permite enviar para emails verificados
-      // Se não funcionar, adicione Gabriellycorretora1@gmail.com em resend.com/settings/emails
-      await resend.emails.send({
+      const emailResult = await resend.emails.send({
         from: "Gabrielly Silva <onboarding@resend.dev>",
         to: ["Gabriellycorretora1@gmail.com"],
         subject: `Novo Contato: ${assunto}`,
@@ -125,22 +123,25 @@ const enviarContato = async (req, res) => {
         reply_to: email,
       });
 
-      console.log("Email enviado via Resend");
+      console.log("Email enviado via Resend:", emailResult.id);
 
       return res.status(200).json({
         success: true,
         message:
-          "Mensagem enviada com sucesso! Verifique seu email para confirmação.",
+          "Mensagem enviada com sucesso! Entraremos em contato em breve.",
         contatoId: contatoSalvo.id,
       });
     } catch (emailError) {
-      console.error("Erro ao enviar email:", emailError.message);
+      console.error("Erro ao enviar email:", emailError);
+      console.error("Detalhes:", emailError.message);
+
+      // Mesmo com erro no email, o contato foi salvo no banco
       return res.status(200).json({
         success: true,
         message:
           "Mensagem recebida com sucesso! Entraremos em contato em breve.",
         contatoId: contatoSalvo.id,
-        warning: "Email de confirmação pode ter falhado.",
+        warning: "Notificação por email temporariamente indisponível.",
       });
     }
   } catch (error) {
