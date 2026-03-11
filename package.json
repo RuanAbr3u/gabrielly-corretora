@@ -1,0 +1,43 @@
+{
+  "name": "gabrielly-corretora",
+  "version": "2.0.0",
+  "description": "Sistema completo de gestão imobiliária com Supabase",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -p 3000",
+    "dev": "npx serve -p 3000 --cors",
+    "backend": "cd backend && npm start",
+    "backend:dev": "cd backend && npm run dev",
+    "build": "node build-config.js",
+    "test": "echo \"⚠️ Testes não configurados ainda\" && exit 0",
+    "lint": "echo \"⚠️ Linting não configurado ainda\" && exit 0",
+    "format": "echo \"⚠️ Formatação não configurada ainda\" && exit 0",
+    "security:check": "npm audit --production && cd backend && npm audit --production",
+    "security:fix": "npm audit fix && cd backend && npm audit fix",
+    "deploy:netlify": "netlify deploy --prod",
+    "deploy:preview": "netlify deploy"
+  },
+  "keywords": [
+    "imobiliaria",
+    "gestao",
+    "crm",
+    "supabase",
+    "javascript",
+    "real-estate"
+  ],
+  "author": "Ruan Abreu",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seu-usuario/gabrielly-corretora.git"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "dependencies": {}
+}

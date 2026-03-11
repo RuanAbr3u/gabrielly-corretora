@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=tela-inicial/index.html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabrielly Silva - Corretora de Imóveis</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .loading {
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+        <h2>Gabrielly Silva</h2>
+        <p>Corretora de Imóveis</p>
+        <p style="font-size: 14px; opacity: 0.8;">Redirecionando...</p>
+    </div>
+    <script>
+        // Fallback caso o meta refresh não funcione
+        setTimeout(() => {
+            window.location.href = 'tela-inicial/index.html';
+        }, 100);
+    </script>
+</body>
+</html>

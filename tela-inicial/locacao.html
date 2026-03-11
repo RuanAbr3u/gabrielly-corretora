@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Imóveis para alugar com Gabrielly Silva Corretora - CRECI 26.012. Locação de casas, apartamentos e salas comerciais."
+    />
+    <meta
+      name="keywords"
+      content="imóveis para alugar, casas para alugar, apartamentos para alugar, locação, aluguel, Gabrielly Silva, CRECI 26.012"
+    />
+    <meta name="author" content="Gabrielly Silva" />
+    <title>Gabrielly Silva | Locação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Supabase - ORDEM CORRETA -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../Ativos/js/config.js"></script>
+    <script src="../Ativos/js/supabase-config.js"></script>
+    <script src="../Ativos/js/supabase-db.js"></script>
+
+    <link rel="stylesheet" href="style-locacao.css" />
+  </head>
+  <body>
+    <header>
+      <!-- Botão Hambúrguer -->
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav id="navBar">
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="servicos.html">Serviços</a></li>
+          <li><a href="locacao.html" class="ativo">Locação</a></li>
+          <li><a href="vendas.html">Vendas</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Imóveis para Locação</h1>
+
+      <!-- NOVO: Filtro de Bairro -->
+      <section id="filtros">
+        <label for="filtroBairro">Filtrar por Bairro:</label>
+        <select id="filtroBairro">
+          <option value="">Todos os Bairros</option>
+          <!-- As opções de bairro serão carregadas via JavaScript -->
+        </select>
+
+        <!-- NOVO: Filtro de Categoria -->
+        <label for="filtroCategoria" style="margin-left: 20px"
+          >Filtrar por Categoria:</label
+        >
+        <select id="filtroCategoria">
+          <option value="">Todas as Categorias</option>
+          <!-- As opções de categoria serão carregadas via JavaScript -->
+        </select>
+      </section>
+
+      <section id="imoveis-dinamicos">
+        <div id="loadingImoveis" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p>Carregando imóveis...</p>
+        </div>
+        <div
+          id="listaImoveisSite"
+          class="grid-imoveis"
+          style="display: none"
+        ></div>
+      </section>
+    </main>
+
+    <div id="modalImovel" class="modal-imovel" style="display: none">
+      <div class="modal-conteudo">
+        <button id="fecharModal" class="modal-fechar">&times;</button>
+
+        <div class="modal-galeria-container">
+          <button id="btnPrev" class="nav-btn">&#10094;</button>
+          <div class="modal-galeria" id="modalGaleria"></div>
+          <button id="btnNext" class="nav-btn">&#10095;</button>
+        </div>
+
+        <div class="modal-dados">
+          <h2 id="modalTitulo"></h2>
+          <p id="modalDescricao"></p>
+          <p><strong id="modalPreco"></strong></p>
+          <p id="modalSpecs"></p>
+          <div class="modal-acoes">
+            <a id="botaoWhats" href="#" target="_blank" class="btn-vermais"
+              >Contato via WhatsApp</a
+            >
+            <button id="btnFechar" class="btn-vermais">Fechar</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+    </div>
+
+    <!-- ATUALIZADO: Usando script-listagem.js e chamando carregarImoveis -->
+    <script src="script-listagem.js" defer></script>
+    <script src="main.js" defer></script>
+    <script src="menu-mobile.js" defer></script>
+    <div id="whatsapp-balao">
+      <a
+        href="https://wa.me/557592112142"
+        target="_blank"
+        aria-label="Abrir WhatsApp"
+      >
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+          alt="WhatsApp Gabrielly Silva"
+        />
+      </a>
+    </div>
+    <footer
+      style="
+        background: rgba(58, 26, 26, 0.6);
+        color: rgba(255, 255, 255, 0.7);
+        text-align: center;
+        padding: 1.5rem 1rem;
+        margin-top: auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        bottom: 0;
+        width: 100%;
+      "
+    >
+      <p style="margin-bottom: 0.5rem; font-size: 0.9rem">
+        &copy; 2026 Gabrielly Silva - Corretora de Imóveis
+      </p>
+      <p style="font-size: 0.8rem; opacity: 0.6">
+        Desenvolvido por
+        <a
+          href="https://www.instagram.com/abr3u.dev/"
+          target="_blank"
+          style="
+            color: #c9a961;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+          "
+          onmouseover="this.style.color = '#fff'"
+          onmouseout="this.style.color = '#c9a961'"
+          >Ruan Abreu</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

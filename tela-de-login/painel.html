@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel da Corretora - Gabrielly Silva</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style-padrao.css" />
+    <link rel="stylesheet" href="style-painel.css" />
+    <link rel="stylesheet" href="style-painel-pro.css" />
+    <link rel="stylesheet" href="style-painel-profissional.css" />
+    <link rel="stylesheet" href="style-painel-melhorias.css" />
+    <link rel="stylesheet" href="style-cursor-fix.css" />
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../Ativos/js/config.js"></script>
+    <script src="../Ativos/js/supabase-config.js"></script>
+    <script src="../Ativos/js/supabase-db.js"></script>
+    <script src="../Ativos/js/supabase-adapter.js"></script>
+    <script src="script-painel.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">
+          <h1>Painel Administrativo</h1>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="user-info">
+          <span class="user-text"
+            >👤 Olá, <strong id="userEmail">Gabrielly Silva</strong></span
+          >
+        </div>
+        <button class="logout-btn" onclick="logout()">
+          <span>🚪 Sair</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="painel-container">
+      <aside class="sidebar">
+        <nav class="painel-nav">
+          <a class="painel-link-btn" href="../tela-gestao-financeira/index.html"
+            >Gestão Financeira</a
+          >
+          <a
+            class="painel-link-btn"
+            href="../tela-cadastro-atendimento/index.html"
+            >Cadastrar Atendimento</a
+          >
+          <a
+            class="painel-link-btn"
+            href="../tela-cadastro-proprietario/index.html"
+            >Cadastrar Proprietário</a
+          >
+          <a
+            class="painel-link-btn"
+            href="../tela-caracteristica-imovel/index.html"
+            >Características de Imóvel</a
+          >
+        </nav>
+      </aside>
+
+      <main class="painel-main">
+        <section class="metrics" aria-label="Métricas rápidas">
+          <div class="metric-card">
+            <div class="metric-value" id="totalImoveis">
+              <span>0</span>
+            </div>
+            <div class="metric-label">📊 Total de Imóveis</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="disponiveis">
+              <span>0</span>
+            </div>
+            <div class="metric-label">✅ Disponíveis</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="vendidos">
+              <span>0</span>
+            </div>
+            <div class="metric-label">🏆 Vendidos/Alugados</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="ultimos">
+              <span>0</span>
+            </div>
+            <div class="metric-label">📅 Últimos 7 dias</div>
+          </div>
+        </section>
+        <!-- Barra de filtros e ações -->
+        <section class="filters-section">
+          <div class="filters-header">
+            <h3>Filtros Avançados</h3>
+            <span class="badge" id="resultCount">0 resultados</span>
+          </div>
+          <div class="filters">
+            <div class="filter-group">
+              <label class="filter-label" for="filterTitle">Pesquisar</label>
+              <input
+                id="filterTitle"
+                type="search"
+                placeholder="Digite o título..."
+              />
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filterTipo">Tipo</label>
+              <select id="filterTipo">
+                <option value="">Todos</option>
+                <option value="venda">Venda</option>
+                <option value="locacao">Locação</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filterCategoria"
+                >Categoria</label
+              >
+              <select id="filterCategoria">
+                <option value="">Todas</option>
+                <option value="Casa">Casa</option>
+                <option value="Apartamento">Apartamento</option>
+                <option value="Terreno">Terreno</option>
+                <option value="Sala Comercial">Sala Comercial</option>
+                <option value="Galpão">Galpão</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filterBairro">Bairro</label>
+              <select id="filterBairro">
+                <option value="">Todos</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filterProprietario"
+                >Proprietário</label
+              >
+              <select id="filterProprietario">
+                <option value="">Todos</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filterDisponibilidade"
+                >Status</label
+              >
+              <select id="filterDisponibilidade">
+                <option value="">Todos</option>
+                <option value="Disponível">Disponível</option>
+                <option value="Vendido/Alugado">Vendido/Alugado</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filterPrecoMin"
+                >Preço Mín.</label
+              >
+              <input
+                id="filterPrecoMin"
+                type="number"
+                placeholder="R$ 0"
+                min="0"
+                step="1000"
+              />
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="filterPrecoMax"
+                >Preço Máx.</label
+              >
+              <input
+                id="filterPrecoMax"
+                type="number"
+                placeholder="R$ 0"
+                min="0"
+                step="1000"
+              />
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label" for="perPage">Por Página</label>
+              <select id="perPage">
+                <option value="6">6 por página</option>
+                <option value="9">9 por página</option>
+                <option value="12" selected>12 por página</option>
+                <option value="24">24 por página</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button
+              id="exportCsv"
+              type="button"
+              class="btn-filter btn-filter-primary"
+            >
+              📊 Exportar CSV
+            </button>
+            <button
+              id="limparFiltros"
+              type="button"
+              class="btn-filter btn-filter-secondary"
+            >
+              🔄 Limpar Filtros
+            </button>
+          </div>
+        </section>
+
+        <!-- Formulário de cadastro/edição de imóvel -->
+        <section class="form-section">
+          <div class="form-header">
+            <h2>📝 <span id="formTitle">Cadastrar Novo Imóvel</span></h2>
+            <button
+              type="button"
+              id="toggleForm"
+              class="btn-filter btn-filter-secondary"
+            >
+              ▲ Minimizar
+            </button>
+          </div>
+
+          <div id="formContainer">
+            <!-- Substitua o bloco <form id="formImovel"> existente por este -->
+            <form id="formImovel">
+              <input type="hidden" id="imovelId" value="" />
+
+              <!-- Informações Básicas -->
+              <div class="form-group-container">
+                <h3 class="form-section-divider">📋 Informações Básicas</h3>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <label for="tipoNegocio">Tipo de Negócio *</label>
+                    <select id="tipoNegocio" required>
+                      <option value="">Selecione...</option>
+                      <option value="venda">Venda</option>
+                      <option value="locacao">Locação</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <label for="categoria">Categoria *</label>
+                    <select id="categoria" required>
+                      <option value="">Selecione...</option>
+                      <option value="Casa">Casa</option>
+                      <option value="Apartamento">Apartamento</option>
+                      <option value="Terreno">Terreno</option>
+                      <option value="Sala Comercial">Sala Comercial</option>
+                      <option value="Galpão">Galpão</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label for="titulo">Título do Imóvel *</label>
+                  <input
+                    type="text"
+                    id="titulo"
+                    placeholder="Ex: Casa ampla com piscina"
+                    required
+                  />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-field" style="flex: 2">
+                    <label for="proprietario">Proprietário</label>
+                    <select id="proprietario">
+                      <option value="">Selecione o Proprietário</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field" style="flex: 1">
+                    <label>&nbsp;</label>
+                    <button
+                      type="button"
+                      id="btnAtualizarProprietarios"
+                      class="btn-action"
+                    >
+                      🔄 Atualizar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Localização -->
+              <div class="form-group-container">
+                <h3 class="form-section-divider">📍 Localização</h3>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <label for="cepImovel">CEP *</label>
+                    <input
+                      type="text"
+                      id="cepImovel"
+                      placeholder="00000-000"
+                      maxlength="9"
+                    />
+                  </div>
+
+                  <div class="form-field" style="flex: 0 0 auto">
+                    <label>&nbsp;</label>
+                    <button type="button" id="btnBuscarCep" class="btn-action">
+                      🔍 Buscar
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label for="enderecoImovel">Endereço Completo</label>
+                  <input
+                    type="text"
+                    id="enderecoImovel"
+                    placeholder="Rua, número, complemento"
+                  />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-field" style="flex: 2">
+                    <label for="bairro">Bairro *</label>
+                    <select id="bairro" name="bairro" required>
+                      <option value="">Carregando bairros...</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field" style="flex: 1">
+                    <label>&nbsp;</label>
+                    <button
+                      type="button"
+                      id="btnAtualizarBairros"
+                      class="btn-action"
+                    >
+                      🔄 Atualizar
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label for="condominio">Condomínio/Prédio</label>
+                  <input
+                    type="text"
+                    id="condominio"
+                    placeholder="Ex: Kaliandia Residence"
+                  />
+                </div>
+              </div>
+
+              <!-- Valores -->
+              <div class="form-group-container">
+                <h3 class="form-section-divider">💰 Valores</h3>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <label for="preco">Preço/Aluguel *</label>
+                    <input
+                      type="text"
+                      id="preco"
+                      placeholder="R$ 0,00"
+                      required
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label for="valorCondominio">Condomínio/Prédio</label>
+                    <input
+                      type="text"
+                      id="valorCondominio"
+                      placeholder="R$ 0,00"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label for="valorIPTU">IPTU</label>
+                    <input type="text" id="valorIPTU" placeholder="R$ 0,00" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Características -->
+              <div class="form-group-container">
+                <h3 class="form-section-divider">🏠 Características</h3>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <label for="quartos">Quartos *</label>
+                    <input
+                      type="number"
+                      id="quartos"
+                      placeholder="0"
+                      required
+                      min="0"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label for="suites">Suítes</label>
+                    <input type="number" id="suites" placeholder="0" min="0" />
+                  </div>
+                  <div class="form-field">
+                    <label for="banheiros">Banheiros *</label>
+                    <input
+                      type="number"
+                      id="banheiros"
+                      placeholder="0"
+                      required
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <label for="areaUtil">Área Útil (m²)</label>
+                    <input
+                      type="number"
+                      id="areaUtil"
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label for="areaTotal">Área Total (m²)</label>
+                    <input
+                      type="number"
+                      id="areaTotal"
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <label for="garagemOpcao">Garagem *</label>
+                    <select id="garagemOpcao" required>
+                      <option value="">Selecione...</option>
+                      <option value="Sem garagem">Sem garagem</option>
+                      <option value="Com garagem">Com garagem</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <label for="garagemVagas">Nº de Vagas</label>
+                    <input
+                      type="number"
+                      id="garagemVagas"
+                      placeholder="0"
+                      style="display: none"
+                      min="1"
+                      max="10"
+                    />
+                  </div>
+
+                  <div class="form-field">
+                    <label for="disponibilidade">Status *</label>
+                    <select id="disponibilidade" required>
+                      <option value="">Selecione...</option>
+                      <option value="Disponível">Disponível</option>
+                      <option value="Vendido/Alugado">Vendido/Alugado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Descrição e Fotos -->
+              <div class="form-group-container">
+                <h3 class="form-section-divider">📝 Descrição e Fotos</h3>
+
+                <div class="form-field">
+                  <label for="descricao">Descrição Completa *</label>
+                  <textarea
+                    id="descricao"
+                    placeholder="Descreva o imóvel detalhadamente..."
+                    required
+                    rows="6"
+                  ></textarea>
+                </div>
+
+                <div class="form-field">
+                  <label for="imagens"
+                    >📸 Fotos do Imóvel (máximo 20 fotos)</label
+                  >
+                  <input type="file" id="imagens" accept="image/*" multiple />
+                  <small style="color: #666; display: block; margin-top: 5px"
+                    >Marca d'água será aplicada automaticamente</small
+                  >
+                </div>
+
+                <div class="preview-fotos" id="preview"></div>
+              </div>
+
+              <!-- Características Adicionais -->
+              <div class="form-group-container">
+                <h3 class="form-section-divider">
+                  ✨ Características e Instalações
+                </h3>
+                <div id="caracteristicas-dinamicas" class="checkbox-grid"></div>
+              </div>
+
+              <!-- Botões de Ação -->
+              <div class="form-actions">
+                <button
+                  type="submit"
+                  id="submitBtn"
+                  class="btn-form btn-form-primary"
+                >
+                  ✅ Cadastrar Imóvel
+                </button>
+                <button
+                  type="button"
+                  id="cancelEditBtn"
+                  class="btn-form btn-form-secondary"
+                  style="display: none"
+                >
+                  ❌ Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="lista-section">
+          <div class="lista-header">
+            <h2>🏘️ Imóveis Cadastrados</h2>
+            <div class="lista-stats">
+              <span class="lista-stat">
+                Exibindo:
+                <span class="lista-stat-value" id="showingCount">0</span>
+              </span>
+            </div>
+          </div>
+          <div class="imoveis-lista" id="listaImoveis"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Toasts e Modal -->
+    <div id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+    <div
+      id="confirmModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+    >
+      <div class="modal-content">
+        <p id="confirmMessage">Tem certeza?</p>
+        <div class="modal-actions">
+          <button id="confirmYes">Sim</button>
+          <button id="confirmNo">Não</button>
+        </div>
+      </div>
+    </div>
+
+    <footer
+      style="
+        background: rgba(58, 26, 26, 0.6);
+        color: rgba(255, 255, 255, 0.7);
+        text-align: center;
+        padding: 1.5rem 1rem;
+        margin-top: auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        bottom: 0;
+        width: 100%;
+      "
+    >
+      <p style="margin-bottom: 0.5rem; font-size: 0.9rem">
+        &copy; 2026 Gabrielly Silva - Corretora de Imóveis
+      </p>
+      <p style="font-size: 0.8rem; opacity: 0.6">
+        Desenvolvido por
+        <a
+          href="https://www.instagram.com/abr3u.dev/"
+          target="_blank"
+          style="
+            color: #c9a961;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+          "
+          onmouseover="this.style.color = '#fff'"
+          onmouseout="this.style.color = '#c9a961'"
+          >Ruan Abreu</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,1167 @@
+/* =================================================================
+   🎨 ADMIN PREMIUM - CSS PROFISSIONAL PARA TELAS ADMINISTRATIVAS
+   Aplica-se a: Gestão Financeira, Cadastro Atendimento, 
+   Cadastro Proprietário, Características de Imóveis
+   ================================================================= */
+
+/* ============================================
+   RESET GLOBAL
+   ============================================ */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Permitir seleção em inputs e textareas */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="search"],
+textarea {
+  user-select: text;
+}
+
+/* ============================================
+   VARIÁVEIS CSS
+   ============================================ */
+
+:root {
+  --color-primary: #5a1a1a;
+  --color-secondary: #3d1010;
+  --color-white: #ffffff;
+  --color-gold: #c9a961;
+  --color-text: #f5f0e8;
+  --color-muted: #c4b5a0;
+  --color-error: #f44336;
+  --color-success: #4caf50;
+  --radius-md: 12px;
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --transition: 0.3s ease;
+}
+
+/* ============================================
+   ANIMAÇÕES
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   BACKGROUND E BODY
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #3d1010 0%, #2a0a0a 50%, #1a0505 100%);
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--color-text);
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(201, 169, 97, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(201, 169, 97, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================
+   CONTAINER PREMIUM - FULLSCREEN
+   ============================================ */
+
+.container {
+  position: relative;
+  z-index: 10;
+  max-width: 1800px !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  margin: 0 auto !important;
+  background: linear-gradient(135deg, rgba(58, 26, 26, 0.92) 0%, rgba(45, 18, 18, 0.95) 100%) !important;
+  backdrop-filter: blur(10px) !important;
+  padding: 2rem 5% !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@media (max-width: 1400px) {
+  .container {
+    padding: 2rem 3% !important;
+  }
+}
+
+/* ============================================
+   TÍTULOS
+   ============================================ */
+
+.container h1 {
+  font-size: 2.2rem !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f5f0e8 50%, #c9a961 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  margin-bottom: 2rem !important;
+  position: relative;
+  padding-bottom: 0.75rem;
+  animation: slideInRight 0.8s ease-out;
+}
+
+.container h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-gold), transparent);
+  border-radius: 10px;
+}
+
+.container h2 {
+  color: var(--color-gold) !important;
+  font-size: 1.4rem !important;
+  font-weight: 600;
+  margin-top: 2.5rem !important;
+  margin-bottom: 1.25rem !important;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(201, 169, 97, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.container h2::before {
+  content: '▸';
+  color: var(--color-gold);
+  font-size: 1.6rem;
+}
+
+/* ============================================
+   MÉTRICAS - GESTÃO FINANCEIRA
+   ============================================ */
+
+.metrics {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 1.5rem !important;
+  margin-bottom: 2.5rem !important;
+}
+
+.metric-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+  padding: 1.5rem !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(201, 169, 97, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  animation: popIn 0.5s ease-out;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 97, 0.08), transparent);
+  transition: left 0.5s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(201, 169, 97, 0.3);
+  border-color: rgba(201, 169, 97, 0.4);
+}
+
+.metric-card:hover::before {
+  left: 100%;
+}
+
+.metric-card > div:first-child {
+  font-size: 0.8rem !important;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 600 !important;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.metric-card > div:last-child {
+  font-size: 1.6rem !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Cores específicas para métricas */
+#totalSaldo {
+  background: linear-gradient(135deg, #c9a961 0%, #f0d98e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#totalEntrada {
+  color: #4caf50 !important;
+}
+
+#totalSaida {
+  color: #f44336 !important;
+}
+
+#totalPendentes {
+  color: #ff9800 !important;
+}
+
+/* ============================================
+   FORMULÁRIOS
+   ============================================ */
+
+form {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.12) 100%);
+  padding: 2.5rem;
+  border-radius: 14px;
+  border: 1px solid rgba(201, 169, 97, 0.15);
+  margin-bottom: 2.5rem;
+  animation: fadeInUp 0.7s ease-out 0.1s backwards;
+}
+
+form label {
+  display: block !important;
+  margin-bottom: 1.5rem !important;
+  color: var(--color-text) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  position: relative;
+  padding-left: 16px;
+}
+
+form label::before {
+  content: '●';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  color: var(--color-gold);
+  font-size: 0.7rem;
+}
+
+/* ============================================
+   INPUTS E SELECTS
+   ============================================ */
+
+input,
+textarea,
+select {
+  width: 100% !important;
+  padding: 13px 16px !important;
+  border-radius: 10px !important;
+  border: 2px solid rgba(201, 169, 97, 0.25) !important;
+  background: linear-gradient(135deg, rgba(25, 20, 20, 0.8) 0%, rgba(20, 15, 15, 0.7) 100%) !important;
+  color: var(--color-text) !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 6px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(201, 169, 97, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(196, 181, 160, 0.5);
+  font-size: 0.9rem;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: rgba(201, 169, 97, 0.5);
+  background: linear-gradient(135deg, rgba(30, 25, 25, 0.9) 0%, rgba(25, 20, 20, 0.8) 100%) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(201, 169, 97, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: var(--color-gold) !important;
+  background: rgba(30, 25, 25, 0.8) !important;
+  box-shadow: 
+    0 0 0 3px rgba(201, 169, 97, 0.15),
+    0 4px 12px rgba(201, 169, 97, 0.2) !important;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+select {
+  background-color: #3b1f1f !important;
+  color: #fff !important;
+  border: 1px solid #c9a24d !important;
+  padding: 10px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' viewBox='0 0 16 10'%3E%3Cpath fill='%23c9a961' d='M8 10L0 2l1.5-1.5L8 7l6.5-6.5L16 2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px !important;
+  font-weight: 500;
+  width: 100%;
+  min-height: 45px;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+/* Melhora a aparência do dropdown no Chrome/Edge/Firefox */
+select:focus {
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.3), 
+    0 0 0 3px rgba(201, 169, 97, 0.15),
+    0 8px 24px rgba(201, 169, 97, 0.3) !important;
+}
+
+/* Estilo do dropdown aberto (lista de opções) */
+select[size],
+select[multiple] {
+  padding-right: 16px !important;
+  background-image: none !important;
+  min-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold) rgba(0, 0, 0, 0.3);
+}
+
+select[size]::-webkit-scrollbar,
+select[multiple]::-webkit-scrollbar {
+  width: 10px;
+}
+
+select[size]::-webkit-scrollbar-track,
+select[multiple]::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+select[size]::-webkit-scrollbar-thumb,
+select[multiple]::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+select[size]::-webkit-scrollbar-thumb:hover,
+select[multiple]::-webkit-scrollbar-thumb:hover {
+  background: #d4b870;
+}
+
+/* Estilização PROFISSIONAL das opções do select - PADRÃO DO PROJETO */
+select option {
+  background: #3b1f1f !important;
+  color: #ffffff !important;
+  padding: 14px 18px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border-bottom: 1px solid rgba(201, 162, 77, 0.3) !important;
+  line-height: 1.5 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+/* Primeira opção (placeholder) com estilo diferenciado */
+select option:first-child {
+  background: #2d1818 !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-style: italic;
+  font-weight: 500 !important;
+  border-bottom: 2px solid rgba(201, 162, 77, 0.4) !important;
+}
+
+/* Hover - DESTAQUE DOURADO VISÍVEL */
+select option:hover {
+  background: #c9a24d !important;
+  color: #1a1a1a !important;
+  font-weight: 700 !important;
+  padding-left: 22px !important;
+  border-left: 4px solid #f0d98e !important;
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Opção selecionada/checked - DOURADO FORTE */
+select option:checked {
+  background: #c9a24d !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  border-left: 5px solid #f0d98e !important;
+  padding-left: 22px !important;
+  box-shadow: 
+    inset 0 2px 8px rgba(0, 0, 0, 0.3),
+    0 2px 12px rgba(201, 162, 77, 0.6) !important;
+}
+
+/* Focus na opção */
+select option:focus {
+  background: #4d2828 !important;
+  color: #c9a24d !important;
+  outline: 2px solid #c9a24d !important;
+  outline-offset: -2px;
+  font-weight: 600 !important;
+}
+
+/* Opção desabilitada */
+select option:disabled {
+  background: #2a1515 !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  cursor: not-allowed !important;
+  text-decoration: line-through;
+  font-style: italic;
+}
+
+/* Ícone indicador no select quando tem valor */
+select:not([value=""]):not([value="0"]):valid {
+  border-color: rgba(201, 169, 97, 0.6);
+  background-image: 
+    linear-gradient(135deg, rgba(201, 169, 97, 0.08) 0%, rgba(201, 169, 97, 0.03) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' viewBox='0 0 16 10'%3E%3Cpath fill='%23c9a961' d='M8 10L0 2l1.5-1.5L8 7l6.5-6.5L16 2z'/%3E%3C/svg%3E");
+}
+
+/* Animação ao abrir select */
+select:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(201, 169, 97, 0.4) !important;
+}
+
+/* ============================================
+   BOTÕES
+   ============================================ */
+
+button[type="submit"],
+form button {
+  width: 100% !important;
+  background: linear-gradient(135deg, #c9a961 0%, #b8985a 100%) !important;
+  color: #1a1a1a !important;
+  border: none !important;
+  padding: 14px 28px !important;
+  border-radius: 10px !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(201, 169, 97, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+button[type="submit"]::before,
+form button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transition: left 0.5s ease;
+}
+
+button[type="submit"]:hover,
+form button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(201, 169, 97, 0.6) !important;
+  background: linear-gradient(135deg, #d4b870 0%, #c9a961 100%) !important;
+}
+
+button[type="submit"]:hover::before,
+form button:hover::before {
+  left: 100%;
+}
+
+button[type="submit"]:active,
+form button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(201, 169, 97, 0.4) !important;
+}
+
+/* ============================================
+   LISTAS (ATENDIMENTOS, PROPRIETÁRIOS, ETC)
+   ============================================ */
+
+ul#lista-atendimentos,
+ul#lista-proprietarios,
+ul#lista-caracteristicas,
+#tabela-lancamentos {
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+ul#lista-atendimentos li,
+ul#lista-proprietarios li,
+ul#lista-caracteristicas li {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(201, 169, 97, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+ul#lista-atendimentos li::before,
+ul#lista-proprietarios li::before,
+ul#lista-caracteristicas li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--color-gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+ul#lista-atendimentos li:hover,
+ul#lista-proprietarios li:hover,
+ul#lista-caracteristicas li:hover {
+  transform: translateX(5px);
+  box-shadow: 0 8px 25px rgba(201, 169, 97, 0.2);
+  border-color: rgba(201, 169, 97, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%) !important;
+}
+
+ul#lista-atendimentos li:hover::before,
+ul#lista-proprietarios li:hover::before,
+ul#lista-caracteristicas li:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   BADGES DE STATUS
+   ============================================ */
+
+.badge {
+  display: inline-block !important;
+  padding: 6px 14px !important;
+  border-radius: 20px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.badge-novo {
+  background: linear-gradient(135deg, #7fb3ff 0%, #5a9aff 100%) !important;
+  color: #042033 !important;
+}
+
+.badge-interessado {
+  background: linear-gradient(135deg, #ffb86b 0%, #ffa64d 100%) !important;
+  color: #2a1400 !important;
+}
+
+.badge-visita {
+  background: linear-gradient(135deg, #9beaa6 0%, #7dd88d 100%) !important;
+  color: #05320a !important;
+}
+
+/* ============================================
+   INFO DE ATENDIMENTO/PROPRIETÁRIO
+   ============================================ */
+
+.atendimento-info,
+.owner-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.atendimento-info .meta,
+.owner-meta {
+  color: rgba(196, 181, 160, 0.8) !important;
+  font-size: 0.9rem !important;
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.atendimento-info .desc {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border-left: 3px solid var(--color-gold);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.owner-name {
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+  color: var(--color-white) !important;
+  margin-bottom: 6px !important;
+}
+
+.owner-email {
+  color: var(--color-gold) !important;
+  font-size: 0.9rem !important;
+  font-weight: 500;
+}
+
+/* ============================================
+   BOTÕES DE AÇÃO (EDITAR/REMOVER)
+   ============================================ */
+
+.atendimento-actions button,
+.owner-actions button,
+ul#lista-caracteristicas button {
+  background: linear-gradient(135deg, #c9a961 0%, #b8985a 100%) !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  color: #1a1a1a !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(201, 169, 97, 0.3);
+  min-width: 90px;
+}
+
+.atendimento-actions button:hover,
+.owner-actions button:hover,
+ul#lista-caracteristicas button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(201, 169, 97, 0.5) !important;
+  background: linear-gradient(135deg, #d4b870 0%, #c9a961 100%) !important;
+}
+
+.atendimento-actions button:active,
+.owner-actions button:active,
+ul#lista-caracteristicas button:active {
+  transform: translateY(0) !important;
+}
+
+/* ============================================
+   TABELA (GESTÃO FINANCEIRA)
+   ============================================ */
+
+table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 8px !important;
+  margin-top: 1.5rem !important;
+}
+
+thead tr {
+  background: linear-gradient(135deg, rgba(201, 169, 97, 0.2) 0%, rgba(201, 169, 97, 0.1) 100%);
+  border-radius: 12px;
+}
+
+th {
+  padding: 16px 12px !important;
+  text-align: left !important;
+  color: var(--color-gold) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem !important;
+  border: none !important;
+}
+
+th:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+th:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+tbody tr {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+tbody tr:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(201, 169, 97, 0.15);
+}
+
+td {
+  padding: 14px 12px !important;
+  color: var(--color-text) !important;
+  border: none !important;
+  font-size: 0.95rem;
+}
+
+td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  font-weight: 600;
+}
+
+td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Botões dentro da tabela */
+tbody button {
+  background: linear-gradient(135deg, #c9a961 0%, #b8985a 100%) !important;
+  border: none !important;
+  padding: 8px 14px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  color: #1a1a1a !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  transition: all 0.3s ease !important;
+  margin: 0 4px;
+}
+
+tbody button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(201, 169, 97, 0.4) !important;
+}
+
+/* ============================================
+   MENSAGENS DE FEEDBACK
+   ============================================ */
+
+small {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+#cep-loading {
+  color: var(--color-gold) !important;
+  animation: pulse 1.5s infinite;
+}
+
+#cep-error {
+  color: #ff6b6b !important;
+}
+
+/* ============================================
+   CHECKBOXES PROFISSIONAIS COM MARCADOR DOURADO
+   ============================================ */
+
+/* Esconder o checkbox padrão */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(201, 169, 97, 0.4);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:hover {
+  border-color: var(--color-gold);
+  background: rgba(201, 169, 97, 0.1);
+  box-shadow: 0 0 12px rgba(201, 169, 97, 0.3);
+}
+
+input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, var(--color-gold) 0%, #b8985a 100%);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 16px rgba(201, 169, 97, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Marcador (checkmark) dourado */
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  animation: checkmarkPop 0.3s ease;
+}
+
+@keyframes checkmarkPop {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Efeito de foco para acessibilidade */
+input[type="checkbox"]:focus {
+  outline: 3px solid rgba(201, 169, 97, 0.4);
+  outline-offset: 3px;
+}
+
+/* Label do checkbox com estilo profissional */
+label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(201, 169, 97, 0.15);
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: var(--color-text);
+  user-select: none;
+}
+
+label:has(input[type="checkbox"]):hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(201, 169, 97, 0.3);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+label:has(input[type="checkbox"]:checked) {
+  background: rgba(201, 169, 97, 0.08);
+  border-color: rgba(201, 169, 97, 0.4);
+}
+
+/* Grid de checkboxes com layout profissional */
+.checkbox-grid,
+#caracteristicas-dinamicas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+/* Estilo específico para características dinâmicas */
+#caracteristicas-dinamicas label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 2px solid rgba(201, 169, 97, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  position: relative;
+  overflow: hidden;
+}
+
+#caracteristicas-dinamicas label::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(201, 169, 97, 0.1) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#caracteristicas-dinamicas label:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-color: var(--color-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(201, 169, 97, 0.2);
+}
+
+#caracteristicas-dinamicas label:hover::before {
+  opacity: 1;
+}
+
+#caracteristicas-dinamicas label:has(input:checked) {
+  background: linear-gradient(135deg, rgba(201, 169, 97, 0.15) 0%, rgba(201, 169, 97, 0.08) 100%);
+  border-color: var(--color-gold);
+  box-shadow: 0 4px 20px rgba(201, 169, 97, 0.3), inset 0 1px 3px rgba(201, 169, 97, 0.2);
+}
+
+#caracteristicas-dinamicas input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+}
+
+/* Ícone de característica (emoji ou símbolo) */
+#caracteristicas-dinamicas label::after {
+  content: '✨';
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  margin-left: auto;
+}
+
+#caracteristicas-dinamicas label:has(input:checked)::after {
+  opacity: 1;
+}
+
+/* ============================================
+   RESPONSIVIDADE
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .container {
+    max-width: 95% !important;
+    padding: 2rem !important;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin: 1.5rem auto !important;
+    padding: 1.5rem !important;
+    border-radius: 16px !important;
+  }
+
+  .container h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .container h2 {
+    font-size: 1.3rem !important;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  form {
+    padding: 1.5rem;
+  }
+
+  ul#lista-atendimentos li,
+  ul#lista-proprietarios li {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .atendimento-actions,
+  .owner-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  th, td {
+    padding: 10px 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem !important;
+  }
+
+  .container h1 {
+    font-size: 1.5rem !important;
+  }
+
+  form {
+    padding: 1rem;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 12px 14px !important;
+    font-size: 0.95rem !important;
+  }
+
+  button[type="submit"],
+  form button {
+    padding: 14px 20px !important;
+    font-size: 1rem !important;
+  }
+
+  .atendimento-actions button,
+  .owner-actions button {
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+    min-width: 80px;
+  }
+}
+
+/* ============================================
+   ACESSIBILIDADE
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible para navegação por teclado */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(201, 169, 97, 0.6) !important;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   FOOTER - DESENVOLVIDO POR
+   ============================================ */
+
+.footer-dev {
+  background: rgba(58, 26, 26, 0.6);
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  padding: 1.5rem 1rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  font-weight: 500;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+.footer-dev p {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.footer-dev strong {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.footer-dev a {
+  color: var(--color-gold);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.footer-dev a:hover {
+  color: var(--color-white);
+  text-shadow: 0 0 10px rgba(201, 169, 97, 0.5);
+}

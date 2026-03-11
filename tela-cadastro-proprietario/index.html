@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastrar Proprietário</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../Ativos/js/config.js"></script>
+    <script src="../Ativos/js/supabase-config.js"></script>
+    <script src="../Ativos/js/supabase-db.js"></script>
+    <script src="../Ativos/js/supabase-adapter.js"></script>
+
+    <link rel="stylesheet" href="../Ativos/CSS/style-admin-premium.css" />
+    <style>
+      /* Reset body para fullscreen */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+      }
+      /* Estilos complementares */
+      .container h1 {
+        color: var(--color-white);
+        margin-bottom: 0.6rem;
+      }
+      form label {
+        display: block;
+        margin-bottom: 0.6rem;
+        color: var(--color-muted);
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--color-text);
+      }
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.6;
+      }
+      button {
+        background: var(--color-gold);
+        color: #111;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: var(--shadow-soft);
+      }
+      button:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+      }
+      ul#lista-proprietarios {
+        list-style: none;
+        padding: 0;
+        margin-top: 1rem;
+      }
+      ul#lista-proprietarios li {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 0.6rem;
+        margin-bottom: 0.6rem;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      /* Owner list styling: professional stacked layout */
+      #lista-proprietarios {
+        list-style: none;
+        padding: 0;
+        margin-top: 1rem;
+      }
+      #lista-proprietarios li {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      #lista-proprietarios .owner-info {
+        flex: 1;
+        min-width: 0;
+      }
+      #lista-proprietarios .owner-name {
+        font-weight: 700;
+        color: var(--color-white);
+        margin-bottom: 4px;
+      }
+      #lista-proprietarios .owner-meta {
+        color: var(--color-muted);
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #lista-proprietarios .owner-email {
+        color: var(--color-text);
+        font-size: 0.95rem;
+      }
+      #lista-proprietarios .owner-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      #lista-proprietarios button {
+        background: var(--color-gold);
+        border: none;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #111;
+      }
+      #lista-proprietarios button:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+      }
+
+      /* Estilos para lista de imóveis do proprietário */
+      .imoveis-proprietario {
+        animation: slideIn 0.3s ease;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .imoveis-proprietario > div:not(:first-child) {
+        border-top: 1px solid rgba(201, 169, 97, 0.1);
+        padding-top: 6px;
+        margin-top: 4px;
+      }
+
+      /* Filtros e busca */
+      .search-filters {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 16px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+      }
+      .search-box {
+        position: relative;
+      }
+      .search-box input {
+        width: 100%;
+        padding: 10px 40px 10px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: var(--color-text);
+      }
+      .search-box::after {
+        content: "🔍";
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+      }
+      .validation-indicator {
+        display: inline-block;
+        margin-left: 8px;
+        font-size: 0.85rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+      .validation-indicator.valid {
+        background: rgba(39, 174, 96, 0.2);
+        color: #27ae60;
+      }
+      .validation-indicator.invalid {
+        background: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+      }
+
+      /* Estatísticas */
+      .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+      }
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--color-gold);
+        margin-bottom: 4px;
+      }
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--color-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Botão de recarregar */
+      .btn-reload {
+        padding: 8px 16px;
+        background: rgba(201, 169, 97, 0.2);
+        border: 1px solid var(--color-gold);
+        border-radius: 6px;
+        color: var(--color-gold);
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+      }
+      .btn-reload:hover {
+        background: rgba(201, 169, 97, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(201, 169, 97, 0.3);
+      }
+
+      /* Estilos do formulário */
+      #proprietario-form {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.05) 0%,
+          rgba(255, 255, 255, 0.02) 100%
+        );
+        padding: 28px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+      #proprietario-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        color: var(--color-white);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+      }
+      #proprietario-form label span.label-text {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+      }
+      #proprietario-form input,
+      #proprietario-form select,
+      #proprietario-form textarea {
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--color-text);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+      #proprietario-form input:focus,
+      #proprietario-form select:focus,
+      #proprietario-form textarea:focus {
+        outline: none;
+        border-color: var(--color-gold);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+      }
+      #proprietario-form textarea {
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+      }
+      #proprietario-form button[type="submit"] {
+        grid-column: span 2;
+        background: linear-gradient(135deg, var(--color-gold) 0%, #b8935f 100%);
+        color: #111;
+        border: none;
+        padding: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(201, 169, 97, 0.3);
+        transition: all 0.3s ease;
+      }
+      #proprietario-form button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(201, 169, 97, 0.5);
+      }
+      .form-row-full {
+        grid-column: span 2;
+      }
+      .form-section-header {
+        grid-column: span 2;
+        color: var(--color-gold);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-top: 8px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid rgba(201, 169, 97, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .input-with-validation {
+        position: relative;
+      }
+      .input-with-validation .validation-indicator {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      small.input-helper {
+        font-size: 0.8rem;
+        color: var(--color-muted);
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        "
+      >
+        <h1 style="margin-bottom: 0 !important">Cadastrar Proprietário</h1>
+        <a
+          href="../tela-de-login/painel.html"
+          style="
+            background: linear-gradient(
+              135deg,
+              rgba(201, 169, 97, 0.2) 0%,
+              rgba(201, 169, 97, 0.1) 100%
+            );
+            color: var(--color-gold);
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: 2px solid rgba(201, 169, 97, 0.3);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+          "
+          onmouseover="
+            this.style.background =
+              'linear-gradient(135deg, rgba(201, 169, 97, 0.3) 0%, rgba(201, 169, 97, 0.2) 100%)';
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 20px rgba(201, 169, 97, 0.3)';
+          "
+          onmouseout="
+            this.style.background =
+              'linear-gradient(135deg, rgba(201, 169, 97, 0.2) 0%, rgba(201, 169, 97, 0.1) 100%)';
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+          "
+          >← Voltar ao Painel</a
+        >
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value" id="total-proprietarios">0</div>
+          <div class="stat-label">👥 Total de Proprietários</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="total-imoveis-vinculados">0</div>
+          <div class="stat-label">🏠 Imóveis Vinculados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="media-imoveis">0</div>
+          <div class="stat-label">📊 Média de Imóveis</div>
+        </div>
+      </div>
+
+      <!-- Busca e Filtros -->
+      <div class="search-filters">
+        <div class="search-box">
+          <input
+            type="text"
+            id="busca-proprietario"
+            placeholder="Buscar por nome, documento, email ou telefone..."
+          />
+        </div>
+        <button
+          type="button"
+          onclick="limparBusca()"
+          style="
+            background: linear-gradient(
+              135deg,
+              rgba(255, 255, 255, 0.1) 0%,
+              rgba(255, 255, 255, 0.05) 100%
+            );
+            color: var(--color-text);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+          "
+        >
+          Limpar
+        </button>
+      </div>
+
+      <!-- Formulário de Cadastro -->
+      <form id="proprietario-form">
+        <div class="form-section-header">👤 Dados Pessoais</div>
+
+        <label class="form-row-full">
+          <span class="label-text">📝 Nome Completo:</span>
+          <input
+            type="text"
+            name="nome"
+            required
+            placeholder="Digite o nome completo do proprietário"
+          />
+        </label>
+
+        <label>
+          <span class="label-text">🎫 CPF / CNPJ:</span>
+          <div class="input-with-validation">
+            <input
+              type="text"
+              name="documento"
+              id="documento-input"
+              placeholder="000.000.000-00 ou 00.000.000/0000-00"
+              inputmode="numeric"
+            />
+            <span
+              id="doc-validation"
+              class="validation-indicator"
+              style="display: none"
+            ></span>
+          </div>
+        </label>
+
+        <label>
+          <span class="label-text">📧 Email:</span>
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder="exemplo@email.com"
+          />
+        </label>
+
+        <label>
+          <span class="label-text">📞 Telefone:</span>
+          <input
+            type="tel"
+            name="telefone"
+            required
+            placeholder="(00) 00000-0000"
+          />
+        </label>
+
+        <label>
+          <span class="label-text">🏘️ Imóvel Vinculado:</span>
+          <select name="imovel">
+            <option value="">-- Selecionar imóvel (opcional) --</option>
+          </select>
+        </label>
+
+        <div class="form-section-header">📍 Endereço</div>
+
+        <label>
+          <span class="label-text">📦 CEP:</span>
+          <input
+            type="text"
+            id="cep"
+            name="cep"
+            placeholder="00000-000"
+            maxlength="9"
+          />
+          <small
+            id="cep-loading"
+            class="input-helper"
+            style="color: #c9a961; display: none"
+            >⌛ Buscando endereço...</small
+          >
+          <small
+            id="cep-error"
+            class="input-helper"
+            style="color: #ff6b6b; display: none"
+            >⚠️ CEP não encontrado</small
+          >
+        </label>
+
+        <label>
+          <span class="label-text">📍 Estado:</span>
+          <input
+            type="text"
+            name="estado"
+            id="estado"
+            maxlength="2"
+            placeholder="BA"
+          />
+        </label>
+
+        <label>
+          <span class="label-text">🏛️ Cidade:</span>
+          <input type="text" name="cidade" id="cidade" placeholder="Salvador" />
+        </label>
+
+        <label>
+          <span class="label-text">🏡 Bairro:</span>
+          <input type="text" name="bairro" id="bairro" placeholder="Centro" />
+        </label>
+
+        <label>
+          <span class="label-text">🛣️ Rua/Endereço:</span>
+          <input
+            type="text"
+            name="rua"
+            id="endereco"
+            placeholder="Rua, Avenida..."
+          />
+        </label>
+
+        <label>
+          <span class="label-text">🔢 Número:</span>
+          <input
+            type="text"
+            name="numero"
+            id="numero"
+            placeholder="Número da casa/prédio"
+          />
+        </label>
+
+        <label>
+          <span class="label-text">📝 Complemento:</span>
+          <input
+            type="text"
+            name="complemento"
+            id="complemento"
+            placeholder="Apto, Bloco, Loja..."
+          />
+        </label>
+
+        <label class="form-row-full">
+          <span class="label-text">📝 Observações:</span>
+          <textarea
+            name="observacoes"
+            id="observacoes"
+            placeholder="Informações adicionais sobre o proprietário (contatos alternativos, preferências, etc.)..."
+          ></textarea>
+        </label>
+
+        <button type="submit">➕ Cadastrar Proprietário</button>
+      </form>
+
+      <h2
+        style="
+          color: var(--color-white);
+          margin-bottom: 16px;
+          font-size: 1.3rem;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          justify-content: space-between;
+        "
+      >
+        <span style="display: flex; align-items: center; gap: 10px"
+          >📄 Proprietários Cadastrados</span
+        >
+        <button
+          type="button"
+          onclick="recarregarListaProprietarios()"
+          class="btn-reload"
+        >
+          🔄 Recarregar
+        </button>
+      </h2>
+      <ul id="lista-proprietarios">
+        <li
+          style="text-align: center; padding: 20px; color: var(--color-muted)"
+        >
+          ⏳ Carregando proprietários...
+        </li>
+      </ul>
+      <footer class="footer-dev">
+        Desenvolvido por
+        <a
+          href="https://www.instagram.com/abr3u.dev/"
+          target="_blank"
+          style="
+            color: #c9a961;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+          "
+          onmouseover="this.style.color = '#fff'"
+          onmouseout="this.style.color = '#c9a961'"
+          >Ruan Abreu</a
+        >
+      </footer>
+    </div>
+    <script src="/tela-cadastro-proprietario/script.js"></script>
+  </body>
+</html>

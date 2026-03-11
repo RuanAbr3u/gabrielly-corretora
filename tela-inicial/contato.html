@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gabrielly Silva | Contato</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style-contato.css" />
+  </head>
+  <body>
+    <header>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav id="navBar">
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="servicos.html">Serviços</a></li>
+          <li><a href="locacao.html">Locação</a></li>
+          <li><a href="vendas.html">Vendas</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="contato.html" class="ativo">Contato</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Fale Conosco</h1>
+
+      <div class="contato">
+        <form id="contatoForm">
+          <label for="nome">Nome *</label>
+          <input type="text" id="nome" name="nome" required />
+
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="telefone">Telefone</label>
+          <input type="tel" id="telefone" name="telefone" />
+
+          <label for="assunto">Assunto *</label>
+          <input type="text" id="assunto" name="assunto" required />
+
+          <label for="mensagem">Mensagem *</label>
+          <textarea id="mensagem" name="mensagem" rows="5" required></textarea>
+
+          <button type="submit">Enviar Mensagem</button>
+          <p
+            id="statusMensagem"
+            style="margin-top: 1rem; text-align: center; display: none"
+          ></p>
+        </form>
+      </div>
+
+      <div class="info-contato">
+        <h2>Informações de Contato</h2>
+        <p><strong>WhatsApp:</strong> (75) 9 9211-2142</p>
+        <p><strong>Email:</strong> Gabriellycorretora1@gmail.com</p>
+        <p>
+          <strong>Localização:</strong> Hotel e Business, Edifício Charmant -
+          Caseb, Feira de Santana - BA, 44051-335 - Sala 807
+        </p>
+      </div>
+
+      <div class="mapa-contato">
+        <h2>Localização</h2>
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7798.16803478718!2d-38.95385510557706!3d-12.24259035203898!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7143832b2acd3c3%3A0xb8ffc05ccc74b6d9!2sCharmant%20Hotel%20%26%20Business!5e0!3m2!1spt-BR!2sbr!4v1773143159412!5m2!1spt-BR!2sbr"
+          width="100%"
+          height="400"
+          style="border: none; border-radius: 15px"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </main>
+
+    <div id="whatsapp-balao">
+      <a
+        href="https://wa.me/557592112142"
+        target="_blank"
+        aria-label="Abrir WhatsApp"
+      >
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+          alt="WhatsApp Gabrielly Silva"
+        />
+      </a>
+    </div>
+
+    <footer
+      style="
+        background: rgba(58, 26, 26, 0.6);
+        color: rgba(255, 255, 255, 0.7);
+        text-align: center;
+        padding: 1.5rem 1rem;
+        margin-top: auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      "
+    >
+      <p style="margin-bottom: 0.5rem; font-size: 0.9rem">
+        &copy; 2026 Gabrielly Silva - Corretora de Imóveis
+      </p>
+      <p style="font-size: 0.8rem; opacity: 0.6">
+        Desenvolvido por
+        <a
+          href="https://www.instagram.com/abr3u.dev/"
+          target="_blank"
+          style="
+            color: #c9a961;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+          "
+          onmouseover="this.style.color = '#fff'"
+          onmouseout="this.style.color = '#c9a961'"
+          >Ruan Abreu</a
+        >
+      </p>
+    </footer>
+
+    <script src="menu-mobile.js"></script>
+    <script>
+      // URL da API Backend
+      const API_URL = "http://localhost:3000/api/contato/enviar";
+      // Para produção, altere para: https://seu-dominio.com/api/contato/enviar
+
+      document
+        .getElementById("contatoForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const status = document.getElementById("statusMensagem");
+          const button = this.querySelector("button");
+
+          status.style.display = "block";
+          status.textContent = "Enviando mensagem...";
+          status.style.color = "#c9a961";
+          button.disabled = true;
+          button.style.opacity = "0.6";
+
+          try {
+            const formData = {
+              nome: document.getElementById("nome").value,
+              email: document.getElementById("email").value,
+              telefone: document.getElementById("telefone").value || null,
+              assunto: document.getElementById("assunto").value,
+              mensagem: document.getElementById("mensagem").value,
+            };
+
+            const response = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+              status.textContent =
+                result.message ||
+                "✅ Mensagem enviada com sucesso! Em breve entraremos em contato.";
+              status.style.color = "#4ade80";
+              this.reset();
+              setTimeout(() => {
+                status.style.display = "none";
+                button.disabled = false;
+                button.style.opacity = "1";
+              }, 5000);
+            } else {
+              throw new Error(result.message || "Erro ao enviar mensagem");
+            }
+          } catch (error) {
+            console.error("Erro ao enviar contato:", error);
+            status.textContent =
+              "❌ Erro ao enviar mensagem. Tente novamente em alguns momentos.";
+            status.style.color = "#ef4444";
+            button.disabled = false;
+            button.style.opacity = "1";
+          }
+        });
+    </script>
+  </body>
+</html>

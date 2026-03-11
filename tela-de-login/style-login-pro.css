@@ -1,0 +1,581 @@
+/* =================================================================
+   🎨 LOGIN PREMIUM - MELHORIAS VISUAIS PROFISSIONAIS
+   ================================================================= */
+
+/* ============================================
+   ANIMAÇÕES
+   ============================================ */
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmerBackground {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(201, 169, 97, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(201, 169, 97, 0.6);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ============================================
+   BACKGROUND MELHORADO
+   ============================================ */
+
+body {
+  background: linear-gradient(135deg, #3d1010 0%, #2a0a0a 50%, #1a0505 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Efeito de textura sutil */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(201, 169, 97, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(201, 169, 97, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Partículas de luz (opcional - efeito sutil) */
+body::after {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.15), transparent),
+    radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(1px 1px at 80% 10%, rgba(201, 169, 97, 0.2), transparent);
+  background-size: 550px 550px, 350px 350px, 250px 250px, 150px 150px;
+  background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
+  animation: shimmerBackground 120s linear infinite;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================
+   CONTAINER PREMIUM
+   ============================================ */
+
+.login-container {
+  position: relative;
+  z-index: 10;
+  background: linear-gradient(135deg, rgba(58, 26, 26, 0.95) 0%, rgba(45, 18, 18, 0.98) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(201, 169, 97, 0.2);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(201, 169, 97, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.6),
+    0 0 100px rgba(201, 169, 97, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   TÍTULO E SUBTÍTULO
+   ============================================ */
+
+.login-container h1 {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f0e8 50%, #c9a961 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 10px rgba(201, 169, 97, 0.3);
+  animation: slideInFromTop 0.8s ease-out;
+  margin-bottom: 0.5rem;
+}
+
+.login-container h2 {
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: slideInFromTop 0.8s ease-out 0.1s backwards;
+  position: relative;
+  display: inline-block;
+}
+
+.login-container h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+/* ============================================
+   FORMULÁRIO MELHORADO
+   ============================================ */
+
+.login-form {
+  animation: fadeInScale 0.8s ease-out 0.2s backwards;
+}
+
+.login-form h3 {
+  font-size: 1.75rem;
+  background: linear-gradient(135deg, #ffffff 0%, #c9a961 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  border-bottom: 2px solid;
+  border-image: linear-gradient(90deg, transparent, var(--color-gold), transparent) 1;
+  padding-bottom: 10px;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.login-form h3::before {
+  content: '🔐';
+  position: absolute;
+  left: -35px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  opacity: 0.7;
+}
+
+/* ============================================
+   INPUTS PREMIUM
+   ============================================ */
+
+.form-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group label::before {
+  content: '▸';
+  color: var(--color-gold);
+  font-size: 1.2rem;
+}
+
+.form-group input {
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(30, 15, 15, 0.9) 100%);
+  border: 2px solid rgba(201, 169, 97, 0.15);
+  padding: 14px 16px;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.form-group input::placeholder {
+  color: rgba(196, 181, 160, 0.5);
+  transition: opacity 0.3s ease;
+}
+
+.form-group input:focus::placeholder {
+  opacity: 0.3;
+}
+
+.form-group input:hover {
+  border-color: rgba(201, 169, 97, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201, 169, 97, 0.15);
+}
+
+.form-group input:focus {
+  border-color: var(--color-gold);
+  background: linear-gradient(135deg, rgba(25, 25, 25, 0.95) 0%, rgba(35, 18, 18, 0.95) 100%);
+  box-shadow: 
+    0 0 0 4px rgba(201, 169, 97, 0.2),
+    0 8px 25px rgba(201, 169, 97, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Efeito de brilho no foco */
+.form-group input:focus::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 97, 0.1), transparent);
+  animation: shimmerBackground 2s infinite;
+  pointer-events: none;
+}
+
+/* ============================================
+   VALIDAÇÃO VISUAL
+   ============================================ */
+
+.form-group input.is-invalid {
+  border-color: #f44336;
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.form-group input.is-valid {
+  border-color: #4caf50;
+}
+
+.form-group input.is-valid::after {
+  content: '✓';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* ============================================
+   MENSAGEM DE ERRO
+   ============================================ */
+
+.error-message {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(244, 67, 54, 0.05) 100%);
+  border-left: 4px solid #f44336;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  animation: slideInFromTop 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-message:not(:empty)::before {
+  content: '⚠️';
+  font-size: 1.2rem;
+}
+
+/* ============================================
+   LINK "ESQUECEU SENHA"
+   ============================================ */
+
+.forgot {
+  font-weight: 500;
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.forgot::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-white));
+  transition: width 0.3s ease;
+}
+
+.forgot:hover::after {
+  width: 100%;
+}
+
+.forgot:hover {
+  color: var(--color-white);
+  text-shadow: 0 0 10px rgba(201, 169, 97, 0.5);
+  transform: translateX(5px);
+}
+
+/* ============================================
+   BOTÃO ENTRAR - PREMIUM
+   ============================================ */
+
+.login-form button[type="submit"] {
+  background: linear-gradient(135deg, #c9a961 0%, #b8985a 50%, #a88850 100%);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 15px;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 8px 20px rgba(201, 169, 97, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Efeito de brilho no botão */
+.login-form button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.login-form button[type="submit"]:hover::before {
+  left: 100%;
+}
+
+.login-form button[type="submit"]:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 30px rgba(201, 169, 97, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #d4b870 0%, #c9a961 50%, #b89858 100%);
+}
+
+.login-form button[type="submit"]:active {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 5px 15px rgba(201, 169, 97, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   TOGGLE PASSWORD BUTTON
+   ============================================ */
+
+.toggle-password {
+  background: linear-gradient(135deg, rgba(201, 169, 97, 0.1) 0%, rgba(201, 169, 97, 0.05) 100%);
+  border: 2px solid rgba(201, 169, 97, 0.3);
+  color: var(--color-gold);
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.toggle-password:hover {
+  background: linear-gradient(135deg, rgba(201, 169, 97, 0.2) 0%, rgba(201, 169, 97, 0.1) 100%);
+  border-color: var(--color-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(201, 169, 97, 0.25);
+}
+
+.toggle-password:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(201, 169, 97, 0.15);
+}
+
+footer p {
+  font-size: 0.85rem;
+  color: rgba(196, 181, 160, 0.7);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  animation: fadeInScale 1s ease-out 0.4s backwards;
+}
+
+/* ============================================
+   LOADING STATE (quando formulário é enviado)
+   ============================================ */
+
+.login-form.is-loading button[type="submit"] {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.login-form.is-loading button[type="submit"]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ============================================
+   RESPONSIVIDADE MELHORADA
+   ============================================ */
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .login-container h1 {
+    font-size: 1.75rem;
+  }
+
+  .login-container h2 {
+    font-size: 0.9rem;
+    letter-spacing: 1.5px;
+  }
+
+  .login-form h3 {
+    font-size: 1.4rem;
+  }
+
+  .login-form h3::before {
+    left: -30px;
+    font-size: 1.2rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+  }
+
+  .form-group input {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+
+  .login-form button[type="submit"] {
+    font-size: 1rem;
+    padding: 13px;
+  }
+
+  .forgot {
+    font-size: 0.85rem;
+  }
+
+  footer p {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-container {
+    padding: 1.25rem;
+  }
+
+  .login-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .login-form h3::before {
+    display: none; /* Remove emoji em telas muito pequenas */
+  }
+}
+
+/* ============================================
+   ACESSIBILIDADE
+   ============================================ */
+
+/* Melhor foco para navegação por teclado */
+input:focus-visible,
+button:focus-visible,
+.toggle-password:focus-visible,
+.forgot:focus-visible {
+  outline: 3px solid rgba(201, 169, 97, 0.5);
+  outline-offset: 3px;
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   MODO ESCURO EXTRA (opcional)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, #2a0a0a 0%, #1a0505 50%, #0a0202 100%);
+  }
+  
+  .login-container {
+    background: linear-gradient(135deg, rgba(45, 18, 18, 0.98) 0%, rgba(35, 12, 12, 0.99) 100%);
+  }
+}

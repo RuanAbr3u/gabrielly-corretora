@@ -1,0 +1,89 @@
+/* ===================================
+   CORREÇÕES DE CURSOR E MELHORIAS
+   Adicione ao final do style-painel.css
+   =================================== */
+
+/* Corrigir bug do cursor de texto em todos os elementos */
+* {
+  cursor: default !important;
+}
+
+/* Cursor correto para elementos interativos */
+button, 
+a, 
+.painel-link-btn,
+.logout-btn,
+[onclick], 
+[role="button"],
+.imovel-card button,
+.metric-card,
+.pagination button,
+input,
+textarea,
+select {
+  cursor: pointer !important;
+}
+
+/* Cursor pointer para checkboxes, radios e file inputs */
+input[type="checkbox"], 
+input[type="radio"], 
+input[type="file"] {
+  cursor: pointer !important;
+}
+
+/* Labels com 'for' devem ter pointer */
+label[for] {
+  cursor: pointer !important;
+}
+
+/* Textos e headings com cursor padrão */
+h1, h2, h3, h4, h5, h6, 
+p, span:not([onclick]), 
+.metric-label,
+.metric-value,
+.user-text,
+.topbar-subtitle {
+  cursor: default !important;
+}
+
+/* Elementos do topbar */
+.topbar-icon,
+.user-icon,
+.logout-icon {
+  cursor: default !important;
+}
+
+/* Elementos clicáveis do painel */
+.filters input,
+.filters select,
+.filters button {
+  cursor: pointer !important;
+}
+
+/* Cards de imóveis */
+.imovel-card {
+  cursor: default !important;
+}
+
+.imovel-card button,
+.imovel-card a {
+  cursor: pointer !important;
+}
+
+/* Sidebar */
+.sidebar {
+  cursor: default !important;
+}
+
+.sidebar a,
+.sidebar button {
+  cursor: pointer !important;
+}
+
+/* Formulários */
+form input,
+form textarea,
+form select,
+form button {
+  cursor: pointer !important;
+}

@@ -1,0 +1,43 @@
+# Robots.txt - Gabrielly Corretora
+
+# Permitir todos os crawlers nas páginas públicas
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /tela-inicial/
+
+# Bloquear páginas administrativas
+Disallow: /tela-de-login/
+Disallow: /tela-cadastro-proprietario/
+Disallow: /tela-cadastro-atendimento/
+Disallow: /tela-caracteristica-imovel/
+Disallow: /tela-gestao-financeira/
+
+# Bloquear ferramentas de desenvolvimento
+Disallow: /dev-tools/
+Disallow: /backend/
+
+# Bloquear arquivos de documentação técnica
+Disallow: /docs/
+Disallow: /*.md$
+
+# Bloquear arquivos de configuração
+Disallow: /*.json$
+Disallow: /*.env
+Disallow: /.git
+
+# Sitemap (atualizar URL após deploy)
+Sitemap: https://seudominio.com/sitemap.xml
+
+# Configurações específicas para Google
+User-agent: Googlebot
+Allow: /tela-inicial/*.html
+Disallow: /tela-de-login/
+
+# Configurações específicas para Bing
+User-agent: Bingbot
+Allow: /tela-inicial/*.html
+Disallow: /tela-de-login/
+
+# Tempo de espera entre requisições (10 segundos)
+Crawl-delay: 10

@@ -1,0 +1,41 @@
+/* ============================
+   PADRÃO GLOBAL - style-padrao.css
+   ============================ */
+:root {
+  --font: "Montserrat", sans-serif;
+  
+  /* Cores do cartão de visita - Gabrielly Silva */
+  --color-primary: #5a1a1a;
+  --color-secondary: #3d1010;
+  --color-gold: #c9a961;
+  --color-text: #f5f0e8;
+  --color-muted: #c4b5a0;
+  --color-white: #ffffff;
+  --color-error: #f44336;
+  
+  --color-bg-overlay-1: rgba(58, 26, 26, 0.7);
+  --color-bg-overlay-2: rgba(45, 16, 16, 0.85);
+  
+  --shadow-soft: 0 2px 8px rgba(201, 169, 97, 0.3);
+  --shadow-strong: 0 5px 25px rgba(201, 169, 97, 0.4);
+  --radius-md: 15px;
+  --radius-lg: 20px;
+  --transition: 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font);
+}
+
+body {
+  background: linear-gradient(var(--color-bg-overlay-1), var(--color-bg-overlay-2)),
+              url("./img/1384171.jpg") center/cover no-repeat fixed;
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}

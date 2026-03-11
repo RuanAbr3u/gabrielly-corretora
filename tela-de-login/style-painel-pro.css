@@ -1,0 +1,635 @@
+/* ===============================================
+   MELHORIAS PROFISSIONAIS - PAINEL ADMIN
+   Adicione este arquivo após o style-painel.css
+   =============================================== */
+
+/* ===== ANIMAÇÕES E TRANSIÇÕES ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ===== LOADING STATE ===== */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(201, 169, 97, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--color-gold);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+}
+
+/* ===== BOTÃO DE LOGOUT MELHORADO ===== */
+.logout-btn {
+  background: linear-gradient(135deg, #ff3b30 0%, #d32f2f 100%);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.logout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.5s;
+}
+
+.logout-btn:hover::before {
+  left: 100%;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 59, 48, 0.4);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+/* ===== SIDEBAR PROFISSIONAL ===== */
+.sidebar{
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 24px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(201, 169, 97, 0.1);
+}
+
+.painel-link-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.painel-link-btn::after {
+  content: '→';
+  position: absolute;
+  right: 15px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.painel-link-btn:hover::after {
+  opacity: 1;
+  right: 18px;
+}
+
+/* ===== CARDS DE MÉTRICAS COM ÍCONES ===== */
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(201, 169, 97, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.metric-card:nth-child(1) { animation-delay: 0.1s; }
+.metric-card:nth-child(2) { animation-delay: 0.2s; }
+.metric-card:nth-child(3) { animation-delay: 0.3s; }
+.metric-card:nth-child(4) { animation-delay: 0.4s; }
+
+.metric-value {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== FILTROS APRIMORADOS ===== */
+.filters-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  border: 1px solid rgba(201, 169, 97, 0.1);
+}
+
+.filters input[type="search"],
+.filters input[type="number"],
+.filters select {
+  transition: all 0.3s ease;
+  border: 2px solid #e0e0e0;
+}
+
+.filters input[type="search"]:focus,
+.filters input[type="number"]:focus,
+.filters select:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 4px rgba(201, 169, 97, 0.1);
+  transform: translateY(-1px);
+}
+
+.filters button {
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+
+.filters button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#limparFiltros {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+  color: white !important;
+}
+
+/* ===== CARDS DE IMÓVEIS PREMIUM ===== */
+.imoveis-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
+}
+
+.imovel-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  animation: fadeInUp 0.5s ease;
+}
+
+.imovel-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 35px rgba(90, 26, 26, 0.15);
+  border-color: var(--color-gold);
+}
+
+.imovel-card .galeria {
+  position: relative;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.imovel-card .galeria img {
+  transition: transform 0.5s ease;
+}
+
+.imovel-card:hover .galeria img {
+  transform: scale(1.05);
+}
+
+.imovel-card .info {
+  padding: 20px;
+}
+
+.imovel-card h3 {
+  color: var(--color-primary);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.imovel-card .info p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.imovel-card .info p strong {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Status badges melhorados */
+.status {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 10px 0;
+}
+
+.status.disponivel {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+}
+
+.status.indisponivel {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3);
+}
+
+/* ===== BOTÕES DE AÇÃO MELHORADOS ===== */
+.imovel-card .actions button,
+.editar-btn,
+.remover-btn,
+.duplicar-btn {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.editar-btn {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(33, 150, 243, 0.3);
+}
+
+.editar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+}
+
+.duplicar-btn {
+  background: linear-gradient(135deg, var(--color-gold) 0%, #b8860b 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(201, 169, 97, 0.3);
+}
+
+.duplicar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(201, 169, 97, 0.4);
+}
+
+.remover-btn {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3);
+}
+
+.remover-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+}
+
+/* ===== FORMULÁRIO PREMIUM ===== */
+form {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid rgba(201, 169, 97, 0.1);
+  margin-bottom: 30px;
+}
+
+form h3 {
+  position: relative;
+  padding-left: 15px;
+  margin-bottom: 20px;
+}
+
+form h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background: linear-gradient(180deg, var(--color-primary), var(--color-gold));
+  border-radius: 2px;
+}
+
+form input,
+form select,
+form textarea {
+  transition: all 0.3s ease;
+  border: 2px solid #e0e0e0;
+}
+
+form input:hover,
+form select:hover,
+form textarea:hover {
+  border-color: #c9a961;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 4px rgba(201, 169, 97, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Botão submit premium */
+button[type="submit"] {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(90, 26, 26, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(90, 26, 26, 0.4);
+}
+
+button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* ===== PAGINAÇÃO PREMIUM ===== */
+.pagination button {
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.pagination button:hover:not(.active):not(:disabled) {
+  border-color: var(--color-gold);
+  background: rgba(201, 169, 97, 0.1);
+  transform: translateY(-2px);
+}
+
+.pagination button.active {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-gold) 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(90, 26, 26, 0.3);
+}
+
+/* ===== TOASTS APRIMORADOS ===== */
+.toast {
+  backdrop-filter: blur(10px);
+  animation: slideInRight 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: white;
+  opacity: 0.5;
+}
+
+.toast.success::before {
+  background: #4caf50;
+}
+
+.toast.error::before {
+  background: #f44336;
+}
+
+/* ===== MODAL PREMIUM ===== */
+.modal {
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  animation: bounceIn 0.5s ease;
+  border: 2px solid rgba(201, 169, 97, 0.2);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-actions #confirmYes {
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+}
+
+.modal-actions #confirmYes:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(211, 47, 47, 0.4);
+}
+
+.modal-actions #confirmNo:hover {
+  background: #d0d0d0;
+}
+
+/* ===== PREVIEW DE FOTOS MELHORADO ===== */
+.preview-fotos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 2px dashed #c9a961;
+}
+
+.preview-fotos img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.preview-fotos img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(201, 169, 97, 0.3);
+}
+
+/* ===== SCROLLBAR PERSONALIZADA ===== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-primary), var(--color-gold));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-gold), var(--color-primary));
+}
+
+/* ===== RESPONSIVE MELHORADO ===== */
+@media (max-width: 768px) {
+  .imoveis-lista {
+    grid-template-columns: 1fr;
+  }
+  
+  form {
+    padding: 20px;
+  }
+  
+  .filters-section {
+    padding: 15px;
+  }
+  
+  .sidebar {
+    padding: 15px;
+  }
+  
+  .imovel-card h3 {
+    font-size: 1.1rem;
+  }
+}
+
+/* ===== EFEITO DE HOVER NAS GALERIAS ===== */
+.galeria {
+  position: relative;
+}
+
+.galeria .seta {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.imovel-card:hover .galeria .seta {
+  opacity: 1;
+}
+
+/* ===== BADGES INFORMATIVOS ===== */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-novo {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.badge-destaque {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-state svg,
+.empty-state img {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.empty-state h3 {
+  color: #666;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #999;
+  font-size: 1rem;
+}

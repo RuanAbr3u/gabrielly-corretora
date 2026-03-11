@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestão Financeira</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../Ativos/js/config.js"></script>
+    <script src="../Ativos/js/supabase-config.js"></script>
+    <script src="../Ativos/js/supabase-db.js"></script>
+    <script src="../Ativos/js/supabase-adapter.js"></script>
+
+    <link rel="stylesheet" href="../Ativos/CSS/style-admin-premium.css" />
+    <style>
+      /* Reset body para fullscreen */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+      }
+      /* Estilos complementares */
+      .container h1 {
+        color: var(--color-white);
+        margin-bottom: 0.6rem;
+      }
+      form label {
+        display: block;
+        margin-bottom: 0.6rem;
+        color: var(--color-muted);
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--color-text);
+      }
+      button {
+        background: var(--color-gold);
+        color: #111;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: var(--shadow-soft);
+      }
+      button:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      th,
+      td {
+        padding: 0.6rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        text-align: left;
+      }
+
+      /* Estilo para select de tipo de lançamento */
+      select[name="tipo"] {
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #111 !important;
+        background-color: var(--color-gold) !important;
+        border: 3px solid var(--color-gold) !important;
+        padding: 10px 12px !important;
+      }
+
+      select[name="tipo"]:focus {
+        outline: none;
+        box-shadow: 0 0 15px rgba(201, 169, 97, 0.6);
+      }
+
+      /* Cor verde para Receita */
+      select[name="tipo"] option[value="receita"] {
+        background: #27ae60;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1.05rem;
+      }
+
+      /* Cor vermelha para Despesa */
+      select[name="tipo"] option[value="despesa"] {
+        background: #e74c3c;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1.05rem;
+      }
+
+      /* Quando Receita está selecionada */
+      select[name="tipo"].receita-selected {
+        background: #27ae60 !important;
+        border: 3px solid #1e8449 !important;
+        color: #ffffff !important;
+        font-weight: 700;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 20px rgba(39, 174, 96, 0.5);
+      }
+
+      /* Quando Despesa está selecionada */
+      select[name="tipo"].despesa-selected {
+        background: #e74c3c !important;
+        border: 3px solid #c0392b !important;
+        color: #ffffff !important;
+        font-weight: 700;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+      }
+
+      /* Estilos dos filtros */
+      .filters-section {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 16px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        align-items: end;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .filter-group label {
+        font-size: 0.9rem;
+        color: var(--color-muted);
+        margin-bottom: 0;
+      }
+      .btn-export {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+      .btn-export:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+      }
+      .btn-clear-filters {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0.05) 100%
+        );
+        color: var(--color-text);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      /* Gráfico visual aprimorado */
+      .chart-section {
+        background: linear-gradient(
+          135deg,
+          rgba(201, 169, 97, 0.08) 0%,
+          rgba(201, 169, 97, 0.02) 100%
+        );
+        padding: 24px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        border: 1px solid rgba(201, 169, 97, 0.15);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .chart-title {
+        color: var(--color-white);
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .chart-subtitle {
+        color: var(--color-muted);
+        font-size: 0.9rem;
+        margin-top: 4px;
+      }
+      .chart-bars {
+        display: flex;
+        gap: 30px;
+        align-items: flex-end;
+        height: 200px;
+        margin-top: 20px;
+        padding: 0 20px;
+      }
+      .chart-bar {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .bar-container {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px 10px 0 0;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        overflow: hidden;
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+      .bar-fill {
+        width: 100%;
+        border-radius: 10px 10px 0 0;
+        transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      .bar-fill::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        animation: shimmer 2s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+      .bar-fill.receita {
+        background: linear-gradient(180deg, #27ae60 0%, #1e8449 100%);
+        box-shadow:
+          0 -4px 20px rgba(39, 174, 96, 0.4),
+          inset 0 2px 8px rgba(255, 255, 255, 0.2);
+      }
+      .bar-fill.despesa {
+        background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+        box-shadow:
+          0 -4px 20px rgba(231, 76, 60, 0.4),
+          inset 0 2px 8px rgba(255, 255, 255, 0.2);
+      }
+      .bar-info {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .bar-label {
+        font-size: 0.85rem;
+        color: var(--color-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+      .bar-value {
+        font-size: 1.2rem;
+        color: var(--color-white);
+        font-weight: 700;
+      }
+      .bar-percentage {
+        font-size: 0.8rem;
+        color: var(--color-gold);
+        margin-top: 4px;
+        font-weight: 600;
+      }
+
+      /* Estilos do formulário */
+      #financeiro-form {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.05) 0%,
+          rgba(255, 255, 255, 0.02) 100%
+        );
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+      #financeiro-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        color: var(--color-white);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+      }
+      #financeiro-form label span.label-text {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+      }
+      #financeiro-form input,
+      #financeiro-form select,
+      #financeiro-form textarea {
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--color-text);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+      #financeiro-form input:focus,
+      #financeiro-form select:focus,
+      #financeiro-form textarea:focus {
+        outline: none;
+        border-color: var(--color-gold);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1);
+      }
+      #financeiro-form button[type="submit"] {
+        grid-column: span 2;
+        background: linear-gradient(135deg, var(--color-gold) 0%, #b8935f 100%);
+        color: #111;
+        border: none;
+        padding: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(201, 169, 97, 0.3);
+        transition: all 0.3s ease;
+      }
+      #financeiro-form button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(201, 169, 97, 0.5);
+      }
+      .form-row-full {
+        grid-column: span 2;
+      }
+      .status-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .status-group select {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        "
+      >
+        <h1 style="margin-bottom: 0 !important">Gestão Financeira</h1>
+        <a
+          href="../tela-de-login/painel.html"
+          style="
+            background: linear-gradient(
+              135deg,
+              rgba(201, 169, 97, 0.2) 0%,
+              rgba(201, 169, 97, 0.1) 100%
+            );
+            color: var(--color-gold);
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: 2px solid rgba(201, 169, 97, 0.3);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+          "
+          onmouseover="
+            this.style.background =
+              'linear-gradient(135deg, rgba(201, 169, 97, 0.3) 0%, rgba(201, 169, 97, 0.2) 100%)';
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 20px rgba(201, 169, 97, 0.3)';
+          "
+          onmouseout="
+            this.style.background =
+              'linear-gradient(135deg, rgba(201, 169, 97, 0.2) 0%, rgba(201, 169, 97, 0.1) 100%)';
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+          "
+          >← Voltar ao Painel</a
+        >
+      </div>
+      <!-- Painel de métricas -->
+      <section
+        class="metrics"
+        style="
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          margin-bottom: 16px;
+        "
+      >
+        <div
+          class="metric-card"
+          style="
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 10px;
+          "
+        >
+          <div style="font-size: 0.9rem; color: var(--color-muted)">
+            Total (saldo)
+          </div>
+          <div
+            id="totalSaldo"
+            style="
+              font-size: 1.4rem;
+              font-weight: 700;
+              color: var(--color-gold);
+            "
+          >
+            R$ 0,00
+          </div>
+        </div>
+        <div
+          class="metric-card"
+          style="
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 10px;
+          "
+        >
+          <div style="font-size: 0.9rem; color: var(--color-muted)">
+            Entradas (receitas pagas)
+          </div>
+          <div
+            id="totalEntrada"
+            style="font-size: 1.2rem; font-weight: 700; color: #27ae60"
+          >
+            R$ 0,00
+          </div>
+        </div>
+        <div
+          class="metric-card"
+          style="
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 10px;
+          "
+        >
+          <div style="font-size: 0.9rem; color: var(--color-muted)">
+            Saídas (despesas pagas)
+          </div>
+          <div
+            id="totalSaida"
+            style="font-size: 1.2rem; font-weight: 700; color: #e74c3c"
+          >
+            R$ 0,00
+          </div>
+        </div>
+        <div
+          class="metric-card"
+          style="
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 10px;
+          "
+        >
+          <div style="font-size: 0.9rem; color: var(--color-muted)">
+            Pendentes
+          </div>
+          <div
+            id="totalPendentes"
+            style="
+              font-size: 1.2rem;
+              font-weight: 700;
+              color: var(--color-white);
+            "
+          >
+            R$ 0,00
+          </div>
+        </div>
+      </section>
+
+      <!-- Filtros -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label>Período Inicial:</label>
+          <input type="date" id="filtro-data-inicio" style="padding: 8px" />
+        </div>
+        <div class="filter-group">
+          <label>Período Final:</label>
+          <input type="date" id="filtro-data-fim" style="padding: 8px" />
+        </div>
+        <div class="filter-group">
+          <label>Tipo:</label>
+          <select id="filtro-tipo" style="padding: 8px">
+            <option value="">Todos</option>
+            <option value="receita">Receitas</option>
+            <option value="despesa">Despesas</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Status:</label>
+          <select id="filtro-status" style="padding: 8px">
+            <option value="">Todos</option>
+            <option value="pago">Pagos</option>
+            <option value="pendente">Pendentes</option>
+          </select>
+        </div>
+        <div class="filter-group" style="display: flex; gap: 8px">
+          <button
+            type="button"
+            class="btn-clear-filters"
+            onclick="limparFiltros()"
+            style="flex: 1; padding: 10px"
+          >
+            Limpar Filtros
+          </button>
+          <button
+            type="button"
+            class="btn-export"
+            onclick="exportarParaExcel()"
+            style="flex: 1; padding: 10px"
+          >
+            📊 Exportar
+          </button>
+        </div>
+      </div>
+
+      <!-- Gráfico Visual Aprimorado -->
+      <div class="chart-section">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">📊 Visão Geral</h3>
+            <p class="chart-subtitle">
+              Análise comparativa de receitas e despesas pagas
+            </p>
+          </div>
+          <div style="text-align: right">
+            <div
+              style="
+                font-size: 0.85rem;
+                color: var(--color-muted);
+                margin-bottom: 4px;
+              "
+            >
+              Saldo Líquido
+            </div>
+            <div
+              id="saldo-liquido-chart"
+              style="
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: var(--color-gold);
+              "
+            >
+              R$ 0,00
+            </div>
+          </div>
+        </div>
+        <div class="chart-bars">
+          <div class="chart-bar">
+            <div class="bar-container">
+              <div
+                class="bar-fill receita"
+                id="bar-receitas"
+                style="height: 0%"
+              ></div>
+            </div>
+            <div class="bar-info">
+              <div class="bar-label">💰 Receitas</div>
+              <div class="bar-value" id="bar-receitas-value">R$ 0,00</div>
+              <div class="bar-percentage" id="bar-receitas-percent">
+                0% do total
+              </div>
+            </div>
+          </div>
+          <div class="chart-bar">
+            <div class="bar-container">
+              <div
+                class="bar-fill despesa"
+                id="bar-despesas"
+                style="height: 0%"
+              ></div>
+            </div>
+            <div class="bar-info">
+              <div class="bar-label">💸 Despesas</div>
+              <div class="bar-value" id="bar-despesas-value">R$ 0,00</div>
+              <div class="bar-percentage" id="bar-despesas-percent">
+                0% do total
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário de Cadastro -->
+      <form id="financeiro-form">
+        <label>
+          <span class="label-text">📊 Tipo de Lançamento:</span>
+          <select name="tipo" required>
+            <option value="receita">Receita</option>
+            <option value="despesa">Despesa</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="label-text">📋 Categoria:</span>
+          <select name="categoria">
+            <option value="aluguel">Aluguel</option>
+            <option value="comissao">Comissão</option>
+            <option value="manutencao">Manutenção</option>
+            <option value="marketing">Marketing</option>
+            <option value="administrativa">Administrativa</option>
+            <option value="outras">Outras</option>
+          </select>
+        </label>
+
+        <label class="form-row-full">
+          <span class="label-text">✏️ Descrição:</span>
+          <input
+            type="text"
+            name="descricao"
+            required
+            placeholder="Ex: Aluguel do imóvel X, Comissão de venda..."
+          />
+        </label>
+
+        <label>
+          <span class="label-text">💵 Valor:</span>
+          <input
+            type="text"
+            name="valor"
+            inputmode="decimal"
+            placeholder="R$ 0,00"
+            required
+          />
+        </label>
+
+        <label>
+          <span class="label-text">📅 Data:</span>
+          <input type="date" name="data" required />
+        </label>
+
+        <label class="form-row-full">
+          <span class="label-text">✅ Status do Pagamento:</span>
+          <div class="status-group">
+            <select name="pendente">
+              <option value="true" selected>Pendente</option>
+              <option value="false">Pago</option>
+            </select>
+          </div>
+        </label>
+
+        <button type="submit">➕ Cadastrar Lançamento</button>
+      </form>
+
+      <h2
+        style="
+          color: var(--color-white);
+          margin-bottom: 16px;
+          font-size: 1.3rem;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        "
+      >
+        📄 Lançamentos Cadastrados
+      </h2>
+      <table id="tabela-lancamentos">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Descrição</th>
+            <th>Valor</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <footer class="footer-dev">
+        Desenvolvido por
+        <a
+          href="https://www.instagram.com/abr3u.dev/"
+          target="_blank"
+          style="
+            color: #c9a961;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+          "
+          onmouseover="this.style.color = '#fff'"
+          onmouseout="this.style.color = '#c9a961'"
+          >Ruan Abreu</a
+        >
+      </footer>
+    </div>
+    <script>
+      // Adiciona cores dinâmicas ao select de tipo de lançamento
+      document.addEventListener("DOMContentLoaded", function () {
+        const tipoSelect = document.querySelector('select[name="tipo"]');
+
+        if (tipoSelect) {
+          // Função para atualizar a cor do select
+          function atualizarCorSelect() {
+            const valor = tipoSelect.value;
+
+            // Remove todas as classes
+            tipoSelect.classList.remove("receita-selected", "despesa-selected");
+
+            // Adiciona a classe apropriada
+            if (valor === "receita") {
+              tipoSelect.classList.add("receita-selected");
+            } else if (valor === "despesa") {
+              tipoSelect.classList.add("despesa-selected");
+            }
+          }
+
+          // Atualiza ao carregar (valor padrão é receita)
+          atualizarCorSelect();
+
+          // Atualiza quando o valor mudar
+          tipoSelect.addEventListener("change", atualizarCorSelect);
+        }
+      });
+    </script>
+    <script src="/tela-gestao-financeira/script-filtros.js"></script>
+    <script src="/tela-gestao-financeira/script.js"></script>
+  </body>
+</html>
