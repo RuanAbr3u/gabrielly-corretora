@@ -39,5 +39,7 @@
   "devDependencies": {
     "serve": "^14.2.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "resend": "^6.9.3"
+  }
 }

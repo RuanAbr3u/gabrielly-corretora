@@ -39,6 +39,7 @@ ativos/js/config.js
 # TEST FILES (contain hardcoded credentials)
 # ================================================
 teste-supabase.html
+teste-resend.js
 
 # ================================================
 # DEVELOPMENT
