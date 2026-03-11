@@ -188,10 +188,5 @@ app.listen(PORT, () => {
   console.log(`Servidor iniciado na porta ${PORT}`);
   console.log(`Ambiente: ${NODE_ENV}`);
 });
-  }
-
-  console.log(separator + "\n");
-  console.log("📋 Aguardando requisições...\n");
-});
 
 module.exports = app;
