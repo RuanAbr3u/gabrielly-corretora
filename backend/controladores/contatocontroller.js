@@ -39,7 +39,7 @@ const enviarContato = async (req, res) => {
       .single();
 
     if (erroSupabase) {
-      console.error("❌ Erro ao salvar contato no Supabase:", erroSupabase);
+      console.error("Erro ao salvar contato no Supabase:", erroSupabase);
       return res.status(500).json({
         success: false,
         error: true,
@@ -47,7 +47,7 @@ const enviarContato = async (req, res) => {
       });
     }
 
-    console.log("✅ Contato salvo no Supabase:", contatoSalvo.id);
+    console.log("Contato salvo no Supabase:", contatoSalvo.id);
 
     // Enviar emails usando Resend
     const htmlEmailNotificacao = `

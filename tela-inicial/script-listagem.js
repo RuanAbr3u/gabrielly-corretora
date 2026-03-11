@@ -51,7 +51,7 @@ function updateGaleria() {
 
 function fecharModal() {
   if (!modalImovel) {
-    console.warn("⚠️ modalImovel não está disponível");
+    console.warn("modalImovel não está disponível");
     return;
   }
   modalImovel.classList.remove("ativo");
@@ -70,9 +70,9 @@ function abrirModal(idImovel, imoveisListaCompleta) {
   });
   // 1. Busca o imóvel e verifica se o modal existe
   currentImovel = imoveisListaCompleta.find((imovel) => imovel.id === idImovel);
-  console.log("🔍 Imóvel encontrado:", currentImovel);
+  console.log("Imóvel encontrado:", currentImovel);
   if (!currentImovel || !modalImovel) {
-    console.error("❌ Modal não pode abrir:", { currentImovel, modalImovel });
+    console.error("Modal não pode abrir:", { currentImovel, modalImovel });
     return;
   }
 
@@ -103,7 +103,7 @@ function abrirModal(idImovel, imoveisListaCompleta) {
     {
       style: "currency",
       currency: "BRL",
-    }
+    },
   );
   if (currentImovel.tipoNegocio === "locacao") {
     precoModalFormatado += "/mês";
@@ -114,13 +114,13 @@ function abrirModal(idImovel, imoveisListaCompleta) {
   const txtQuartos = formatarAtributo(
     currentImovel.quartos,
     "quarto",
-    "quartos"
+    "quartos",
   );
   const txtSuites = formatarAtributo(currentImovel.suites, "suíte", "suítes");
   const txtBanheiros = formatarAtributo(
     currentImovel.banheiros,
     "banheiro",
-    "banheiros"
+    "banheiros",
   );
   const txtArea =
     currentImovel.areaUtil && Number(currentImovel.areaUtil) > 0
@@ -154,7 +154,7 @@ function abrirModal(idImovel, imoveisListaCompleta) {
     : "";
 
   const valorCondominioTxt = formatarValorDisplay(
-    currentImovel.valorCondominio
+    currentImovel.valorCondominio,
   );
   const valorIPTUTxt = formatarValorDisplay(currentImovel.valorIPTU);
   const condominioDisplay = valorCondominioTxt
@@ -172,7 +172,7 @@ function abrirModal(idImovel, imoveisListaCompleta) {
     : [];
   const caracteristicasHtml = caracteristicasArray.length
     ? `<p class="spec-line-2"><strong>Características:</strong> ${caracteristicasArray.join(
-        " • "
+        " • ",
       )}</p>`
     : "";
 
@@ -181,7 +181,7 @@ function abrirModal(idImovel, imoveisListaCompleta) {
 
   // 5. Link do WhatsApp
   const mensagemWhats = encodeURIComponent(
-    `Olá, Gabrielly! Tenho interesse no imóvel "${currentImovel.titulo}". Poderia me dar mais informações?`
+    `Olá, Gabrielly! Tenho interesse no imóvel "${currentImovel.titulo}". Poderia me dar mais informações?`,
   );
   if (botaoWhats)
     botaoWhats.href = `https://wa.me/557592112142?text=${mensagemWhats}`;
@@ -199,7 +199,7 @@ function abrirModal(idImovel, imoveisListaCompleta) {
 // ----------------------------------------------------------
 
 async function carregarImoveis(tipoImovel, containerId) {
-  console.log("🚀 carregarImoveis() chamado com:", { tipoImovel, containerId });
+  console.log("carregarImoveis() chamado com:", { tipoImovel, containerId });
 
   const listaContainer = document.getElementById(containerId);
   const loadingContainer = document.getElementById("loadingImoveis");
@@ -215,16 +215,16 @@ async function carregarImoveis(tipoImovel, containerId) {
   // Normalizar para minúsculas sempre
   const tipoFiltro = (tipoImovel || "venda").toLowerCase();
   console.log(
-    "🔍 Filtrando imóveis por tipo:",
+    "Filtrando imóveis por tipo:",
     tipoFiltro,
     "(entrada original:",
     tipoImovel,
-    ")"
+    ")",
   );
 
   try {
     const data = await DB.imoveis.listarPorTipo(tipoFiltro);
-    console.log("📦 Imóveis retornados do Supabase:", data.length, data);
+    console.log("Imóveis retornados do Supabase:", data.length, data);
 
     // Converter formato Supabase para formato esperado
     imoveis = data.map((imovel) => ({
@@ -260,11 +260,11 @@ async function carregarImoveis(tipoImovel, containerId) {
 
     // Filtro extra por segurança (caso o Supabase retorne dados incorretos)
     imoveis = imoveis.filter((imovel) => imovel.tipoNegocio === tipoFiltro);
-    console.log("✅ Imóveis após filtro local:", imoveis.length);
+    console.log("Imóveis após filtro local:", imoveis.length);
 
     // Se Supabase não retornar nada, tenta localStorage
     if (imoveis.length === 0) {
-      console.log("⚠️ Supabase vazio, tentando localStorage...");
+      console.log("Supabase vazio, tentando localStorage...");
       const imoveisLocal = JSON.parse(localStorage.getItem("imoveis")) || [];
       imoveis = imoveisLocal.filter((imovel) => {
         const tipoImovelNormalizado = (
@@ -280,7 +280,7 @@ async function carregarImoveis(tipoImovel, containerId) {
       console.log("📂 Imóveis encontrados no localStorage:", imoveis.length);
     }
   } catch (error) {
-    console.error("❌ Erro ao carregar imóveis do Supabase:", error);
+    console.error("Erro ao carregar imóveis do Supabase:", error);
     // Fallback para localStorage em caso de erro
     const imoveisLocal = JSON.parse(localStorage.getItem("imoveis")) || [];
     imoveis = imoveisLocal.filter((imovel) => {
@@ -297,12 +297,12 @@ async function carregarImoveis(tipoImovel, containerId) {
     console.log(
       "📂 Fallback localStorage:",
       imoveis.length,
-      "imóveis encontrados"
+      "imóveis encontrados",
     );
   }
 
   if (!listaContainer) {
-    console.error("❌ Container de lista não encontrado:", containerId);
+    console.error("Container de lista não encontrado:", containerId);
     return;
   }
 
@@ -356,7 +356,7 @@ async function carregarImoveis(tipoImovel, containerId) {
       // Garante que o imóvel tem um ID
       if (!imovel.id) {
         imovel.id = `imovel-${Date.now()}-${index}`;
-        console.warn("⚠️ Imóvel sem ID, gerando:", imovel.id);
+        console.warn("Imóvel sem ID, gerando:", imovel.id);
       }
 
       const article = document.createElement("article");
@@ -374,7 +374,7 @@ async function carregarImoveis(tipoImovel, containerId) {
       const txtBanheiros = formatarAtributo(
         imovel.banheiros,
         "banheiro",
-        "banheiros"
+        "banheiros",
       );
       const txtSuites = formatarAtributo(imovel.suites, "suíte", "suítes");
       const txtArea =
@@ -423,14 +423,14 @@ async function carregarImoveis(tipoImovel, containerId) {
 
     if (bairroSelecionado) {
       imoveisFiltradosFinal = imoveisFiltradosFinal.filter(
-        (imovel) => imovel.bairro === bairroSelecionado
+        (imovel) => imovel.bairro === bairroSelecionado,
       );
     }
 
     // NOVO: Aplica o filtro de categoria
     if (categoriaSelecionada) {
       imoveisFiltradosFinal = imoveisFiltradosFinal.filter(
-        (imovel) => imovel.categoria === categoriaSelecionada
+        (imovel) => imovel.categoria === categoriaSelecionada,
       );
     }
 
@@ -447,7 +447,7 @@ async function carregarImoveis(tipoImovel, containerId) {
   }
 
   // 4. Event Delegation para botões "Ver Mais" (funciona mesmo após filtros)
-  console.log("✅ Event delegation configurado para:", listaContainer);
+  console.log("Event delegation configurado para:", listaContainer);
   listaContainer.addEventListener("click", (event) => {
     const target = event.target.closest(".btn-vermais");
     if (target) {

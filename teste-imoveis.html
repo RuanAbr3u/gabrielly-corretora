@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diagnóstico - Imóveis Supabase</title>
+    <style>
+      body {
+        font-family: "Courier New", monospace;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+      }
+      h1 {
+        color: #4ec9b0;
+      }
+      .section {
+        background: #252526;
+        border: 1px solid #3c3c3c;
+        border-radius: 4px;
+        padding: 15px;
+        margin: 15px 0;
+      }
+      .success {
+        color: #4ec9b0;
+      }
+      .error {
+        color: #f48771;
+      }
+      .warning {
+        color: #dcdcaa;
+      }
+      .info {
+        color: #9cdcfe;
+      }
+      button {
+        background: #0e639c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #1177bb;
+      }
+      pre {
+        background: #1e1e1e;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Diagnóstico de Imóveis - Supabase</h1>
+
+    <div class="section">
+      <h2>Testes Rápidos</h2>
+      <button onclick="testarConexao()">1. Testar Conexão</button>
+      <button onclick="contarImoveis()">2. Contar Imóveis</button>
+      <button onclick="listarTodos()">3. Listar Todos</button>
+      <button onclick="listarPorTipo('venda')">4. Listar Vendas</button>
+      <button onclick="listarPorTipo('locacao')">5. Listar Locações</button>
+      <button onclick="verificarStatus()">6. Verificar Status</button>
+    </div>
+
+    <div id="output" class="section">
+      <h3>Resultado:</h3>
+      <pre id="result">Clique em um botão acima para iniciar...</pre>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="ativos/js/config.js"></script>
+    <script>
+      const supabase = window.supabase.createClient(
+        window.APP_CONFIG.supabase.url,
+        window.APP_CONFIG.supabase.key,
+      );
+
+      function log(msg, type = "info") {
+        const result = document.getElementById("result");
+        const color =
+          type === "error"
+            ? "#f48771"
+            : type === "success"
+              ? "#4ec9b0"
+              : type === "warning"
+                ? "#dcdcaa"
+                : "#9cdcfe";
+        result.innerHTML += `<span style="color: ${color}">${msg}</span>\n`;
+      }
+
+      function clear() {
+        document.getElementById("result").innerHTML = "";
+      }
+
+      async function testarconexao() {
+        clear();
+        log("=== TESTE DE CONEXÃO ===\n", "info");
+
+        try {
+          log(`URL: ${window.APP_CONFIG.supabase.url}`, "info");
+          log(
+            `Key: ${window.APP_CONFIG.supabase.key.substring(0, 20)}...`,
+            "info",
+          );
+
+          const { data, error } = await supabase
+            .from("imoveis")
+            .select("count", { count: "exact", head: true });
+
+          if (error) {
+            log(`ERRO: ${error.message}`, "error");
+            log(`Código: ${error.code}`, "error");
+          } else {
+            log("CONEXÃO OK!", "success");
+          }
+        } catch (err) {
+          log(`EXCEÇÃO: ${err.message}`, "error");
+        }
+      }
+
+      async function contarImoveis() {
+        clear();
+        log("=== CONTAGEM DE IMÓVEIS ===\n", "info");
+
+        try {
+          const { count, error } = await supabase
+            .from("imoveis")
+            .select("*", { count: "exact", head: true });
+
+          if (error) {
+            log(`ERRO: ${error.message}`, "error");
+          } else {
+            log(
+              `Total de imóveis: ${count}`,
+              count > 0 ? "success" : "warning",
+            );
+          }
+        } catch (err) {
+          log(`EXCEÇÃO: ${err.message}`, "error");
+        }
+      }
+
+      async function listarTodos() {
+        clear();
+        log("=== LISTAR TODOS OS IMÓVEIS ===\n", "info");
+
+        try {
+          const { data, error } = await supabase
+            .from("imoveis")
+            .select("id, titulo, tipo_negocio, status, created_at");
+
+          if (error) {
+            log(`ERRO: ${error.message}`, "error");
+          } else {
+            log(
+              `Encontrados: ${data.length} imóveis\n`,
+              data.length > 0 ? "success" : "warning",
+            );
+            data.forEach((imovel, idx) => {
+              log(`${idx + 1}. ${imovel.titulo}`, "info");
+              log(`   ID: ${imovel.id}`, "info");
+              log(`   Tipo: ${imovel.tipo_negocio}`, "info");
+              log(`   Status: ${imovel.status}`, "info");
+              log(
+                `   Criado: ${new Date(imovel.created_at).toLocaleString()}\n`,
+                "info",
+              );
+            });
+          }
+        } catch (err) {
+          log(`EXCEÇÃO: ${err.message}`, "error");
+        }
+      }
+
+      async function listarPorTipo(tipo) {
+        clear();
+        log(`=== LISTAR IMÓVEIS: ${tipo.toUpperCase()} ===\n`, "info");
+
+        try {
+          const { data, error } = await supabase
+            .from("imoveis")
+            .select("id, titulo, tipo_negocio, status")
+            .ilike("tipo_negocio", tipo)
+            .eq("status", "ativo");
+
+          if (error) {
+            log(`ERRO: ${error.message}`, "error");
+          } else {
+            log(
+              `Encontrados: ${data.length} imóveis ativos\n`,
+              data.length > 0 ? "success" : "warning",
+            );
+            if (data.length === 0) {
+              log("DIAGNÓSTICO:", "warning");
+              log("- Tabela pode estar vazia", "warning");
+              log('- Não há imóveis com status="ativo"', "warning");
+              log(`- Não há imóveis com tipo_negocio="${tipo}"\n`, "warning");
+            } else {
+              data.forEach((imovel, idx) => {
+                log(
+                  `${idx + 1}. ${imovel.titulo} (${imovel.status})`,
+                  "success",
+                );
+              });
+            }
+          }
+        } catch (err) {
+          log(`EXCEÇÃO: ${err.message}`, "error");
+        }
+      }
+
+      async function verificarStatus() {
+        clear();
+        log("=== VERIFICAR STATUS DOS IMÓVEIS ===\n", "info");
+
+        try {
+          const { data, error } = await supabase
+            .from("imoveis")
+            .select("status, tipo_negocio");
+
+          if (error) {
+            log(`ERRO: ${error.message}`, "error");
+          } else {
+            const statusCount = {};
+            const tipoCount = {};
+
+            data.forEach((imovel) => {
+              statusCount[imovel.status] =
+                (statusCount[imovel.status] || 0) + 1;
+              tipoCount[imovel.tipo_negocio] =
+                (tipoCount[imovel.tipo_negocio] || 0) + 1;
+            });
+
+            log("Contagem por Status:", "info");
+            Object.entries(statusCount).forEach(([status, count]) => {
+              log(`  ${status}: ${count}`, "info");
+            });
+
+            log("\nContagem por Tipo:", "info");
+            Object.entries(tipoCount).forEach(([tipo, count]) => {
+              log(`  ${tipo}: ${count}`, "info");
+            });
+
+            if (!statusCount["ativo"]) {
+              log('\nALERTA: Nenhum imóvel com status "ativo"!', "error");
+              log(
+                "Possível solução: UPDATE imoveis SET status = 'ativo' WHERE status IS NULL;",
+                "warning",
+              );
+            }
+          }
+        } catch (err) {
+          log(`EXCEÇÃO: ${err.message}`, "error");
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -15,18 +15,18 @@ async function carregarImoveis() {
     try {
       return JSON.parse(localStorage.getItem("imoveis")) || [];
     } catch (error) {
-      console.error("❌ Erro ao parsear imóveis do localStorage:", error);
+      console.error("Erro ao parsear imóveis do localStorage:", error);
       return [];
     }
   }
 
   try {
     const data = await DB.imoveis.listar();
-    console.log("📦 Imóveis carregados do Supabase:", data.length);
+    console.log("Imóveis carregados do Supabase:", data.length);
 
     // Se Supabase estiver vazio, tenta carregar do localStorage
     if (data.length === 0) {
-      console.log("⚠️ Supabase vazio, tentando localStorage...");
+      console.log("Supabase vazio, tentando localStorage...");
       try {
         const imoveisLocal = JSON.parse(localStorage.getItem("imoveis")) || [];
         console.log(
@@ -35,7 +35,7 @@ async function carregarImoveis() {
         );
         return imoveisLocal;
       } catch (storageError) {
-        console.error("❌ Erro ao acessar localStorage:", storageError);
+        console.error("Erro ao acessar localStorage:", storageError);
         return [];
       }
     }
@@ -91,19 +91,19 @@ async function carregarImoveis() {
         imovel.status === "ativo" ? "Disponível" : "Vendido/Alugado",
     }));
   } catch (error) {
-    console.error("❌ Erro ao carregar imóveis do Supabase:", error);
-    console.log("📂 Usando fallback do localStorage...");
+    console.error("Erro ao carregar imóveis do Supabase:", error);
+    console.log("Usando fallback do localStorage...");
     return JSON.parse(localStorage.getItem("imoveis")) || [];
   }
 }
 
 // Salvar imóvel
 async function salvarImovel(imovel) {
-  console.log("🚀 salvarImovel chamada! USE_SUPABASE:", USE_SUPABASE);
+  console.log("salvarImovel chamada! USE_SUPABASE:", USE_SUPABASE);
   console.log("📥 Dados recebidos:", imovel);
 
   if (!USE_SUPABASE) {
-    console.log("📂 Salvando no localStorage...");
+    console.log("Salvando no localStorage...");
     const imoveis = JSON.parse(localStorage.getItem("imoveis")) || [];
     if (imovel.id) {
       const index = imoveis.findIndex((i) => i.id === imovel.id);
@@ -113,11 +113,11 @@ async function salvarImovel(imovel) {
       imoveis.push(imovel);
     }
     localStorage.setItem("imoveis", JSON.stringify(imoveis));
-    console.log("✅ Salvo no localStorage!");
+    console.log("Salvo no localStorage!");
     return imovel;
   }
 
-  console.log("☁️ Salvando no Supabase...");
+  console.log("Salvando no Supabase...");
   try {
     // Converter formato localStorage para Supabase
     // Usar APENAS os campos básicos que certamente existem na tabela
@@ -186,7 +186,7 @@ async function salvarImovel(imovel) {
       console.log("💰 Valor FINAL convertido:", valorFinal);
     }
 
-    console.log("✅ Valor que será salvo no banco:", valorFinal);
+    console.log("Valor que será salvo no banco:", valorFinal);
 
     const imovelSupabase = {
       titulo: imovel.titulo,
@@ -239,21 +239,21 @@ async function salvarImovel(imovel) {
     if (imovel.id && !imovel.id.startsWith("imovel-")) {
       // Se tem ID válido (UUID do Supabase), atualiza
       const data = await DB.imoveis.atualizar(imovel.id, imovelSupabase);
-      console.log("✅ Imóvel atualizado:", data);
+      console.log("Imóvel atualizado:", data);
       return { ...imovel, id: data.id };
     } else {
       // Cria novo
       const data = await DB.imoveis.criar(imovelSupabase);
-      console.log("✅ Imóvel criado:", data);
+      console.log("Imóvel criado:", data);
       return { ...imovel, id: data.id };
     }
   } catch (error) {
-    console.error("❌ Erro ao salvar imóvel no Supabase:", error);
+    console.error("Erro ao salvar imóvel no Supabase:", error);
     console.error("Mensagem de erro:", error.message);
     console.error("Dados do imóvel:", imovel);
 
     // FALLBACK: Se o Supabase falhar, salvar no localStorage
-    console.log("⚠️ Tentando fallback para localStorage...");
+    console.log("Tentando fallback para localStorage...");
     try {
       const imoveis = JSON.parse(localStorage.getItem("imoveis")) || [];
       if (imovel.id && !imovel.id.startsWith("imovel-")) {
@@ -268,7 +268,7 @@ async function salvarImovel(imovel) {
         imoveis.push(imovel);
       }
       localStorage.setItem("imoveis", JSON.stringify(imoveis));
-      console.log("✅ Imóvel salvo no localStorage como fallback!");
+      console.log("Imóvel salvo no localStorage como fallback!");
       return imovel;
     } catch (fallbackError) {
       console.error("❌ Erro também no fallback localStorage:", fallbackError);

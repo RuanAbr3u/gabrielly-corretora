@@ -7,9 +7,7 @@ if (typeof supabase === "undefined") {
   if (window.supabaseClient) {
     var supabase = window.supabaseClient;
   } else {
-    console.error(
-      "❌ supabase-db.js: CRÍTICO - supabase não foi inicializado!",
-    );
+    console.error("supabase-db.js: CRÍTICO - supabase não foi inicializado!");
   }
 }
 
@@ -26,7 +24,7 @@ const DB = {
 
         // Se falhar com join, tenta sem o join
         if (error) {
-          console.warn("⚠️ Falhou com join, tentando sem join:", error.message);
+          console.warn("Falhou com join, tentando sem join:", error.message);
           const res = await supabase
             .from("imoveis")
             .select("*")
@@ -38,7 +36,7 @@ const DB = {
         if (error) throw error;
         return Array.isArray(data) ? data : [];
       } catch (error) {
-        console.error("❌ Erro ao listar imóveis:", error);
+        console.error("Erro ao listar imóveis:", error);
         throw error;
       }
     },
@@ -66,14 +64,14 @@ const DB = {
     },
 
     async criar(imovel) {
-      console.log("🔵 Criando imóvel no Supabase:", imovel);
+      console.log("Criando imóvel no Supabase:", imovel);
 
       // Validar se supabase está disponível
       if (!supabase || typeof supabase.from !== "function") {
         const erro = new Error(
           "Supabase não inicializado corretamente. Verifique supabase-config.js",
         );
-        console.error("❌", erro.message);
+        console.error(erro.message);
         throw erro;
       }
 
@@ -85,22 +83,22 @@ const DB = {
           .single();
 
         if (error) {
-          console.error("❌ Erro ao criar imóvel:", error);
+          console.error("Erro ao criar imóvel:", error);
           console.error("   Código:", error.code);
           console.error("   Mensagem:", error.message);
           console.error("   Detalhes:", error.details);
           throw error;
         }
-        console.log("✅ Imóvel criado com sucesso:", data);
+        console.log("Imóvel criado com sucesso:", data);
         return data;
       } catch (error) {
-        console.error("❌ Exceção ao criar imóvel:", error);
+        console.error("Exceção ao criar imóvel:", error);
         throw error;
       }
     },
 
     async atualizar(id, imovel) {
-      console.log("🔵 Atualizando imóvel no Supabase:", id, imovel);
+      console.log("Atualizando imóvel no Supabase:", id, imovel);
       const { data, error } = await supabase
         .from("imoveis")
         .update(imovel)
@@ -109,35 +107,35 @@ const DB = {
         .single();
 
       if (error) {
-        console.error("❌ Erro ao atualizar imóvel:", error);
+        console.error("Erro ao atualizar imóvel:", error);
         throw error;
       }
-      console.log("✅ Imóvel atualizado com sucesso:", data);
+      console.log("Imóvel atualizado com sucesso:", data);
       return data;
     },
 
     async deletar(id) {
-      console.log("🔵 Deletando imóvel do Supabase, ID:", id);
+      console.log("Deletando imóvel do Supabase, ID:", id);
       const { error } = await supabase.from("imoveis").delete().eq("id", id);
 
       if (error) {
-        console.error("❌ Erro ao deletar do Supabase:", error);
+        console.error("Erro ao deletar do Supabase:", error);
         throw error;
       }
-      console.log("✅ Imóvel deletado com sucesso do Supabase!");
+      console.log("Imóvel deletado com sucesso do Supabase!");
     },
 
     async listarPorTipo(tipo) {
       try {
         if (!tipo || typeof tipo !== "string") {
-          console.error("❌ Tipo inválido:", tipo);
+          console.error("Tipo inválido:", tipo);
           return [];
         }
 
         // Normalizar tipo para minúsculas (padrão do sistema)
         const tipoNormalizado = tipo.toLowerCase();
         console.log(
-          "🔍 Buscando imóveis do tipo:",
+          "Buscando imóveis do tipo:",
           tipoNormalizado,
           "(original:",
           tipo,
@@ -153,13 +151,13 @@ const DB = {
           .order("created_at", { ascending: false });
 
         if (error) {
-          console.error("❌ Erro ao listar por tipo:", error);
+          console.error("Erro ao listar por tipo:", error);
           throw error;
         }
 
         const result = Array.isArray(data) ? data : [];
         console.log(
-          `✅ Encontrados ${result.length} imóveis do tipo "${tipoNormalizado}":`,
+          `Encontrados ${result.length} imóveis do tipo "${tipoNormalizado}":`,
           result.map((i) => ({
             id: i.id,
             titulo: i.titulo,
@@ -168,7 +166,7 @@ const DB = {
         );
         return result;
       } catch (error) {
-        console.error("❌ Erro crítico ao listar por tipo:", error);
+        console.error("Erro crítico ao listar por tipo:", error);
         return [];
       }
     },
@@ -177,7 +175,7 @@ const DB = {
   // ========== PROPRIETÁRIOS ==========
   proprietarios: {
     async listar() {
-      console.log("📋 DB.proprietarios.listar - Buscando do Supabase...");
+      console.log("DB.proprietarios.listar - Buscando do Supabase...");
 
       try {
         const { data, error } = await supabase
@@ -186,10 +184,7 @@ const DB = {
           .order("nome", { ascending: true });
 
         if (error) {
-          console.error(
-            "❌ DB.proprietarios.listar - Erro do Supabase:",
-            error,
-          );
+          console.error("DB.proprietarios.listar - Erro do Supabase:", error);
           throw error;
         }
 
@@ -245,7 +240,7 @@ const DB = {
           .single();
 
         if (error) {
-          console.error("❌ DB.proprietarios.criar - Erro do Supabase:", error);
+          console.error("DB.proprietarios.criar - Erro do Supabase:", error);
           throw error;
         }
 
@@ -311,11 +306,11 @@ const DB = {
           .single();
 
         if (error) {
-          console.error("❌ Erro ao atualizar proprietário:", error);
+          console.error("Erro ao atualizar proprietário:", error);
           throw error;
         }
 
-        console.log("✅ Proprietário atualizado com sucesso:", data);
+        console.log("Proprietário atualizado com sucesso:", data);
 
         // Fazer backup em localStorage
         const backup = JSON.parse(
@@ -348,7 +343,7 @@ const DB = {
             synced: false,
           };
           localStorage.setItem("proprietarios_backup", JSON.stringify(backup));
-          console.log("✅ Proprietário atualizado localmente:", backup[index]);
+          console.log("Proprietário atualizado localmente:", backup[index]);
           return backup[index];
         }
 
@@ -358,7 +353,7 @@ const DB = {
 
     async deletar(id) {
       try {
-        console.log("🗑️ DB.proprietarios.deletar - Deletando:", id);
+        console.log("DB.proprietarios.deletar - Deletando:", id);
 
         if (!supabase || !supabase.from) {
           throw new Error("Supabase não está inicializado corretamente");
@@ -370,11 +365,11 @@ const DB = {
           .eq("id", id);
 
         if (error) {
-          console.error("❌ Erro ao deletar proprietário:", error);
+          console.error("Erro ao deletar proprietário:", error);
           throw error;
         }
 
-        console.log("✅ Proprietário deletado com sucesso");
+        console.log("Proprietário deletado com sucesso");
 
         // Remover do backup localStorage
         const backup = JSON.parse(
@@ -397,7 +392,7 @@ const DB = {
         const filtered = backup.filter((p) => p.id !== id);
         localStorage.setItem("proprietarios_backup", JSON.stringify(filtered));
 
-        console.log("✅ Proprietário deletado localmente");
+        console.log("Proprietário deletado localmente");
         return true;
       }
     },
@@ -645,24 +640,24 @@ const DB = {
 async function testarConectividadeSupabase() {
   try {
     if (!supabase || typeof supabase.from !== "function") {
-      console.error("❌ Supabase não está inicializado corretamente");
+      console.error("Supabase não está inicializado corretamente");
       return false;
     }
 
-    console.log("🔍 Testando conectividade com Supabase...");
+    console.log("Testando conectividade com Supabase...");
     const { error } = await supabase
       .from("imoveis")
       .select("count", { count: "exact", head: true });
 
     if (error) {
-      console.error("❌ Erro ao conectar com Supabase:", error.message);
+      console.error("Erro ao conectar com Supabase:", error.message);
       return false;
     }
 
-    console.log("✅ Conectividade com Supabase OK!");
+    console.log("Conectividade com Supabase OK!");
     return true;
   } catch (error) {
-    console.error("❌ Erro ao testar conectividade:", error.message);
+    console.error("Erro ao testar conectividade:", error.message);
     return false;
   }
 }
@@ -671,4 +666,4 @@ async function testarConectividadeSupabase() {
 window.testarConectividadeSupabase = testarConectividadeSupabase;
 window.DB = DB;
 
-console.log("✅ Funções de banco de dados carregadas!");
+console.log("Funções de banco de dados carregadas!");
