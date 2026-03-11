@@ -119,7 +119,7 @@ const enviarContato = async (req, res) => {
       await resend.batch.send([
         {
           from: "Gabrielly Silva <onboarding@resend.dev>",
-          to: ["Gabriellycorretora1@gmail.com"],
+          to: ["Ruansanttos0109@gmail.com"], // Email de teste
           subject: `📬 Novo Contato: ${assunto}`,
           html: htmlEmailNotificacao,
           reply_to: email,
