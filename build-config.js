@@ -1,18 +1,60 @@
 const fs = require("fs");
 const path = require("path");
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+// Variáveis de ambiente (Vercel/Netlify) ou valores padrão
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://qlppgehmslfjffsfrazw.supabase.co";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFscHBnZWhtc2xmamZmc2ZyYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNjE1MTYsImV4cCI6MjA4MzYzNzUxNn0.yDsPc0icyI3pNugua_nL7JKBlObWd0LTEW9bGG5N1eA";
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error(
-    "Erro: Variáveis SUPABASE_URL e SUPABASE_ANON_KEY são obrigatórias",
-  );
-  process.exit(1);
+const configContent = `/**
+ * ============================================
+ * CONFIGURAÇÃO DE AMBIENTE
+ * ============================================
+ *
+ * ARQUIVO GERADO AUTOMATICAMENTE NO BUILD
+ * Data: ${new Date().toISOString()}
+ *
+ * NÃO EDITE MANUALMENTE - Configure em Vercel/Netlify Environment Variables
+ */
+
+const CONFIG = {
+  supabase: {
+    url: "${SUPABASE_URL}",
+    key: "${SUPABASE_ANON_KEY}",
+  },
+  app: {
+    nome: "Gabrielly Corretora",
+    versao: "2.0.0",
+    autor: "Gabrielly Silva",
+    creci: "26.012",
+  },
+  contato: {
+    telefone: "5511999999999",
+    email: "contato@gabriellycorretora.com.br",
+    instagram: "gabrielly.corretora",
+    endereco: "São Paulo, SP",
+  },
+  features: {
+    uploadImagens: true,
+    gestaoFinanceira: true,
+    relatorios: true,
+    backup: true,
+  },
+};
+
+// Validar configuração crítica
+if (!CONFIG.supabase.url || !CONFIG.supabase.key) {
+  console.error("ERRO: Credenciais do Supabase não configuradas!");
+  console.error("Configure as variáveis de ambiente no Vercel/Netlify.");
 }
 
-const configContent = `const SUPABASE_URL = "${SUPABASE_URL}";
-const SUPABASE_ANON_KEY = "${SUPABASE_ANON_KEY}";
+// Prevenir modificação
+Object.freeze(CONFIG);
+Object.freeze(CONFIG.supabase);
+Object.freeze(CONFIG.app);
+Object.freeze(CONFIG.contato);
+Object.freeze(CONFIG.features);
+
+window.APP_CONFIG = CONFIG;
 `;
 
 const targetDir = path.join(__dirname, "ativos", "js");
@@ -24,14 +66,4 @@ if (!fs.existsSync(targetDir)) {
 
 fs.writeFileSync(targetPath, configContent, "utf8");
 console.log("config.js gerado:", targetPath);
-console.log("🎉 Build concluído!\n");
-
-// Exit com código apropriado
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.warn(
-    "⚠️ Build concluído COM AVISOS - configure as variáveis de ambiente!",
-  );
-  process.exit(0); // Não falhar o build, mas avisar
-} else {
-  process.exit(0);
-}
+console.log("Build concluído!");
