@@ -1,5 +1,5 @@
 const { createClient } = require("@supabase/supabase-js");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 // Inicializar Supabase
 const supabase = createClient(
@@ -7,14 +7,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY,
 );
 
-// Configurar transporter do Nodemailer
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+// Inicializar Resend (substitui Nodemailer/Gmail)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Enviar email de contato
 const enviarContato = async (req, res) => {
@@ -56,19 +50,8 @@ const enviarContato = async (req, res) => {
 
     console.log("✅ Contato salvo no Supabase:", contatoSalvo.id);
 
-    // ⚠️ ENVIO DE EMAIL DESABILITADO TEMPORARIAMENTE
-    // Para reativar, configure EMAIL_PASSWORD no Render e descomente o código abaixo
-
-    // Contato salvo com sucesso e resposta enviada imediatamente
-    return res.status(200).json({
-      success: true,
-      message: "Mensagem recebida com sucesso! Entraremos em contato em breve.",
-      contatoId: contatoSalvo.id,
-    });
-    
-    /* ===== CÓDIGO DE EMAIL COMENTADO - REQUER EMAIL_PASSWORD =====
-    
-    const htmlEmail = `
+    // Enviar emails usando Resend
+    const htmlEmailNotificacao = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #3a1a1a 0%, #2d1010 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
           <h1 style="margin: 0; color: #c9a961;">Novo Contato - Gabrielly Silva</h1>
@@ -96,82 +79,79 @@ const enviarContato = async (req, res) => {
       </div>
     `;
 
-    // Opções do email
-    const mailOptionsDestino = {
-      from: process.env.EMAIL_USER,
-      to: "Gabriellycorretora1@gmail.com", // Email de destino
-      subject: `📬 Novo Contato: ${assunto}`,
-      html: htmlEmail,
-      replyTo: email, // Permitir resposta direta ao cliente
-    };
-
-    // Email de confirmação para o cliente
-    const mailOptionsCliente = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "✅ Mensagem Recebida - Gabrielly Silva",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #3a1a1a 0%, #2d1010 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="margin: 0; color: #c9a961;">Obrigada pelo Contato!</h1>
+    const htmlEmailConfirmacao = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #3a1a1a 0%, #2d1010 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <h1 style="margin: 0; color: #c9a961;">Obrigada pelo Contato!</h1>
+        </div>
+        
+        <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #ddd;">
+          <p>Olá ${nome},</p>
+          
+          <p>Recebemos sua mensagem com sucesso! Gabrielly entrará em contato com você em breve através do email <strong>${email}</strong>${telefone ? ` ou telefone <strong>${telefone}</strong>` : ""}.</p>
+          
+          <div style="background: white; padding: 15px; border-left: 4px solid #c9a961; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">Resumo do seu contato:</h3>
+            <p><strong>Assunto:</strong> ${assunto}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            ${telefone ? `<p><strong>Telefone:</strong> ${telefone}</p>` : ""}
           </div>
           
-          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #ddd;">
-            <p>Olá ${nome},</p>
-            
-            <p>Recebemos sua mensagem com sucesso! Gabrielly entrará em contato com você em breve através do email <strong>${email}</strong> ou telefone <strong>${telefone || "(disponibilizar no contato)"}</strong>.</p>
-            
-            <div style="background: white; padding: 15px; border-left: 4px solid #c9a961; margin: 20px 0;">
-              <h3 style="color: #333; margin-top: 0;">Resumo do seu contato:</h3>
-              <p><strong>Assunto:</strong> ${assunto}</p>
-              <p><strong>Email:</strong> ${email}</p>
-              ${telefone ? `<p><strong>Telefone:</strong> ${telefone}</p>` : ""}
-            </div>
-            
-            <p>Enquanto isso, você pode:</p>
-            <ul>
-              <li>Explorar nossos <a href="https://seu-site.com/servicos.html" style="color: #c9a961;">serviços</a></li>
-              <li>Analisar nossos <a href="https://seu-site.com/vendas.html" style="color: #c9a961;">imóveis à venda</a></li>
-              <li>Verificar <a href="https://seu-site.com/locacao.html" style="color: #c9a961;">imóveis para locação</a></li>
-            </ul>
-            
-            <p>Para dúvidas urgentes, entre em contato via <a href="https://wa.me/557592112142" style="color: #c9a961;">WhatsApp</a>.</p>
-            
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-            <p style="color: #999; font-size: 12px; text-align: center;">
-              Gabrielly Silva - Corretora de Imóveis CRECI 26.012
-            </p>
-          </div>
+          <p>Enquanto isso, você pode:</p>
+          <ul>
+            <li>Explorar nossos <a href="https://gabriellycorretora.vercel.app/tela-inicial/servicos.html" style="color: #c9a961;">serviços</a></li>
+            <li>Analisar nossos <a href="https://gabriellycorretora.vercel.app/tela-inicial/vendas.html" style="color: #c9a961;">imóveis à venda</a></li>
+            <li>Verificar <a href="https://gabriellycorretora.vercel.app/tela-inicial/locacao.html" style="color: #c9a961;">imóveis para locação</a></li>
+          </ul>
+          
+          <p>Para dúvidas urgentes, entre em contato via <a href="https://wa.me/557592112142" style="color: #c9a961;">WhatsApp</a>.</p>
+          
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            Gabrielly Silva - Corretora de Imóveis CRECI 26.012
+          </p>
         </div>
-      `,
-    };
+      </div>
+    `;
 
-    // Enviar ambos os emails em paralelo
+    // Enviar emails usando Resend
     try {
-      await Promise.all([
-        transporter.sendMail(mailOptionsDestino),
-        transporter.sendMail(mailOptionsCliente),
+      await resend.batch.send([
+        {
+          from: "Gabrielly Silva <onboarding@resend.dev>",
+          to: ["Gabriellycorretora1@gmail.com"],
+          subject: `📬 Novo Contato: ${assunto}`,
+          html: htmlEmailNotificacao,
+          reply_to: email,
+        },
+        {
+          from: "Gabrielly Silva <onboarding@resend.dev>",
+          to: [email],
+          subject: "✅ Mensagem Recebida - Gabrielly Silva",
+          html: htmlEmailConfirmacao,
+        },
       ]);
-      console.log("✅ Emails enviados com sucesso");
+
+      console.log("✅ Emails enviados com sucesso via Resend");
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "✅ Mensagem enviada com sucesso! Verifique seu email para confirmação.",
+        contatoId: contatoSalvo.id,
+      });
     } catch (emailError) {
-      console.error("❌ Erro ao enviar email:", emailError);
+      console.error("❌ Erro ao enviar email via Resend:", emailError);
+
       // Mesmo se o email falhar, retorna sucesso pois foi salvo no banco
       return res.status(200).json({
         success: true,
         message:
           "Mensagem recebida com sucesso! Entraremos em contato em breve.",
-        warning:
-          "Email de confirmação pode ter falhado. Verifique sua caixa de spam.",
+        contatoId: contatoSalvo.id,
+        warning: "Email de confirmação pode ter falhado.",
       });
     }
-
-    return res.status(200).json({
-      success: true,
-      message:
-        "✅ Mensagem enviada com sucesso! Em breve entraremos em contato.",
-    });
-    
-    ===== FIM DO CÓDIGO DE EMAIL ===== */
   } catch (error) {
     console.error("Erro ao enviar email:", error);
     return res.status(500).json({
