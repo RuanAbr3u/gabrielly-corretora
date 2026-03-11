@@ -10,6 +10,12 @@ const supabase = createClient(
 // Inicializar Resend (substitui Nodemailer/Gmail)
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Log de verificação da API key
+console.log(
+  "🔧 RESEND_API_KEY:",
+  process.env.RESEND_API_KEY ? "✅ Definida" : "❌ NÃO DEFINIDA",
+);
+
 // Enviar email de contato
 const enviarContato = async (req, res) => {
   try {
@@ -141,7 +147,10 @@ const enviarContato = async (req, res) => {
         contatoId: contatoSalvo.id,
       });
     } catch (emailError) {
-      console.error("❌ Erro ao enviar email via Resend:", emailError);
+      console.error("❌ Erro ao enviar email via Resend:");
+      console.error("Tipo do erro:", emailError.name);
+      console.error("Mensagem:", emailError.message);
+      console.error("Detalhes completos:", JSON.stringify(emailError, null, 2));
 
       // Mesmo se o email falhar, retorna sucesso pois foi salvo no banco
       return res.status(200).json({
