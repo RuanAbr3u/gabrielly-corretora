@@ -1,9 +1,3 @@
-/**
- * ✅ Script de Logout Seguro
- * Limpa sessão e cookies de forma segura
- */
-
-// Detecta automaticamente se está em produção (Vercel) ou desenvolvimento (localhost)
 const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
@@ -11,7 +5,6 @@ const API_BASE_URL = isLocal
   ? "http://localhost:3001"
   : "https://gabrielly-corretora.onrender.com";
 
-// ✅ Função de logout seguro
 async function logoutSeguro() {
   try {
     // 1. Enviar requisição ao backend para limpar cookies

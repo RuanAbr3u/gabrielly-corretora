@@ -1,19 +1,9 @@
-// ===== CONFIGURAÇÃO GLOBAL =====
-// Detecta automaticamente se está em produção (Vercel) ou desenvolvimento (localhost)
 const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 const API_BASE_URL = isLocal
   ? "http://localhost:3001"
   : "https://gabrielly-corretora.onrender.com";
-
-console.log(
-  "🌍 Ambiente detectado:",
-  isLocal ? "Desenvolvimento (Local)" : "Produção (Vercel)",
-);
-console.log("🔗 API Base URL:", API_BASE_URL);
-
-// ✅ VALIDAÇÃO DE FORÇA DE SENHA
 const STRONG_PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 

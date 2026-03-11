@@ -1,5 +1,3 @@
-// ===== CONFIGURAÇÃO GLOBAL =====
-// Detecta automaticamente se está em produção (Vercel) ou desenvolvimento (localhost)
 const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
@@ -7,13 +5,6 @@ const API_BASE_URL = isLocal
   ? "http://localhost:3001"
   : "https://gabrielly-corretora.onrender.com";
 
-console.log(
-  "🌍 Ambiente detectado:",
-  isLocal ? "Desenvolvimento (Local)" : "Produção (Vercel)",
-);
-console.log("🔗 API Base URL:", API_BASE_URL);
-
-// ✅ HELPER: Fetch com autenticação automática (token via cookie HttpOnly ou sessionStorage)
 async function fetchWithAuth(url, options = {}) {
   // ✅ Usar URL absoluta se API_BASE_URL for fornecido
   const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;

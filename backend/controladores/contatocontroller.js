@@ -1,27 +1,21 @@
 const { createClient } = require("@supabase/supabase-js");
 const { Resend } = require("resend");
 
-// Inicializar Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY,
 );
 
-// Inicializar Resend (substitui Nodemailer/Gmail)
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Log de verificação da API key
-console.log(
-  "🔧 RESEND_API_KEY:",
-  process.env.RESEND_API_KEY ? "✅ Definida" : "❌ NÃO DEFINIDA",
-);
+if (!process.env.RESEND_API_KEY) {
+  console.error("RESEND_API_KEY não configurada");
+}
 
-// Enviar email de contato
 const enviarContato = async (req, res) => {
   try {
     const { nome, email, telefone, assunto, mensagem } = req.body;
 
-    // Validação básica
     if (!nome || !email || !assunto || !mensagem) {
       return res.status(400).json({
         error: true,
@@ -29,7 +23,6 @@ const enviarContato = async (req, res) => {
       });
     }
 
-    // Salvar contato no Supabase
     const { data: contatoSalvo, error: erroSupabase } = await supabase
       .from("contatos")
       .insert([
@@ -126,27 +119,22 @@ const enviarContato = async (req, res) => {
       // Se não funcionar, adicione Gabriellycorretora1@gmail.com em resend.com/settings/emails
       await resend.emails.send({
         from: "Gabrielly Silva <onboarding@resend.dev>",
-        to: ["Gabriellycorretora1@gmail.com"], // ← ALTERE AQUI o email de destino
-        subject: `📬 Novo Contato: ${assunto}`,
+        to: ["Gabriellycorretora1@gmail.com"],
+        subject: `Novo Contato: ${assunto}`,
         html: htmlEmailNotificacao,
         reply_to: email,
       });
 
-      console.log("✅ Email enviado com sucesso via Resend");
+      console.log("Email enviado via Resend");
 
       return res.status(200).json({
         success: true,
         message:
-          "✅ Mensagem enviada com sucesso! Verifique seu email para confirmação.",
+          "Mensagem enviada com sucesso! Verifique seu email para confirmação.",
         contatoId: contatoSalvo.id,
       });
     } catch (emailError) {
-      console.error("❌ Erro ao enviar email via Resend:");
-      console.error("Tipo do erro:", emailError.name);
-      console.error("Mensagem:", emailError.message);
-      console.error("Detalhes completos:", JSON.stringify(emailError, null, 2));
-
-      // Mesmo se o email falhar, retorna sucesso pois foi salvo no banco
+      console.error("Erro ao enviar email:", emailError.message);
       return res.status(200).json({
         success: true,
         message:

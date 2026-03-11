@@ -9,15 +9,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
-// Trust proxy para Render
 app.set("trust proxy", 1);
 
-// ===== MIDDLEWARE DE SEGURANÇA =====
-
-// 0. Cookie Parser - Necessário antes de outros middlewares
 app.use(cookieParser());
-
-// 1. Helmet - Headers de segurança HTTP
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -41,7 +40,6 @@ app.use(
   }),
 );
 
-// 2. CORS configurável por ambiente
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(",")
   : [
@@ -61,7 +59,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.warn(`❌ CORS bloqueado para origem: ${origin}`);
+        console.warn(`CORS bloqueado para origem: ${origin}`);
         callback(new Error("CORS não permitido"));
       }
     },
@@ -72,11 +70,9 @@ app.use(
   }),
 );
 
-// 3. Body parser com limite
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// 4. Rate limiting diferenciado por ambiente
 const limiterConfig = {
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: NODE_ENV === "production" ? 50 : 200, // Mais restritivo em produção
@@ -144,10 +140,8 @@ app.get("/api/logs", (req, res) => {
   });
 });
 
-// Servir arquivos estáticos (uploads)
 app.use("/uploads", express.static("uploads"));
 
-// ===== ROTAS =====
 const authRoutes = require("./rotas/auth");
 const imoveisRoutes = require("./rotas/imoveis");
 const proprietariosRoutes = require("./rotas/proprietarios");
@@ -174,7 +168,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// ===== TRATAMENTO DE ERROS =====
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
@@ -184,7 +177,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 - Rota não encontrada
 app.use((req, res) => {
   res.status(404).json({
     error: true,
@@ -192,25 +184,10 @@ app.use((req, res) => {
   });
 });
 
-// ===== INICIAR SERVIDOR =====
 app.listen(PORT, () => {
-  const separator = "═".repeat(60);
-  const timestamp = new Date().toISOString();
-
-  console.log("\n" + separator);
-  console.log(`🔄 SERVIDOR REINICIADO - ${timestamp}`);
-  console.log(separator);
-
-  // ✅ Logs apenas em desenvolvimento
-  if (NODE_ENV === "development") {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`📡 API: http://localhost:${PORT}`);
-    console.log(`🌐 Frontend: ${process.env.FRONTEND_URL}`);
-    console.log(`📦 Ambiente: ${process.env.NODE_ENV || "development"}`);
-    console.log(`🍪 Cookie Parser: ✅ Ativo`);
-    console.log(`🔒 CORS Origins: ${allowedOrigins.join(", ")}`);
-  } else {
-    console.log(`✅ Servidor iniciado na porta ${PORT}`);
+  console.log(`Servidor iniciado na porta ${PORT}`);
+  console.log(`Ambiente: ${NODE_ENV}`);
+});
   }
 
   console.log(separator + "\n");
