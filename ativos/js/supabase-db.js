@@ -3,9 +3,10 @@
 // ============================================
 
 // Validação: Verificar se supabase está disponível
-if (typeof supabase === "undefined") {
+var supabase;
+if (typeof supabase === "undefined" || !supabase) {
   if (window.supabaseClient) {
-    var supabase = window.supabaseClient;
+    supabase = window.supabaseClient;
   } else {
     console.error("supabase-db.js: CRÍTICO - supabase não foi inicializado!");
   }

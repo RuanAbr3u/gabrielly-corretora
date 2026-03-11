@@ -277,7 +277,7 @@ async function carregarImoveis(tipoImovel, containerId) {
           tipoImovelNormalizado === tipoFiltro.replace("ção", "cao")
         );
       });
-      console.log("📂 Imóveis encontrados no localStorage:", imoveis.length);
+      console.log("Imóveis encontrados no localStorage:", imoveis.length);
     }
   } catch (error) {
     console.error("Erro ao carregar imóveis do Supabase:", error);
@@ -454,7 +454,7 @@ async function carregarImoveis(tipoImovel, containerId) {
       event.preventDefault();
       event.stopPropagation();
       const imovelId = target.dataset.id || target.getAttribute("data-id");
-      console.log("✅ Clicou em Ver Mais - ID:", imovelId, "Target:", target);
+      console.log("Clicou em Ver Mais - ID:", imovelId, "Target:", target);
       if (imovelId) {
         abrirModal(imovelId, imoveisFiltradosPorTipo);
       }
@@ -497,8 +497,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. Carregamento da Listagem
   const pathname = location.pathname;
   const href = location.href;
-  console.log("📍 Pathname atual:", pathname);
-  console.log("📍 URL completa:", href);
+  console.log("Pathname atual:", pathname);
+  console.log("URL completa:", href);
 
   let tipoPagina = "venda"; // Padrão
 
@@ -517,15 +517,15 @@ document.addEventListener("DOMContentLoaded", () => {
     tipoPagina = "venda";
   }
 
-  console.log("🏷️ Tipo de página detectado:", tipoPagina);
-  console.log("🔍 Vai buscar imóveis do tipo:", tipoPagina);
+  console.log("Tipo de página detectado:", tipoPagina);
+  console.log("Vai buscar imóveis do tipo:", tipoPagina);
   const containerId = "listaImoveisSite"; // ID padrão do main.js
 
   if (document.getElementById(containerId)) {
-    console.log("✅ Container encontrado, iniciando carregamento...");
+    console.log("Container encontrado, iniciando carregamento...");
     carregarImoveis(tipoPagina, containerId);
   } else {
-    console.log("❌ Container não encontrado:", containerId);
+    console.log("Container não encontrado:", containerId);
   }
 
   // 4. Event Listeners de Fechamento do Modal

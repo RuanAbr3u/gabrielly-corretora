@@ -22,25 +22,29 @@ document.addEventListener("DOMContentLoaded", () => {
       balao.style.transition = "opacity 1s ease-in-out";
       balao.style.opacity = 1;
     }, 1000);
-  } 
-  
-  // ---------------------------------------------------------- 
-  // 2. LISTAGEM DE IMÓVEIS 
+  }
+
+  // ----------------------------------------------------------
+  // 2. LISTAGEM DE IMÓVEIS
   // ----------------------------------------------------------
 
   const container = document.getElementById("listaImoveisSite");
   if (!container) return; // encerra se não estiver na página correta
 
   // Verifica se há filtros na página (significa que script-listagem.js deve gerenciar)
-  const hasFiltros = document.getElementById('filtroBairro') || document.getElementById('filtroCategoria');
+  const hasFiltros =
+    document.getElementById("filtroBairro") ||
+    document.getElementById("filtroCategoria");
   if (hasFiltros) {
-    console.log('⚠️ Filtros detectados - script-listagem.js vai gerenciar os imóveis');
+    console.log(
+      "Filtros detectados - script-listagem.js vai gerenciar os imóveis",
+    );
     return; // Deixa o script-listagem.js gerenciar
   }
 
   container.innerHTML = "";
 
-  const imoveis = JSON.parse(localStorage.getItem("imoveis")) || []; 
+  const imoveis = JSON.parse(localStorage.getItem("imoveis")) || [];
 
   // Detecta o tipo de página (venda ou locação)
   const tipoPagina = location.pathname.includes("vendas.html")
@@ -63,34 +67,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const img =
       imovel.imagens && imovel.imagens[0]
         ? imovel.imagens[0]
-        : "./img/sem-foto.jpg"; 
+        : "./img/sem-foto.jpg";
 
     // Formatação dos atributos
     const txtQuartos = formatarAtributo(imovel.quartos, "quarto", "quartos");
     const txtBanheiros = formatarAtributo(
       imovel.banheiros,
       "banheiro",
-      "banheiros"
+      "banheiros",
     );
     const txtVagas = formatarAtributo(imovel.vagas, "vaga", "vagas");
 
     // --- CORRIGIDO: Só exibe área se for > 0 ---
-    const txtArea = imovel.areaUtil && Number(imovel.areaUtil) > 0 ? `${Number(imovel.areaUtil)} m²` : "";
+    const txtArea =
+      imovel.areaUtil && Number(imovel.areaUtil) > 0
+        ? `${Number(imovel.areaUtil)} m²`
+        : "";
 
     const garagem =
       imovel.garagem === "Com garagem"
         ? txtVagas || "Garagem"
         : imovel.garagem === "Sem garagem"
-        ? "Sem garagem"
-        : ""; 
+          ? "Sem garagem"
+          : "";
 
     // Adiciona Condomínio se existir
     const condominioInfo =
       imovel.condominio && imovel.condominio.trim() !== ""
         ? imovel.condominio
-        : ""; 
+        : "";
 
-    // --- ATUALIZADO (especificacoes do CARD) --- 
+    // --- ATUALIZADO (especificacoes do CARD) ---
     const especificacoes = [
       txtArea,
       txtQuartos,
@@ -122,10 +129,10 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
     container.appendChild(card);
-  }); 
+  });
 
-  // ---------------------------------------------------------- 
-  // 3. MODAL DE DETALHES 
+  // ----------------------------------------------------------
+  // 3. MODAL DE DETALHES
   // ----------------------------------------------------------
 
   const modal = document.getElementById("modalImovel");
@@ -142,10 +149,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnNext = document.getElementById("btnNext");
 
   let imagensAtuais = [];
-  let indiceImagem = 0; 
+  let indiceImagem = 0;
 
-  // ---------------------------------------------------------- 
-  // Função para mostrar imagem no modal 
+  // ----------------------------------------------------------
+  // Função para mostrar imagem no modal
   // ----------------------------------------------------------
 
   function mostrarImagem(index) {
@@ -155,10 +162,10 @@ document.addEventListener("DOMContentLoaded", () => {
     img.src = imagensAtuais[index];
     img.className = "modal-img";
     modalGaleria.appendChild(img);
-  } 
+  }
 
-  // ---------------------------------------------------------- 
-  // Função para abrir modal (COM AS MELHORIAS) 
+  // ----------------------------------------------------------
+  // Função para abrir modal (COM AS MELHORIAS)
   // ----------------------------------------------------------
 
   function abrirModal(imovel) {
@@ -174,10 +181,10 @@ document.addEventListener("DOMContentLoaded", () => {
         '<div class="sem-imagem" style="text-align:center; padding: 20px;">Sem imagem disponível</div>';
     }
 
-    modalTitulo.textContent = imovel.titulo; 
-    
+    modalTitulo.textContent = imovel.titulo;
+
     // --- CORRIGIDO: DESCRIÇÃO (Apenas a descrição livre) ---
-    modalDescricao.textContent = imovel.descricao; 
+    modalDescricao.textContent = imovel.descricao;
 
     // --- PREÇO (Formatação Corrigida) ---
     const precoNum = Number(imovel.preco);
@@ -189,23 +196,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tipoPagina === "locacao") {
       precoFormatado += "/mês";
     }
-    modalPreco.textContent = precoFormatado; 
+    modalPreco.textContent = precoFormatado;
 
     // ----------------------------------------------------
-    // --- SPECS & CARACTERÍSTICAS (Formato Profissional) --- 
+    // --- SPECS & CARACTERÍSTICAS (Formato Profissional) ---
     // ----------------------------------------------------
 
     // 1. Linha de Specs Principais (Categoria, Área, Quartos, Suítes, Banheiros, Garagem, Condomínio)
     const txtQuartos = formatarAtributo(imovel.quartos, "quarto", "quartos");
-    const txtSuites = formatarAtributo(imovel.suites, "suíte", "suítes"); 
+    const txtSuites = formatarAtributo(imovel.suites, "suíte", "suítes");
     const txtBanheiros = formatarAtributo(
       imovel.banheiros,
       "banheiro",
-      "banheiros"
+      "banheiros",
     );
     const txtVagas = formatarAtributo(imovel.vagas, "vaga", "vagas");
     // Garante que só exibe área se for > 0
-    const txtArea = imovel.areaUtil && Number(imovel.areaUtil) > 0 ? `${Number(imovel.areaUtil)} m²` : ""; 
+    const txtArea =
+      imovel.areaUtil && Number(imovel.areaUtil) > 0
+        ? `${Number(imovel.areaUtil)} m²`
+        : "";
 
     const garagemTxt =
       imovel.garagem === "Com garagem" && txtVagas
@@ -226,64 +236,70 @@ document.addEventListener("DOMContentLoaded", () => {
     // Monta o array principal de especificações
     const specsArray = [
       imovel.categoria,
-      txtArea, 
+      txtArea,
       txtQuartos,
-      txtSuites, 
+      txtSuites,
       txtBanheiros,
       garagemTxt,
       condominioInfo,
-    ].filter(Boolean); 
-    
+    ].filter(Boolean);
+
     // Cria a primeira linha (Specs)
     const specsHtml = `<p class="spec-line-1">${specsArray.join(" • ")}</p>`;
 
     // --- NOVO: Linha de Valores (Condomínio, IPTU) ---
     const formatarValorDisplay = (val) => {
-        const num = Number(val);
-        // Exibe apenas se o valor for positivo
-        if (isNaN(num) || num <= 0) return ""; 
-        return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
+      const num = Number(val);
+      // Exibe apenas se o valor for positivo
+      if (isNaN(num) || num <= 0) return "";
+      return num.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+    };
 
     const valorCondominioTxt = formatarValorDisplay(imovel.valorCondominio);
     const valorIPTUTxt = formatarValorDisplay(imovel.valorIPTU);
-    
-    const condominioDisplay = valorCondominioTxt ? `Condomínio: ${valorCondominioTxt}` : '';
-    const iptuDisplay = valorIPTUTxt ? `IPTU: ${valorIPTUTxt}` : '';
-    const separador = condominioDisplay && iptuDisplay ? ' | ' : '';
-    
-    const valoresHtml = (condominioDisplay || iptuDisplay)
-      ? `<p class="spec-line-valores">${condominioDisplay}${separador}${iptuDisplay}</p>`
-      : ""; 
-      
+
+    const condominioDisplay = valorCondominioTxt
+      ? `Condomínio: ${valorCondominioTxt}`
+      : "";
+    const iptuDisplay = valorIPTUTxt ? `IPTU: ${valorIPTUTxt}` : "";
+    const separador = condominioDisplay && iptuDisplay ? " | " : "";
+
+    const valoresHtml =
+      condominioDisplay || iptuDisplay
+        ? `<p class="spec-line-valores">${condominioDisplay}${separador}${iptuDisplay}</p>`
+        : "";
+
     // 3. Linha de Características (Checkbox)
     const caracteristicasArray = imovel.caracteristicas?.length
       ? imovel.caracteristicas
-      : []; 
-      
+      : [];
+
     // Cria a terceira linha (Características)
     const caracteristicasHtml = caracteristicasArray.length
       ? `<p class="spec-line-2"><strong>Características:</strong> ${caracteristicasArray.join(
-          " • "
+          " • ",
         )}</p>`
-      : ""; 
+      : "";
 
     // Combina tudo no modalSpecs (três linhas distintas)
-    modalSpecs.innerHTML = specsHtml + valoresHtml + caracteristicasHtml; 
+    modalSpecs.innerHTML = specsHtml + valoresHtml + caracteristicasHtml;
 
     // Link do WhatsApp
     const telefone = "557592112142";
     const msg = encodeURIComponent(
-      `Olá! Tenho interesse no imóvel: ${imovel.titulo}. Poderia me passar mais detalhes?`
+      `Olá! Tenho interesse no imóvel: ${imovel.titulo}. Poderia me passar mais detalhes?`,
     );
     if (botaoWhats) botaoWhats.href = `https://wa.me/${telefone}?text=${msg}`;
 
     modal.style.display = "flex";
     setTimeout(() => modal.classList.add("ativo"), 10);
-  } 
-  
-  // ---------------------------------------------------------- 
-  // EVENTOS DE ABRIR E FECHAR MODAL 
+  }
+
+  // ----------------------------------------------------------
+  // EVENTOS DE ABRIR E FECHAR MODAL
   // ----------------------------------------------------------
 
   // COMENTADO: script-listagem.js agora gerencia o evento de abrir modal
@@ -301,14 +317,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   [fecharModal, btnFechar, modalBackdrop].forEach((el) =>
-    el?.addEventListener("click", fechar)
+    el?.addEventListener("click", fechar),
   );
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") fechar();
-  }); 
-  
-  // ---------------------------------------------------------- 
-  // NAVEGAÇÃO ENTRE IMAGENS (SETAS E SWIPE) 
+  });
+
+  // ----------------------------------------------------------
+  // NAVEGAÇÃO ENTRE IMAGENS (SETAS E SWIPE)
   // ----------------------------------------------------------
 
   if (btnNext && btnPrev && modalGaleria) {
@@ -323,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
       indiceImagem =
         (indiceImagem - 1 + imagensAtuais.length) % imagensAtuais.length;
       mostrarImagem(indiceImagem);
-    }); 
+    });
 
     // Suporte a swipe em celulares
     let startX = 0;
