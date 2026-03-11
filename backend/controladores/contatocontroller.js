@@ -39,7 +39,6 @@ const enviarContato = async (req, res) => {
           telefone: telefone || null,
           assunto,
           mensagem,
-          status: "Novo",
           lido: false,
         },
       ])

@@ -9,6 +9,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
+// Trust proxy para Render
+app.set("trust proxy", 1);
+
 // ===== MIDDLEWARE DE SEGURANÇA =====
 
 // 0. Cookie Parser - Necessário antes de outros middlewares
