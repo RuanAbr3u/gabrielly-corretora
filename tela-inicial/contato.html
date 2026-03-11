@@ -129,9 +129,13 @@
 
     <script src="menu-mobile.js"></script>
     <script>
-      // URL da API Backend
-      const API_URL = "http://localhost:3001/api/contato/enviar";
-      // Para produção, altere para: https://seu-dominio.com/api/contato/enviar
+      // URL da API Backend - detecta ambiente automaticamente
+      const isLocal =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+      const API_URL = isLocal
+        ? "http://localhost:3001/api/contato/enviar"
+        : "https://gabrielly-corretora.onrender.com/api/contato/enviar";
 
       document
         .getElementById("contatoForm")
