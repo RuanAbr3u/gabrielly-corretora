@@ -47,12 +47,27 @@ const enviarContato = async (req, res) => {
 
     if (erroSupabase) {
       console.error("❌ Erro ao salvar contato no Supabase:", erroSupabase);
-      // Continua o processo de envio de email mesmo se falhar no banco
-    } else {
-      console.log("✅ Contato salvo no Supabase:", contatoSalvo.id);
+      return res.status(500).json({
+        success: false,
+        error: true,
+        message: "Erro ao salvar contato. Tente novamente.",
+      });
     }
 
-    // Template do email
+    console.log("✅ Contato salvo no Supabase:", contatoSalvo.id);
+
+    // ⚠️ ENVIO DE EMAIL DESABILITADO TEMPORARIAMENTE
+    // Para reativar, configure EMAIL_PASSWORD no Render e descomente o código abaixo
+
+    // Contato salvo com sucesso e resposta enviada imediatamente
+    return res.status(200).json({
+      success: true,
+      message: "Mensagem recebida com sucesso! Entraremos em contato em breve.",
+      contatoId: contatoSalvo.id,
+    });
+    
+    /* ===== CÓDIGO DE EMAIL COMENTADO - REQUER EMAIL_PASSWORD =====
+    
     const htmlEmail = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #3a1a1a 0%, #2d1010 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
@@ -155,6 +170,8 @@ const enviarContato = async (req, res) => {
       message:
         "✅ Mensagem enviada com sucesso! Em breve entraremos em contato.",
     });
+    
+    ===== FIM DO CÓDIGO DE EMAIL ===== */
   } catch (error) {
     console.error("Erro ao enviar email:", error);
     return res.status(500).json({
