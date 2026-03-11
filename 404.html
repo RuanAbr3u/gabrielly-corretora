@@ -1,84 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="3; url=tela-inicial/index.html">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="3; url=tela-inicial/index.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/jpeg" href="tela-inicial/img/logo.jpg" />
     <title>404 - Página não encontrada</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-        }
-        .container {
-            padding: 40px;
-        }
-        h1 {
-            font-size: 120px;
-            margin-bottom: 20px;
-            text-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-        h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-        p {
-            font-size: 18px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            background: white;
-            color: #667eea;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 25px rgba(0,0,0,0.3);
-        }
-        .countdown {
-            margin-top: 20px;
-            font-size: 14px;
-            opacity: 0.7;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Arial", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+      }
+      .container {
+        padding: 40px;
+      }
+      h1 {
+        font-size: 120px;
+        margin-bottom: 20px;
+        text-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      }
+      h2 {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 18px;
+        opacity: 0.9;
+        margin-bottom: 30px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 15px 30px;
+        background: white;
+        color: #667eea;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: bold;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 25px rgba(0, 0, 0, 0.3);
+      }
+      .countdown {
+        margin-top: 20px;
+        font-size: 14px;
+        opacity: 0.7;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>404</h1>
-        <h2>Página não encontrada</h2>
-        <p>Desculpe, a página que você procura não existe.</p>
-        <a href="tela-inicial/index.html" class="btn">🏠 Voltar para Página Inicial</a>
-        <p class="countdown">Redirecionando automaticamente em <span id="timer">3</span> segundos...</p>
+      <h1>404</h1>
+      <h2>Página não encontrada</h2>
+      <p>Desculpe, a página que você procura não existe.</p>
+      <a href="tela-inicial/index.html" class="btn"
+        >🏠 Voltar para Página Inicial</a
+      >
+      <p class="countdown">
+        Redirecionando automaticamente em <span id="timer">3</span> segundos...
+      </p>
     </div>
     <script>
-        let count = 3;
-        const timer = document.getElementById('timer');
-        const countdown = setInterval(() => {
-            count--;
-            if (timer) timer.textContent = count;
-            if (count <= 0) {
-                clearInterval(countdown);
-                window.location.href = 'tela-inicial/index.html';
-            }
-        }, 1000);
+      let count = 3;
+      const timer = document.getElementById("timer");
+      const countdown = setInterval(() => {
+        count--;
+        if (timer) timer.textContent = count;
+        if (count <= 0) {
+          clearInterval(countdown);
+          window.location.href = "tela-inicial/index.html";
+        }
+      }, 1000);
     </script>
-</body>
+  </body>
 </html>
