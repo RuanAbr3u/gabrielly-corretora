@@ -3,7 +3,13 @@
  * Limpa sessão e cookies de forma segura
  */
 
-const API_BASE_URL = window.API_BASE_URL || "http://localhost:3001";
+// Detecta automaticamente se está em produção (Vercel) ou desenvolvimento (localhost)
+const isLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+const API_BASE_URL = isLocal
+  ? "http://localhost:3001"
+  : "https://gabrielly-corretora.onrender.com";
 
 // ✅ Função de logout seguro
 async function logoutSeguro() {
