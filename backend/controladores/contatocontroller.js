@@ -122,23 +122,17 @@ const enviarContato = async (req, res) => {
 
     // Enviar emails usando Resend
     try {
-      await resend.batch.send([
-        {
-          from: "Gabrielly Silva <onboarding@resend.dev>",
-          to: ["Ruansanttos0109@gmail.com"], // Email de teste
-          subject: `📬 Novo Contato: ${assunto}`,
-          html: htmlEmailNotificacao,
-          reply_to: email,
-        },
-        {
-          from: "Gabrielly Silva <onboarding@resend.dev>",
-          to: [email],
-          subject: "✅ Mensagem Recebida - Gabrielly Silva",
-          html: htmlEmailConfirmacao,
-        },
-      ]);
+      // MODO TESTE: Resend só permite enviar para o email da conta (ruansanttos0109@gmail.com)
+      // Para enviar para outros emails, precisa verificar um domínio em resend.com/domains
+      await resend.emails.send({
+        from: "Gabrielly Silva <onboarding@resend.dev>",
+        to: ["ruansanttos0109@gmail.com"], // Email de teste (minúsculo - importante!)
+        subject: `📬 Novo Contato: ${assunto}`,
+        html: htmlEmailNotificacao,
+        reply_to: email,
+      });
 
-      console.log("✅ Emails enviados com sucesso via Resend");
+      console.log("✅ Email enviado com sucesso via Resend");
 
       return res.status(200).json({
         success: true,
