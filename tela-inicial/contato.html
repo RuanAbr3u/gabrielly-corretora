@@ -1,215 +1,109 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gabrielly Silva | Contato</title>
+    <meta name="description" content="Entre em contato com Gabrielly Silva, Corretora de Imóveis CRECI 26.012. WhatsApp, e-mail e endereço de atendimento." />
+    <meta name="author" content="Gabrielly Silva" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Contato | Gabrielly Silva" />
+    <meta property="og:description" content="Fale com Gabrielly Silva para venda, locação e consultoria imobiliária." />
+    <meta property="og:image" content="./img/logo.jpg" />
+    <title>Contato | Gabrielly Silva</title>
+    <link rel="icon" type="image/jpeg" href="./img/logo.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="icon" type="image/jpeg" href="./img/logo.jpg" />
-    <link rel="stylesheet" href="style-contato.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="rotas.js" defer></script>
+    <script src="menu-mobile.js" defer></script>
+    <script src="contato.js" defer></script>
   </head>
   <body>
-    <header>
-      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <nav id="navBar">
-        <ul>
-          <li><a href="index.html">Início</a></li>
-          <li><a href="servicos.html">Serviços</a></li>
-          <li><a href="locacao.html">Locação</a></li>
-          <li><a href="vendas.html">Vendas</a></li>
-          <li><a href="sobre.html">Sobre</a></li>
-          <li><a href="contato.html" class="ativo">Contato</a></li>
-        </ul>
-      </nav>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="index.html" aria-label="Gabrielly Silva - início"><img class="brand-logo" src="./img/logo.jpg" alt="Logo Gabrielly Silva Corretora de Imóveis" width="64" height="52" decoding="async" /><span class="brand-text"><span class="brand-name">Gabrielly Silva</span><span class="brand-role">Corretora de Imóveis</span></span></a>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-controls="navBar"><span></span><span></span><span></span></button>
+        <nav class="main-nav" id="navBar" aria-label="Navegação principal"><a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="locacao.html">Locação</a><a href="vendas.html">Vendas</a><a href="sobre.html">Sobre</a><a href="contato.html" class="ativo" aria-current="page">Contato</a></nav>
+      </div>
     </header>
 
-    <main>
-      <h1>Fale Conosco</h1>
+    <main class="page-shell">
+      <section class="page-hero">
+        <p class="page-kicker">Contato</p>
+        <h1 class="page-title">Fale com a Gabrielly</h1>
+        <p class="page-intro">Envie sua mensagem ou chame pelo WhatsApp para receber orientação sobre venda, locação ou avaliação de imóveis.</p>
+      </section>
 
-      <div class="contato">
-        <form id="contatoForm">
-          <label for="nome">Nome *</label>
-          <input type="text" id="nome" name="nome" required />
+      <section class="contact-layout content-section">
+        <article class="contact-card">
+          <h2>Enviar mensagem</h2>
+          <form class="contact-form" id="contatoForm" novalidate>
+            <div class="form-field">
+              <label for="nome">Nome *</label>
+              <input type="text" id="nome" name="nome" autocomplete="name" required minlength="2" />
+              <span class="field-error" id="erro-nome"></span>
+            </div>
+            <div class="form-field">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" autocomplete="email" required />
+              <span class="field-error" id="erro-email"></span>
+            </div>
+            <div class="form-field">
+              <label for="telefone">Telefone</label>
+              <input type="tel" id="telefone" name="telefone" autocomplete="tel" inputmode="tel" />
+              <span class="field-error" id="erro-telefone"></span>
+            </div>
+            <div class="form-field">
+              <label for="assunto">Assunto *</label>
+              <input type="text" id="assunto" name="assunto" required minlength="3" />
+              <span class="field-error" id="erro-assunto"></span>
+            </div>
+            <div class="form-field">
+              <label for="mensagem">Mensagem *</label>
+              <textarea id="mensagem" name="mensagem" rows="5" required minlength="10"></textarea>
+              <span class="field-error" id="erro-mensagem"></span>
+            </div>
+            <button class="btn btn-primary" type="submit">Enviar mensagem</button>
+            <p id="statusMensagem" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </article>
 
-          <label for="email">Email *</label>
-          <input type="email" id="email" name="email" required />
-
-          <label for="telefone">Telefone</label>
-          <input type="tel" id="telefone" name="telefone" />
-
-          <label for="assunto">Assunto *</label>
-          <input type="text" id="assunto" name="assunto" required />
-
-          <label for="mensagem">Mensagem *</label>
-          <textarea id="mensagem" name="mensagem" rows="5" required></textarea>
-
-          <button type="submit">Enviar Mensagem</button>
-          <p
-            id="statusMensagem"
-            style="margin-top: 1rem; text-align: center; display: none"
-          ></p>
-        </form>
-      </div>
-
-      <div class="info-contato">
-        <h2>Informações de Contato</h2>
-        <p><strong>WhatsApp:</strong> (75) 9 9211-2142</p>
-        <p><strong>Email:</strong> Gabriellycorretora1@gmail.com</p>
-        <p>
-          <strong>Localização:</strong> Hotel e Business, Edifício Charmant -
-          Caseb, Feira de Santana - BA, 44051-335 - Sala 807
-        </p>
-      </div>
-
-      <div class="mapa-contato">
-        <h2>Localização</h2>
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7798.16803478718!2d-38.95385510557706!3d-12.24259035203898!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7143832b2acd3c3%3A0xb8ffc05ccc74b6d9!2sCharmant%20Hotel%20%26%20Business!5e0!3m2!1spt-BR!2sbr!4v1773143159412!5m2!1spt-BR!2sbr"
-          width="100%"
-          height="400"
-          style="border: none; border-radius: 15px"
-          allowfullscreen=""
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </div>
+        <aside class="contact-card">
+          <h2>Informações de contato</h2>
+          <ul class="contact-list">
+            <li><strong>WhatsApp:</strong> <a href="https://wa.me/557592112142" target="_blank" rel="noopener noreferrer">(75) 9 9211-2142</a></li>
+            <li><strong>Email:</strong> <a href="mailto:gabriellycorretora1@gmail.com">gabriellycorretora1@gmail.com</a></li>
+            <li><strong>Instagram:</strong> <a href="https://www.instagram.com/gabrielly_corretoraa/" target="_blank" rel="noopener noreferrer">@gabrielly_corretoraa</a></li>
+            <li><strong>Localização:</strong> Hotel e Business, Edifício Charmant - Caseb, Feira de Santana - BA, 44051-335 - Sala 807</li>
+          </ul>
+          <div class="contact-map">
+            <h3>Localização</h3>
+            <iframe
+              title="Mapa do endereço de atendimento Gabrielly Silva"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7798.16803478718!2d-38.95385510557706!3d-12.24259035203898!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7143832b2acd3c3%3A0xb8ffc05ccc74b6d9!2sCharmant%20Hotel%20%26%20Business!5e0!3m2!1spt-BR!2sbr!4v1773143159412!5m2!1spt-BR!2sbr"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </aside>
+      </section>
     </main>
 
-    <div id="whatsapp-balao">
-      <a
-        href="https://wa.me/557592112142"
-        target="_blank"
-        aria-label="Abrir WhatsApp"
-      >
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-          alt="WhatsApp Gabrielly Silva"
-        />
-      </a>
-    </div>
+    <div id="whatsapp-balao"><a href="https://wa.me/557592112142" target="_blank" rel="noopener noreferrer" aria-label="Abrir WhatsApp"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="" width="34" height="34" loading="lazy" decoding="async" /></a></div>
 
-    <footer
-      style="
-        background: rgba(58, 26, 26, 0.6);
-        color: rgba(255, 255, 255, 0.7);
-        text-align: center;
-        padding: 1.5rem 1rem;
-        margin-top: auto;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-      "
-    >
-      <p style="margin-bottom: 0.5rem; font-size: 0.9rem">
-        &copy; 2026 Gabrielly Silva - Corretora de Imóveis
-      </p>
-      <p style="font-size: 0.8rem; opacity: 0.6">
-        Desenvolvido por
-        <a
-          href="https://www.instagram.com/abr3u.dev/"
-          target="_blank"
-          style="
-            color: #c9a961;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s ease;
-          "
-          onmouseover="this.style.color = '#fff'"
-          onmouseout="this.style.color = '#c9a961'"
-          >Ruan Abreu</a
-        >
-      </p>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div><img class="footer-logo" src="./img/logo.jpg" alt="Logo Gabrielly Silva Corretora de Imóveis" width="96" height="72" loading="lazy" decoding="async" /><h2 class="footer-title">Gabrielly Silva</h2><p>CRECI 26.012</p></div>
+        <nav class="footer-links" aria-label="Links rápidos"><h2 class="footer-heading">Links</h2><a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="locacao.html">Locação</a><a href="vendas.html">Vendas</a><a href="sobre.html">Sobre</a><a href="contato.html">Contato</a></nav>
+        <div class="footer-contact"><h2 class="footer-heading">Contato</h2><a href="https://wa.me/557592112142" target="_blank" rel="noopener noreferrer">WhatsApp: (75) 9 9211-2142</a><a href="mailto:gabriellycorretora1@gmail.com">Email: gabriellycorretora1@gmail.com</a><a href="https://www.instagram.com/gabrielly_corretoraa/" target="_blank" rel="noopener noreferrer">Instagram: @gabrielly_corretoraa</a></div>
+      </div>
+      <div class="footer-bottom"><span>&copy; 2026 Gabrielly Silva - Corretora de Imóveis.</span><span class="developer-credit">Desenvolvido por <a href="https://www.instagram.com/abr3u.tech/" target="_blank" rel="noopener noreferrer">ABR3U TECH</a>.</span></div>
     </footer>
-
-    <script src="menu-mobile.js"></script>
-    <script>
-      // URL da API Backend - detecta ambiente automaticamente
-      const isLocal =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1";
-      const API_URL = isLocal
-        ? "http://localhost:3001/api/contato/enviar"
-        : "https://gabrielly-corretora.onrender.com/api/contato/enviar";
-
-      document
-        .getElementById("contatoForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-
-          const status = document.getElementById("statusMensagem");
-          const button = this.querySelector("button");
-
-          status.style.display = "block";
-          status.textContent = "Enviando mensagem...";
-          status.style.color = "#c9a961";
-          button.disabled = true;
-          button.style.opacity = "0.6";
-
-          try {
-            const formData = {
-              nome: document.getElementById("nome").value,
-              email: document.getElementById("email").value,
-              telefone: document.getElementById("telefone").value || null,
-              assunto: document.getElementById("assunto").value,
-              mensagem: document.getElementById("mensagem").value,
-            };
-
-            // Timeout de 60 segundos (Render free tier pode demorar ao acordar)
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-            const response = await fetch(API_URL, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(formData),
-              signal: controller.signal,
-            });
-
-            clearTimeout(timeoutId);
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-              status.textContent =
-                result.message ||
-                "✅ Mensagem enviada com sucesso! Em breve entraremos em contato.";
-              status.style.color = "#4ade80";
-              this.reset();
-              setTimeout(() => {
-                status.style.display = "none";
-                button.disabled = false;
-                button.style.opacity = "1";
-              }, 5000);
-            } else {
-              throw new Error(result.message || "Erro ao enviar mensagem");
-            }
-          } catch (error) {
-            console.error("Erro ao enviar contato:", error);
-
-            let mensagemErro = "❌ Erro ao enviar mensagem.";
-
-            if (error.name === "AbortError") {
-              mensagemErro =
-                "⏱️ Tempo esgotado. O servidor demorou muito para responder. Tente novamente.";
-            } else if (error.message.includes("Failed to fetch")) {
-              mensagemErro =
-                "🌐 Erro de conexão. Verifique sua internet e tente novamente.";
-            }
-
-            status.textContent = mensagemErro;
-            status.style.color = "#ef4444";
-            button.disabled = false;
-            button.style.opacity = "1";
-          }
-        });
-    </script>
   </body>
 </html>
+
+
+
+

@@ -34,7 +34,73 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/tela-inicial/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/tela-inicial/servicos.html",
+      "destination": "/servicos",
+      "permanent": true
+    },
+    {
+      "source": "/tela-inicial/locacao.html",
+      "destination": "/locacao",
+      "permanent": true
+    },
+    {
+      "source": "/tela-inicial/vendas.html",
+      "destination": "/vendas",
+      "permanent": true
+    },
+    {
+      "source": "/tela-inicial/sobre.html",
+      "destination": "/sobre",
+      "permanent": true
+    },
+    {
+      "source": "/tela-inicial/contato.html",
+      "destination": "/contato",
+      "permanent": true
+    },
+    {
+      "source": "/tela-de-login/login.html",
+      "destination": "/login",
+      "permanent": true
+    },
+    {
+      "source": "/tela-de-login/painel.html",
+      "destination": "/painel",
+      "permanent": true
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/",
+      "destination": "/tela-inicial/index.html"
+    },
+    {
+      "source": "/servicos",
+      "destination": "/tela-inicial/servicos.html"
+    },
+    {
+      "source": "/locacao",
+      "destination": "/tela-inicial/locacao.html"
+    },
+    {
+      "source": "/vendas",
+      "destination": "/tela-inicial/vendas.html"
+    },
+    {
+      "source": "/sobre",
+      "destination": "/tela-inicial/sobre.html"
+    },
+    {
+      "source": "/contato",
+      "destination": "/tela-inicial/contato.html"
+    },
     {
       "source": "/painel",
       "destination": "/tela-de-login/painel.html"

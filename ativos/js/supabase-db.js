@@ -8,7 +8,7 @@ if (typeof supabase === "undefined" || !supabase) {
   if (window.supabaseClient) {
     supabase = window.supabaseClient;
   } else {
-    console.error("supabase-db.js: CRÍTICO - supabase não foi inicializado!");
+    console.warn("supabase-db.js: Supabase não inicializado; fallback local poderá ser usado.");
   }
 }
 
@@ -148,7 +148,6 @@ const DB = {
           .from("imoveis")
           .select("*")
           .ilike("tipo_negocio", tipoNormalizado)
-          .eq("status", "ativo")
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -156,7 +155,21 @@ const DB = {
           throw error;
         }
 
-        const result = Array.isArray(data) ? data : [];
+        const statusVisiveis = new Set([
+          "",
+          "ativo",
+          "ativa",
+          "disponivel",
+          "disponível",
+          "publicado",
+          "publicada",
+        ]);
+        const result = (Array.isArray(data) ? data : []).filter((imovel) => {
+          const status = String(imovel.status || "")
+            .trim()
+            .toLowerCase();
+          return statusVisiveis.has(status);
+        });
         console.log(
           `Encontrados ${result.length} imóveis do tipo "${tipoNormalizado}":`,
           result.map((i) => ({

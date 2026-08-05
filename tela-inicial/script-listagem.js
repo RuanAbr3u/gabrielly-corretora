@@ -1,571 +1,352 @@
-// ==========================================================
-// FUNÇÕES AUXILIARES GLOBAIS
-// ==========================================================
+const TELEFONE_WHATSAPP = "557592112142";
+const IMAGEM_FALLBACK = "./img/1384171.jpg";
 
-// Função para formatar atributos (singular/plural e ocultar 0)
+let modalImovel;
+let modalGaleria;
+let imagensAtuais = [];
+let indiceImagem = 0;
+let imoveisCarregados = [];
+
 function formatarAtributo(valor, singular, plural) {
   const num = Number(valor);
-  if (isNaN(num) || num <= 0) return "";
+  if (Number.isNaN(num) || num <= 0) return "";
   return num === 1 ? `${num} ${singular}` : `${num} ${plural}`;
 }
 
-// Função para validar se um objeto é um imóvel válido
-function isImovelValido(imovel) {
-  return imovel && typeof imovel === "object" && (imovel.id || imovel.titulo);
+function formatarMoeda(valor) {
+  const num = Number(valor);
+  if (Number.isNaN(num)) return "Valor sob consulta";
+  return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-// Função para formatar valores monetários (Condomínio/IPTU)
-const formatarValorDisplay = (val) => {
-  const num = Number(val);
-  if (isNaN(num) || num <= 0) return "";
-  return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-};
+function escaparHtml(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-// ==========================================================
-// VARIÁVEIS GLOBAIS (Serão inicializadas em DOMContentLoaded)
-// ==========================================================
-let modalImovel;
-let modalGaleria;
-let fecharModalBtn;
-let btnFecharModal;
-let modalBackdrop;
-let btnPrev;
-let btnNext;
-let botaoWhats;
+function normalizarTexto(valor) {
+  return String(valor ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
 
-let imagensAtuais = [];
-let indiceImagem = 0;
-let currentImovel = null;
+function normalizarImovel(imovel) {
+  const imagens = imovel.imagens || imovel.fotos || [];
+  const tipoOriginal = imovel.tipo_negocio || imovel.tipoNegocio || imovel.tipo || "";
+  const tipoNegocio = normalizarTexto(tipoOriginal);
+  const cidadeOriginal = imovel.cidade || "";
+  const estadoOriginal = imovel.estado || "";
+  const localizacaoIncorreta =
+    normalizarTexto(cidadeOriginal) === "brasilia" && normalizarTexto(estadoOriginal) === "df";
+  const cidade = localizacaoIncorreta ? "Feira de Santana" : cidadeOriginal;
+  const estado = localizacaoIncorreta ? "BA" : estadoOriginal;
 
-// ----------------------------------------------------------
-// Funções do Modal
-// ----------------------------------------------------------
+  return {
+    id: imovel.id || `imovel-${crypto.randomUUID?.() || Date.now()}`,
+    titulo: imovel.titulo || "Imóvel",
+    descricao: imovel.descricao || "",
+    tipoNegocio,
+    categoria: imovel.categoria || "",
+    preco: imovel.valor ?? imovel.preco ?? 0,
+    bairro: imovel.bairro || "",
+    cidade,
+    estado,
+    quartos: imovel.quartos || 0,
+    banheiros: imovel.banheiros || 0,
+    suites: imovel.suites || 0,
+    vagas: imovel.vagas || 0,
+    areaUtil: imovel.area || imovel.areaUtil || 0,
+    garagem: Number(imovel.vagas || 0) > 0 ? "Com garagem" : imovel.garagem || "",
+    condominio: imovel.condominio || "",
+    valorCondominio: imovel.valor_condominio || imovel.valorCondominio || 0,
+    valorIPTU: imovel.valor_iptu || imovel.valorIPTU || 0,
+    caracteristicas: Array.isArray(imovel.caracteristicas) ? imovel.caracteristicas : [],
+    imagens: Array.isArray(imagens) ? imagens.filter(Boolean) : [],
+  };
+}
 
 function updateGaleria() {
   if (!modalGaleria) return;
-  const imagens = modalGaleria.querySelectorAll(".modal-img");
-  imagens.forEach((img, index) => {
+  modalGaleria.querySelectorAll(".modal-img").forEach((img, index) => {
     img.style.display = index === indiceImagem ? "block" : "none";
   });
 }
 
 function fecharModal() {
-  if (!modalImovel) {
-    console.warn("modalImovel não está disponível");
-    return;
-  }
+  if (!modalImovel) return;
   modalImovel.classList.remove("ativo");
-  // Adiciona um atraso para a transição CSS antes de ocultar o display
+  document.body.style.overflow = "";
   setTimeout(() => {
+    modalImovel.hidden = true;
     modalImovel.style.display = "none";
-    document.body.style.overflow = ""; // Restaura rolagem
-  }, 200);
+  }, 180);
 }
 
-function abrirModal(idImovel, imoveisListaCompleta) {
-  console.log("📝 abrirModal chamado:", {
-    idImovel,
-    listaLength: imoveisListaCompleta?.length,
-    modalImovel,
-  });
-  // 1. Busca o imóvel e verifica se o modal existe
-  currentImovel = imoveisListaCompleta.find((imovel) => imovel.id === idImovel);
-  console.log("Imóvel encontrado:", currentImovel);
-  if (!currentImovel || !modalImovel) {
-    console.error("Modal não pode abrir:", { currentImovel, modalImovel });
-    return;
-  }
+function abrirModal(idImovel) {
+  const imovel = imoveisCarregados.find((item) => String(item.id) === String(idImovel));
+  if (!imovel || !modalImovel || !modalGaleria) return;
 
-  // 2. Configura a Galeria
-  imagensAtuais = currentImovel.imagens?.length
-    ? currentImovel.imagens
-    : ["./img/sem-foto.jpg"];
+  imagensAtuais = imovel.imagens.length ? imovel.imagens : [IMAGEM_FALLBACK];
   indiceImagem = 0;
-
   modalGaleria.innerHTML = "";
-  imagensAtuais.forEach((imgSrc) => {
+
+  imagensAtuais.forEach((src, index) => {
     const img = document.createElement("img");
-    img.src = imgSrc;
-    img.classList.add("modal-img");
+    img.src = src;
+    img.alt = `${imovel.titulo} - imagem ${index + 1}`;
+    img.className = "modal-img";
+    img.loading = "lazy";
+    img.decoding = "async";
     modalGaleria.appendChild(img);
   });
 
-  updateGaleria();
+  const preco = `${formatarMoeda(imovel.preco)}${imovel.tipoNegocio === "locacao" ? "/mês" : ""}`;
+  const txtQuartos = formatarAtributo(imovel.quartos, "quarto", "quartos");
+  const txtSuites = formatarAtributo(imovel.suites, "suíte", "suítes");
+  const txtBanheiros = formatarAtributo(imovel.banheiros, "banheiro", "banheiros");
+  const txtVagas = formatarAtributo(imovel.vagas, "vaga", "vagas");
+  const txtArea = Number(imovel.areaUtil) > 0 ? `${imovel.areaUtil} m²` : "";
+  const garagemTxt = imovel.garagem === "Com garagem" && txtVagas ? `Garagem (${txtVagas})` : imovel.garagem;
+  const localizacao = [imovel.bairro, imovel.cidade, imovel.estado].filter(Boolean).join(", ");
+  const specs = [imovel.categoria, txtArea, txtQuartos, txtSuites, txtBanheiros, garagemTxt, imovel.condominio]
+    .filter(Boolean)
+    .map(escaparHtml)
+    .join(" • ");
+  const valores = [
+    Number(imovel.valorCondominio) > 0 ? `Condomínio: ${formatarMoeda(imovel.valorCondominio)}` : "",
+    Number(imovel.valorIPTU) > 0 ? `IPTU: ${formatarMoeda(imovel.valorIPTU)}` : "",
+  ].filter(Boolean).join(" | ");
+  const caracteristicas = imovel.caracteristicas.length
+    ? `<p><strong>Características:</strong> ${imovel.caracteristicas.map(escaparHtml).join(" • ")}</p>`
+    : "";
 
-  // 3. Preenche Textos
-  document.getElementById("modalTitulo").textContent = currentImovel.titulo;
-  document.getElementById("modalDescricao").textContent =
-    currentImovel.descricao;
-
-  // --- PREÇO ---
-  let precoModalFormatado = Number(currentImovel.preco).toLocaleString(
-    "pt-BR",
-    {
-      style: "currency",
-      currency: "BRL",
-    },
-  );
-  if (currentImovel.tipoNegocio === "locacao") {
-    precoModalFormatado += "/mês";
-  }
-  document.getElementById("modalPreco").textContent = `${precoModalFormatado}`;
-
-  // 4. Preenche Specs (Combinando a melhor formatação dos dois scripts)
-  const txtQuartos = formatarAtributo(
-    currentImovel.quartos,
-    "quarto",
-    "quartos",
-  );
-  const txtSuites = formatarAtributo(currentImovel.suites, "suíte", "suítes");
-  const txtBanheiros = formatarAtributo(
-    currentImovel.banheiros,
-    "banheiro",
-    "banheiros",
-  );
-  const txtArea =
-    currentImovel.areaUtil && Number(currentImovel.areaUtil) > 0
-      ? `${currentImovel.areaUtil} m²`
-      : "";
-  const txtVagas = formatarAtributo(currentImovel.vagas, "vaga", "vagas");
-
-  const garagemTxt =
-    currentImovel.garagem === "Com garagem" && txtVagas
-      ? `Garagem (${txtVagas})`
-      : currentImovel.garagem === "Sem garagem"
-        ? "Sem Garagem"
-        : "";
-
-  // Exibição do nome do condomínio (removido o condominioStatus que estava causando undefined)
-  let condominioInfo = "";
-  if (currentImovel.condominio && currentImovel.condominio.trim() !== "") {
-    condominioInfo = currentImovel.condominio;
-  }
-
-  const specsArray = [
-    txtArea,
-    txtQuartos,
-    txtSuites,
-    txtBanheiros,
-    garagemTxt,
-    condominioInfo,
+  const modalSpecs = [imovel.categoria, txtArea, txtQuartos, txtSuites, txtBanheiros, garagemTxt, imovel.condominio].filter(Boolean);
+  const modalValores = [
+    Number(imovel.valorCondominio) > 0 ? `Condominio: ${formatarMoeda(imovel.valorCondominio)}` : "",
+    Number(imovel.valorIPTU) > 0 ? `IPTU: ${formatarMoeda(imovel.valorIPTU)}` : "",
   ].filter(Boolean);
-  const specsHtml = specsArray.length
-    ? `<p class="spec-line-1">${specsArray.join(" • ")}</p>`
+  const modalCaracteristicas = imovel.caracteristicas.length
+    ? `<div class="modal-spec-group"><span class="modal-spec-label">Caracteristicas</span><div class="modal-spec-chips">${imovel.caracteristicas.map((item) => `<span>${escaparHtml(item)}</span>`).join("")}</div></div>`
     : "";
 
-  const valorCondominioTxt = formatarValorDisplay(
-    currentImovel.valorCondominio,
-  );
-  const valorIPTUTxt = formatarValorDisplay(currentImovel.valorIPTU);
-  const condominioDisplay = valorCondominioTxt
-    ? `Condomínio: ${valorCondominioTxt}`
-    : "";
-  const iptuDisplay = valorIPTUTxt ? `IPTU: ${valorIPTUTxt}` : "";
-  const separador = condominioDisplay && iptuDisplay ? " | " : "";
-  const valoresHtml =
-    condominioDisplay || iptuDisplay
-      ? `<p class="spec-line-valores">${condominioDisplay}${separador}${iptuDisplay}</p>`
-      : "";
+  document.getElementById("modalTitulo").textContent = imovel.titulo;
+  document.getElementById("modalDescricao").textContent = imovel.descricao;
+  document.getElementById("modalPreco").textContent = preco;
+  document.getElementById("modalSpecs").innerHTML = `
+    ${localizacao ? `<p class="modal-location">${escaparHtml(localizacao)}</p>` : ""}
+    ${modalSpecs.length ? `<div class="modal-spec-chips">${modalSpecs.map((spec) => `<span>${escaparHtml(spec)}</span>`).join("")}</div>` : ""}
+    ${modalValores.length ? `<div class="modal-costs">${modalValores.map((valor) => `<span>${escaparHtml(valor)}</span>`).join("")}</div>` : ""}
+    ${modalCaracteristicas}
+  `;
 
-  const caracteristicasArray = currentImovel.caracteristicas?.length
-    ? currentImovel.caracteristicas
-    : [];
-  const caracteristicasHtml = caracteristicasArray.length
-    ? `<p class="spec-line-2"><strong>Características:</strong> ${caracteristicasArray.join(
-        " • ",
-      )}</p>`
-    : "";
+  const mensagem = encodeURIComponent(`Olá, Gabrielly! Tenho interesse no imóvel "${imovel.titulo}". Poderia me dar mais informações?`);
+  const botaoWhats = document.getElementById("botaoWhats");
+  if (botaoWhats) botaoWhats.href = `https://wa.me/${TELEFONE_WHATSAPP}?text=${mensagem}`;
 
-  document.getElementById("modalSpecs").innerHTML =
-    specsHtml + valoresHtml + caracteristicasHtml;
-
-  // 5. Link do WhatsApp
-  const mensagemWhats = encodeURIComponent(
-    `Olá, Gabrielly! Tenho interesse no imóvel "${currentImovel.titulo}". Poderia me dar mais informações?`,
-  );
-  if (botaoWhats)
-    botaoWhats.href = `https://wa.me/557592112142?text=${mensagemWhats}`;
-
-  // 6. Abertura do modal (CORREÇÃO APLICADA AQUI)
-  modalImovel.style.display = "flex"; // 👈 Passo 1: Torna o container visível (importante!)
-  setTimeout(() => {
-    modalImovel.classList.add("ativo"); // 👈 Passo 2: Adiciona a classe para a transição/efeito CSS
-    document.body.style.overflow = "hidden";
-  }, 10);
+  updateGaleria();
+  modalImovel.hidden = false;
+  modalImovel.style.display = "flex";
+  setTimeout(() => modalImovel.classList.add("ativo"), 10);
+  document.body.style.overflow = "hidden";
 }
 
-// ----------------------------------------------------------
-// RENDERIZAÇÃO E FILTRO PRINCIPAL
-// ----------------------------------------------------------
-
-async function carregarImoveis(tipoImovel, containerId) {
-  console.log("carregarImoveis() chamado com:", { tipoImovel, containerId });
-
-  const listaContainer = document.getElementById(containerId);
-  const loadingContainer = document.getElementById("loadingImoveis");
-  const filtroBairroSelect = document.getElementById("filtroBairro");
-  const filtroCategoriaSelect = document.getElementById("filtroCategoria"); // NOVO: Elemento do filtro de categoria
-
-  // Mostra loading
-  if (loadingContainer) loadingContainer.style.display = "flex";
-  if (listaContainer) listaContainer.style.display = "none";
-
-  // Buscar imóveis do Supabase
-  let imoveis = [];
-  // Normalizar para minúsculas sempre
-  const tipoFiltro = (tipoImovel || "venda").toLowerCase();
-  console.log(
-    "Filtrando imóveis por tipo:",
-    tipoFiltro,
-    "(entrada original:",
-    tipoImovel,
-    ")",
-  );
-
+async function buscarImoveis(tipoFiltro) {
   try {
-    const data = await DB.imoveis.listarPorTipo(tipoFiltro);
-    console.log("Imóveis retornados do Supabase:", data.length, data);
-
-    // Converter formato Supabase para formato esperado
-    imoveis = data.map((imovel) => ({
-      id: imovel.id,
-      titulo: imovel.titulo,
-      descricao: imovel.descricao,
-      tipoNegocio: imovel.tipo_negocio, // Usar o valor real do banco
-      categoria: imovel.categoria,
-      preco: imovel.valor,
-      cep: imovel.cep,
-      endereco: imovel.endereco,
-      numero: imovel.numero,
-      complemento: imovel.complemento,
-      bairro: imovel.bairro,
-      cidade: imovel.cidade,
-      estado: imovel.estado,
-      quartos: imovel.quartos,
-      banheiros: imovel.banheiros,
-      vagas: imovel.vagas,
-      area: imovel.area,
-      areaUtil: imovel.area,
-      suites: imovel.suites || 0,
-      garagem: imovel.vagas > 0 ? "Com garagem" : "Sem garagem",
-      condominio: imovel.condominio || "",
-      valorCondominio: imovel.valor_condominio || 0,
-      valorIPTU: imovel.valor_iptu || 0,
-      caracteristicas: Array.isArray(imovel.caracteristicas)
-        ? imovel.caracteristicas
-        : [],
-      imagens: imovel.imagens || [],
-      fotos: imovel.imagens || [],
-    }));
-
-    // Filtro extra por segurança (caso o Supabase retorne dados incorretos)
-    imoveis = imoveis.filter((imovel) => imovel.tipoNegocio === tipoFiltro);
-    console.log("Imóveis após filtro local:", imoveis.length);
-
-    // Se Supabase não retornar nada, tenta localStorage
-    if (imoveis.length === 0) {
-      console.log("Supabase vazio, tentando localStorage...");
-      const imoveisLocal = JSON.parse(localStorage.getItem("imoveis")) || [];
-      imoveis = imoveisLocal.filter((imovel) => {
-        const tipoImovelNormalizado = (
-          imovel.tipoNegocio ||
-          imovel.tipo ||
-          ""
-        ).toLowerCase();
-        return (
-          tipoImovelNormalizado === tipoFiltro ||
-          tipoImovelNormalizado === tipoFiltro.replace("ção", "cao")
-        );
-      });
-      console.log("Imóveis encontrados no localStorage:", imoveis.length);
+    if (!window.DB?.imoveis?.listarPorTipo) {
+      throw new Error("Supabase indisponível.");
     }
+
+    const data = await DB.imoveis.listarPorTipo(tipoFiltro);
+    const imoveisSupabase = data.map(normalizarImovel).filter((imovel) => imovel.tipoNegocio === tipoFiltro);
+    if (imoveisSupabase.length > 0) return imoveisSupabase;
   } catch (error) {
-    console.error("Erro ao carregar imóveis do Supabase:", error);
-    // Fallback para localStorage em caso de erro
-    const imoveisLocal = JSON.parse(localStorage.getItem("imoveis")) || [];
-    imoveis = imoveisLocal.filter((imovel) => {
-      const tipoImovelNormalizado = (
-        imovel.tipoNegocio ||
-        imovel.tipo ||
-        ""
-      ).toLowerCase();
-      return (
-        tipoImovelNormalizado === tipoFiltro ||
-        tipoImovelNormalizado === tipoFiltro.replace("ção", "cao")
-      );
-    });
-    console.log(
-      "📂 Fallback localStorage:",
-      imoveis.length,
-      "imóveis encontrados",
-    );
+    console.warn("Wrapper Supabase indisponivel para imoveis:", error.message);
   }
 
-  if (!listaContainer) {
-    console.error("Container de lista não encontrado:", containerId);
+  try {
+    const imoveisRest = await buscarImoveisRest(tipoFiltro);
+    if (imoveisRest.length > 0) return imoveisRest;
+  } catch (error) {
+    console.warn("REST Supabase indisponivel para imoveis:", error.message);
+  }
+
+  console.warn("Usando fallback localStorage para imoveis.");
+  const locais = JSON.parse(localStorage.getItem("imoveis")) || [];
+  return locais
+    .map(normalizarImovel)
+    .filter((imovel) => {
+      const tipo = (imovel.tipoNegocio || "").toLowerCase();
+      return tipo === tipoFiltro;
+    });
+}
+
+async function buscarImoveisRest(tipoFiltro) {
+  const config = window.APP_CONFIG?.supabase;
+  if (!config?.url || !config?.key) {
+    throw new Error("Configuracao do Supabase indisponivel.");
+  }
+
+  const endpoint = new URL(`${config.url}/rest/v1/imoveis`);
+  endpoint.searchParams.set("select", "*");
+  endpoint.searchParams.set("tipo_negocio", `ilike.${tipoFiltro}`);
+  endpoint.searchParams.set("order", "created_at.desc");
+
+  const response = await fetch(endpoint.toString(), {
+    headers: {
+      apikey: config.key,
+      Authorization: `Bearer ${config.key}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Supabase REST ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.map(normalizarImovel).filter((imovel) => imovel.tipoNegocio === tipoFiltro);
+}
+
+function popularFiltro(select, valores, labelPadrao) {
+  if (!select) return;
+  select.innerHTML = `<option value="">${labelPadrao}</option>`;
+  [...new Set(valores.filter(Boolean))].sort().forEach((valor) => {
+    const option = document.createElement("option");
+    option.value = valor;
+    option.textContent = valor;
+    select.appendChild(option);
+  });
+}
+
+function renderizarImoveis(lista, container) {
+  container.innerHTML = "";
+  container.classList.toggle("grid-imoveis-single", lista.length === 1);
+
+  if (lista.length === 0) {
+    container.innerHTML = '<p class="empty-state">Nenhum imóvel encontrado para os filtros selecionados.</p>';
     return;
   }
 
-  let imoveisFiltradosPorTipo = imoveis;
+  lista.forEach((imovel) => {
+    const finalidade = imovel.tipoNegocio === "locacao" ? "Locação" : "Venda";
+    const preco = `${formatarMoeda(imovel.preco)}${imovel.tipoNegocio === "locacao" ? "/mês" : ""}`;
+    const descricao = imovel.descricao.length > 120 ? `${imovel.descricao.slice(0, 120)}...` : imovel.descricao;
+    const localizacao = [imovel.bairro, imovel.cidade, imovel.estado].filter(Boolean).join(", ");
+    const specs = [
+      formatarAtributo(imovel.quartos, "quarto", "quartos"),
+      formatarAtributo(imovel.banheiros, "banheiro", "banheiros"),
+      formatarAtributo(imovel.vagas, "vaga", "vagas"),
+      Number(imovel.areaUtil) > 0 ? `${imovel.areaUtil} m²` : "",
+    ].filter(Boolean);
+    const mensagem = encodeURIComponent(`Olá, Gabrielly! Tenho interesse no imóvel "${imovel.titulo}".`);
 
-  // 1. Popula Filtro de Bairro
-  const bairrosUnicos = [
-    ...new Set(imoveisFiltradosPorTipo.map((imovel) => imovel.bairro)),
-  ].sort();
-
-  if (filtroBairroSelect) {
-    filtroBairroSelect.innerHTML = '<option value="">Todos os Bairros</option>';
-    bairrosUnicos.forEach((bairro) => {
-      if (bairro && bairro.trim() !== "") {
-        const option = document.createElement("option");
-        option.value = bairro;
-        option.textContent = bairro;
-        filtroBairroSelect.appendChild(option);
-      }
-    });
-  }
-
-  // 2. Popula Filtro de Categoria (NOVO)
-  const categoriasUnicas = [
-    ...new Set(imoveisFiltradosPorTipo.map((imovel) => imovel.categoria)),
-  ].sort();
-
-  if (filtroCategoriaSelect) {
-    filtroCategoriaSelect.innerHTML =
-      '<option value="">Todas as Categorias</option>';
-    categoriasUnicas.forEach((categoria) => {
-      if (categoria && categoria.trim() !== "") {
-        const option = document.createElement("option");
-        option.value = categoria;
-        option.textContent = categoria;
-        filtroCategoriaSelect.appendChild(option);
-      }
-    });
-  }
-
-  function renderizarImoveis(imoveisParaRenderizar) {
-    listaContainer.innerHTML = "";
-
-    if (imoveisParaRenderizar.length === 0) {
-      listaContainer.innerHTML =
-        '<p style="text-align: center; color: #c9a961; font-size: 1.2rem; padding: 2rem;">Nenhum imóvel encontrado para os filtros selecionados.</p>';
-      return;
-    }
-
-    imoveisParaRenderizar.forEach((imovel, index) => {
-      // Garante que o imóvel tem um ID
-      if (!imovel.id) {
-        imovel.id = `imovel-${Date.now()}-${index}`;
-        console.warn("Imóvel sem ID, gerando:", imovel.id);
-      }
-
-      const article = document.createElement("article");
-      article.setAttribute("data-id", imovel.id);
-      article.classList.add("card-imovel");
-
-      // Formatação do preço e specs primárias para o CARD (lógica correta)
-      let precoFormatado = Number(imovel.preco).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-      if (imovel.tipoNegocio === "locacao") precoFormatado += "/mês";
-
-      const txtQuartos = formatarAtributo(imovel.quartos, "quarto", "quartos");
-      const txtBanheiros = formatarAtributo(
-        imovel.banheiros,
-        "banheiro",
-        "banheiros",
-      );
-      const txtSuites = formatarAtributo(imovel.suites, "suíte", "suítes");
-      const txtArea =
-        imovel.areaUtil && Number(imovel.areaUtil) > 0
-          ? `${imovel.areaUtil} m²`
-          : "";
-      const specsPrimarias = [txtQuartos, txtBanheiros, txtSuites, txtArea]
-        .filter(Boolean)
-        .join(" | ");
-
-      const descricaoCortada =
-        imovel.descricao.length > 120
-          ? imovel.descricao.slice(0, 120) + "..."
-          : imovel.descricao;
-
-      article.innerHTML = `
-                <img src="${
-                  imovel.imagens && imovel.imagens[0]
-                    ? imovel.imagens[0]
-                    : "./img/sem-foto.jpg"
-                }" alt="${imovel.titulo}" class="img-imovel">
-                <div class="info-imovel">
-                    <h2>${imovel.titulo}</h2>
-                    <p>${descricaoCortada}</p>
-                    <p><strong>${precoFormatado}</strong></p>
-                    <p>${specsPrimarias}</p>
-                    <button class="btn-vermais" data-id="${
-                      imovel.id
-                    }">Ver Mais</button>
-                </div>
-            `;
-      listaContainer.appendChild(article);
-    });
-  }
-
-  // Função para aplicar todos os filtros
-  function aplicarFiltros() {
-    const bairroSelecionado = filtroBairroSelect
-      ? filtroBairroSelect.value
-      : "";
-    const categoriaSelecionada = filtroCategoriaSelect
-      ? filtroCategoriaSelect.value
-      : ""; // NOVO: Valor da categoria
-
-    let imoveisFiltradosFinal = imoveisFiltradosPorTipo;
-
-    if (bairroSelecionado) {
-      imoveisFiltradosFinal = imoveisFiltradosFinal.filter(
-        (imovel) => imovel.bairro === bairroSelecionado,
-      );
-    }
-
-    // NOVO: Aplica o filtro de categoria
-    if (categoriaSelecionada) {
-      imoveisFiltradosFinal = imoveisFiltradosFinal.filter(
-        (imovel) => imovel.categoria === categoriaSelecionada,
-      );
-    }
-
-    renderizarImoveis(imoveisFiltradosFinal);
-  }
-
-  // 3. Event Listeners para os filtros
-  if (filtroBairroSelect) {
-    filtroBairroSelect.addEventListener("change", aplicarFiltros);
-  }
-  if (filtroCategoriaSelect) {
-    // NOVO: Event listener para o filtro de categoria
-    filtroCategoriaSelect.addEventListener("change", aplicarFiltros);
-  }
-
-  // 4. Event Delegation para botões "Ver Mais" (funciona mesmo após filtros)
-  console.log("Event delegation configurado para:", listaContainer);
-  listaContainer.addEventListener("click", (event) => {
-    const target = event.target.closest(".btn-vermais");
-    if (target) {
-      event.preventDefault();
-      event.stopPropagation();
-      const imovelId = target.dataset.id || target.getAttribute("data-id");
-      console.log("Clicou em Ver Mais - ID:", imovelId, "Target:", target);
-      if (imovelId) {
-        abrirModal(imovelId, imoveisFiltradosPorTipo);
-      }
-    }
+    const article = document.createElement("article");
+    article.className = "card-imovel";
+    article.dataset.id = imovel.id;
+    article.innerHTML = `
+      <div class="property-image-wrap">
+        <img src="${escaparHtml(imovel.imagens[0] || IMAGEM_FALLBACK)}" alt="${escaparHtml(imovel.titulo)}" class="img-imovel" loading="lazy" decoding="async">
+        <span class="property-watermark" aria-hidden="true"></span>
+      </div>
+      <div class="info-imovel">
+        <div class="property-badges">
+          <span class="property-badge">${finalidade}</span>
+          ${imovel.categoria ? `<span class="property-badge">${escaparHtml(imovel.categoria)}</span>` : ""}
+        </div>
+        <h2>${escaparHtml(imovel.titulo)}</h2>
+        ${localizacao ? `<p>${escaparHtml(localizacao)}</p>` : ""}
+        ${descricao ? `<p>${escaparHtml(descricao)}</p>` : ""}
+        <p class="property-price">${escaparHtml(preco)}</p>
+        <div class="property-badges">${specs.map((spec) => `<span class="property-badge">${escaparHtml(spec)}</span>`).join("")}</div>
+        <div class="card-actions">
+          <button class="btn-vermais" type="button" data-id="${escaparHtml(imovel.id)}">Ver detalhes</button>
+          <a class="btn btn-outline" href="https://wa.me/${TELEFONE_WHATSAPP}?text=${mensagem}" target="_blank" rel="noopener noreferrer">Contato</a>
+        </div>
+      </div>
+    `;
+    container.appendChild(article);
   });
-
-  // 5. Renderiza os imóveis inicialmente
-  aplicarFiltros(); // Chama a função de aplicar filtros na carga inicial
-
-  // Esconde loading e mostra lista
-  if (loadingContainer) loadingContainer.style.display = "none";
-  if (listaContainer) listaContainer.style.display = "grid";
 }
 
-// ==========================================================
-// INICIALIZAÇÃO E EVENT LISTENERS DO DOM (ROBUSTO)
-// ==========================================================
+async function carregarImoveis(tipoImovel, containerId) {
+  const container = document.getElementById(containerId);
+  const loading = document.getElementById("loadingImoveis");
+  const filtroBairro = document.getElementById("filtroBairro");
+  const filtroCategoria = document.getElementById("filtroCategoria");
+  if (!container) return;
 
-document.addEventListener("DOMContentLoaded", () => {
-  // 1. Captura de Elementos do Modal (GARANTIDO APÓS O HTML)
-  modalImovel = document.getElementById("modalImovel");
-  modalGaleria = document.getElementById("modalGaleria");
-  fecharModalBtn = document.getElementById("fecharModal");
-  btnFecharModal = document.getElementById("btnFechar");
-  modalBackdrop = document.getElementById("modalBackdrop");
-  btnPrev = document.getElementById("btnPrev");
-  btnNext = document.getElementById("btnNext");
-  botaoWhats = document.getElementById("botaoWhats");
+  const tipoFiltro = (tipoImovel || "venda").toLowerCase();
+  if (loading) loading.style.display = "flex";
+  container.hidden = true;
+  container.style.display = "none";
 
-  // 2. Inicialização do WhatsApp Balão (do main.js)
-  const balao = document.getElementById("whatsapp-balao");
-  if (balao) {
-    balao.style.opacity = 0;
-    setTimeout(() => {
-      balao.style.transition = "opacity 1s ease-in-out";
-      balao.style.opacity = 1;
-    }, 1000);
-  }
+  imoveisCarregados = await buscarImoveis(tipoFiltro);
+  popularFiltro(filtroBairro, imoveisCarregados.map((imovel) => imovel.bairro), "Todos os bairros");
+  popularFiltro(filtroCategoria, imoveisCarregados.map((imovel) => imovel.categoria), "Todas as categorias");
 
-  // 3. Carregamento da Listagem
-  const pathname = location.pathname;
-  const href = location.href;
-  console.log("Pathname atual:", pathname);
-  console.log("URL completa:", href);
+  const aplicarFiltros = () => {
+    const bairro = filtroBairro?.value || "";
+    const categoria = filtroCategoria?.value || "";
+    const filtrados = imoveisCarregados.filter((imovel) => {
+      return (!bairro || imovel.bairro === bairro) && (!categoria || imovel.categoria === categoria);
+    });
+    renderizarImoveis(filtrados, container);
+  };
 
-  let tipoPagina = "venda"; // Padrão
-
-  // Detectar tipo de página de forma mais robusta
-  if (
-    pathname.includes("locacao") ||
-    href.includes("locacao") ||
-    pathname.includes("/tela-inicial/locacao")
-  ) {
-    tipoPagina = "locacao";
-  } else if (
-    pathname.includes("vendas") ||
-    pathname.includes("venda") ||
-    href.includes("vendas")
-  ) {
-    tipoPagina = "venda";
-  }
-
-  console.log("Tipo de página detectado:", tipoPagina);
-  console.log("Vai buscar imóveis do tipo:", tipoPagina);
-  const containerId = "listaImoveisSite"; // ID padrão do main.js
-
-  if (document.getElementById(containerId)) {
-    console.log("Container encontrado, iniciando carregamento...");
-    carregarImoveis(tipoPagina, containerId);
-  } else {
-    console.log("Container não encontrado:", containerId);
-  }
-
-  // 4. Event Listeners de Fechamento do Modal
-  if (fecharModalBtn) fecharModalBtn.addEventListener("click", fecharModal);
-  if (btnFecharModal) btnFecharModal.addEventListener("click", fecharModal);
-  if (modalBackdrop) modalBackdrop.addEventListener("click", fecharModal);
-
-  // Suporte a Esc para fechar
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") fecharModal();
+  filtroBairro?.addEventListener("change", aplicarFiltros);
+  filtroCategoria?.addEventListener("change", aplicarFiltros);
+  container.addEventListener("click", (event) => {
+    const button = event.target.closest(".btn-vermais");
+    if (button) abrirModal(button.dataset.id);
   });
 
-  // 5. Event Listeners de Navegação da Galeria (do main.js)
-  if (btnPrev && btnNext) {
-    btnPrev.addEventListener("click", () => {
-      if (imagensAtuais.length > 0) {
-        indiceImagem =
-          (indiceImagem - 1 + imagensAtuais.length) % imagensAtuais.length;
-        updateGaleria();
-      }
-    });
+  aplicarFiltros();
+  if (loading) loading.style.display = "none";
+  container.hidden = false;
+  container.style.display = "grid";
+}
 
-    btnNext.addEventListener("click", () => {
-      if (imagensAtuais.length > 0) {
-        indiceImagem = (indiceImagem + 1) % imagensAtuais.length;
-        updateGaleria();
-      }
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  modalImovel = document.getElementById("modalImovel");
+  modalGaleria = document.getElementById("modalGaleria");
 
-    // Suporte a swipe em celulares
-    if (modalGaleria) {
-      let startX = 0;
-      modalGaleria.addEventListener("touchstart", (e) => {
-        startX = e.touches[0].clientX;
-      });
-      modalGaleria.addEventListener("touchend", (e) => {
-        const endX = e.changedTouches[0].clientX;
-        if (endX - startX > 50) btnPrev.click();
-        else if (startX - endX > 50) btnNext.click();
-      });
-    }
+  const pathname = location.pathname.toLowerCase();
+  const tipoPagina = pathname.includes("locacao") ? "locacao" : "venda";
+  if (document.getElementById("listaImoveisSite")) {
+    carregarImoveis(tipoPagina, "listaImoveisSite");
   }
+
+  document.getElementById("fecharModal")?.addEventListener("click", fecharModal);
+  document.getElementById("btnFechar")?.addEventListener("click", fecharModal);
+  document.getElementById("modalBackdrop")?.addEventListener("click", fecharModal);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") fecharModal();
+  });
+
+  document.getElementById("btnPrev")?.addEventListener("click", () => {
+    if (!imagensAtuais.length) return;
+    indiceImagem = (indiceImagem - 1 + imagensAtuais.length) % imagensAtuais.length;
+    updateGaleria();
+  });
+
+  document.getElementById("btnNext")?.addEventListener("click", () => {
+    if (!imagensAtuais.length) return;
+    indiceImagem = (indiceImagem + 1) % imagensAtuais.length;
+    updateGaleria();
+  });
+
+  let startX = 0;
+  modalGaleria?.addEventListener("touchstart", (event) => {
+    startX = event.touches[0].clientX;
+  });
+  modalGaleria?.addEventListener("touchend", (event) => {
+    const endX = event.changedTouches[0].clientX;
+    if (endX - startX > 50) document.getElementById("btnPrev")?.click();
+    if (startX - endX > 50) document.getElementById("btnNext")?.click();
+  });
 });

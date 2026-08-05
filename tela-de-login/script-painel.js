@@ -30,7 +30,7 @@ async function fetchWithAuth(url, options = {}) {
     console.warn("Token expirado, redirecionando para login");
     // Limpar qualquer dado em localStorage (compatibilidade)
     localStorage.removeItem("savedEmail");
-    window.location.href = "login.html?expired=true";
+    window.location.href = window.authRoutes?.login("expired=true") || "login.html?expired=true";
     throw new Error("Token expirado");
   }
 
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("⏳ Redirecionando para login em 2 segundos...");
       // Sessão inválida, redirecionar para login
       setTimeout(() => {
-        window.location.href = "login.html?session=invalid";
+        window.location.href = window.authRoutes?.login("session=invalid") || "login.html?session=invalid";
       }, 2000);
       throw new Error("Sessão inválida");
     }
@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("⏳ Redirecionando para login em 2 segundos...");
     // Redirecionar para login em qualquer erro
     setTimeout(() => {
-      window.location.href = "login.html?error=auth_failed";
+      window.location.href = window.authRoutes?.login("error=auth_failed") || "login.html?error=auth_failed";
     }, 2000);
     throw err;
   }
@@ -1622,7 +1622,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     sessionStorage.removeItem("userEmail");
     sessionStorage.removeItem("userName");
     alert("Você saiu do painel.");
-    window.location.href = "login.html";
+    window.location.href = window.authRoutes?.login() || "login.html";
   };
 
   if (filterTitle)

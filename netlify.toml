@@ -14,7 +14,84 @@
 # REDIRECIONAMENTOS
 # ================================================
 
-# SPA - Redirecionar todas as rotas para index.html
+[[redirects]]
+  from = "/tela-inicial/index.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-inicial/servicos.html"
+  to = "/servicos"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-inicial/locacao.html"
+  to = "/locacao"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-inicial/vendas.html"
+  to = "/vendas"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-inicial/sobre.html"
+  to = "/sobre"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-inicial/contato.html"
+  to = "/contato"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-de-login/login.html"
+  to = "/login"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-de-login/painel.html"
+  to = "/painel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/"
+  to = "/tela-inicial/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/servicos"
+  to = "/tela-inicial/servicos.html"
+  status = 200
+
+[[redirects]]
+  from = "/locacao"
+  to = "/tela-inicial/locacao.html"
+  status = 200
+
+[[redirects]]
+  from = "/vendas"
+  to = "/tela-inicial/vendas.html"
+  status = 200
+
+[[redirects]]
+  from = "/sobre"
+  to = "/tela-inicial/sobre.html"
+  status = 200
+
+[[redirects]]
+  from = "/contato"
+  to = "/tela-inicial/contato.html"
+  status = 200
+
 [[redirects]]
   from = "/painel"
   to = "/tela-de-login/painel.html"

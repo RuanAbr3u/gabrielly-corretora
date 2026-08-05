@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log("🔄 Redirecionando para painel...");
           setTimeout(() => {
             // Redirecionar para o painel na mesma pasta
-            window.location.href = "./painel.html";
+            window.location.href = window.authRoutes?.painel() || "./painel.html";
           }, 800);
         } else {
           console.error("❌ Login falhou:", data.message);

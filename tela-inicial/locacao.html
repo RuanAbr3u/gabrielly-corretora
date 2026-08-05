@@ -1,163 +1,120 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Imóveis para alugar com Gabrielly Silva Corretora - CRECI 26.012. Locação de casas, apartamentos e salas comerciais."
-    />
-    <meta
-      name="keywords"
-      content="imóveis para alugar, casas para alugar, apartamentos para alugar, locação, aluguel, Gabrielly Silva, CRECI 26.012"
+      content="Imóveis para locação com Gabrielly Silva Corretora de Imóveis, CRECI 26.012. Casas, apartamentos e salas comerciais para alugar."
     />
     <meta name="author" content="Gabrielly Silva" />
-    <title>Gabrielly Silva | Locação</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Imóveis para locação | Gabrielly Silva" />
+    <meta property="og:description" content="Encontre imóveis para alugar com acompanhamento profissional da Gabrielly Silva." />
+    <meta property="og:image" content="./img/logo.jpg" />
+    <title>Imóveis para locação | Gabrielly Silva</title>
+    <link rel="icon" type="image/jpeg" href="./img/logo.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Supabase - ORDEM CORRETA -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../ativos/js/config.js"></script>
-    <script src="../ativos/js/supabase-config.js"></script>
-    <script src="../ativos/js/supabase-db.js"></script>
-
-    <link rel="icon" type="image/jpeg" href="./img/logo.jpg" />
-    <link rel="stylesheet" href="style-locacao.css" />
+    <script src="../ativos/js/config.js" defer></script>
+    <script src="../ativos/js/supabase-config.js" defer></script>
+    <script src="../ativos/js/supabase-db.js" defer></script>
+    <script src="script-listagem.js" defer></script>
+    <script src="rotas.js" defer></script>
+    <script src="menu-mobile.js" defer></script>
   </head>
   <body>
-    <header>
-      <!-- Botão Hambúrguer -->
-      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
-      <nav id="navBar">
-        <ul>
-          <li><a href="index.html">Início</a></li>
-          <li><a href="servicos.html">Serviços</a></li>
-          <li><a href="locacao.html" class="ativo">Locação</a></li>
-          <li><a href="vendas.html">Vendas</a></li>
-          <li><a href="sobre.html">Sobre</a></li>
-          <li><a href="contato.html">Contato</a></li>
-        </ul>
-      </nav>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="index.html" aria-label="Gabrielly Silva - início">
+          <img class="brand-logo" src="./img/logo.jpg" alt="Logo Gabrielly Silva Corretora de Imóveis" width="64" height="52" decoding="async" />
+          <span class="brand-text"><span class="brand-name">Gabrielly Silva</span><span class="brand-role">Corretora de Imóveis</span></span>
+        </a>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-controls="navBar"><span></span><span></span><span></span></button>
+        <nav class="main-nav" id="navBar" aria-label="Navegação principal">
+          <a href="index.html">Início</a>
+          <a href="servicos.html">Serviços</a>
+          <a href="locacao.html" class="ativo" aria-current="page">Locação</a>
+          <a href="vendas.html">Vendas</a>
+          <a href="sobre.html">Sobre</a>
+          <a href="contato.html">Contato</a>
+        </nav>
+      </div>
     </header>
 
-    <main>
-      <h1>Imóveis para Locação</h1>
-
-      <!-- NOVO: Filtro de Bairro -->
-      <section id="filtros">
-        <label for="filtroBairro">Filtrar por Bairro:</label>
-        <select id="filtroBairro">
-          <option value="">Todos os Bairros</option>
-          <!-- As opções de bairro serão carregadas via JavaScript -->
-        </select>
-
-        <!-- NOVO: Filtro de Categoria -->
-        <label for="filtroCategoria" style="margin-left: 20px"
-          >Filtrar por Categoria:</label
-        >
-        <select id="filtroCategoria">
-          <option value="">Todas as Categorias</option>
-          <!-- As opções de categoria serão carregadas via JavaScript -->
-        </select>
+    <main class="page-shell">
+      <section class="page-hero">
+        <p class="page-kicker">Locação</p>
+        <h1 class="page-title">Imóveis para locação</h1>
+        <p class="page-intro">Veja imóveis disponíveis para alugar e use os filtros para encontrar opções por bairro ou categoria.</p>
       </section>
 
-      <section id="imoveis-dinamicos">
+      <section class="filters" id="filtros" aria-label="Filtros de imóveis">
+        <div class="filter-group">
+          <label for="filtroBairro">Bairro</label>
+          <select id="filtroBairro">
+            <option value="">Todos os bairros</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filtroCategoria">Categoria</label>
+          <select id="filtroCategoria">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="imoveis-dinamicos" aria-live="polite">
         <div id="loadingImoveis" class="loading-container">
           <div class="loading-spinner"></div>
           <p>Carregando imóveis...</p>
         </div>
-        <div
-          id="listaImoveisSite"
-          class="grid-imoveis"
-          style="display: none"
-        ></div>
+        <div id="listaImoveisSite" class="grid-imoveis" hidden></div>
       </section>
     </main>
 
-    <div id="modalImovel" class="modal-imovel" style="display: none">
-      <div class="modal-conteudo">
-        <button id="fecharModal" class="modal-fechar">&times;</button>
-
+    <div id="modalImovel" class="modal-imovel" hidden>
+      <div class="modal-conteudo" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+        <button id="fecharModal" class="modal-fechar" type="button" aria-label="Fechar detalhes">&times;</button>
         <div class="modal-galeria-container">
-          <button id="btnPrev" class="nav-btn">&#10094;</button>
+          <button id="btnPrev" class="nav-btn" type="button" aria-label="Imagem anterior">&#10094;</button>
           <div class="modal-galeria" id="modalGaleria"></div>
-          <button id="btnNext" class="nav-btn">&#10095;</button>
+          <button id="btnNext" class="nav-btn" type="button" aria-label="Próxima imagem">&#10095;</button>
         </div>
-
         <div class="modal-dados">
           <h2 id="modalTitulo"></h2>
           <p id="modalDescricao"></p>
           <p><strong id="modalPreco"></strong></p>
-          <p id="modalSpecs"></p>
+          <div id="modalSpecs"></div>
           <div class="modal-acoes">
-            <a id="botaoWhats" href="#" target="_blank" class="btn-vermais"
-              >Contato via WhatsApp</a
-            >
-            <button id="btnFechar" class="btn-vermais">Fechar</button>
+            <a id="botaoWhats" href="https://wa.me/557592112142" target="_blank" rel="noopener noreferrer" class="btn-vermais">Contato via WhatsApp</a>
+            <button id="btnFechar" class="btn btn-outline" type="button">Fechar</button>
           </div>
         </div>
       </div>
       <div class="modal-backdrop" id="modalBackdrop"></div>
     </div>
 
-    <!-- ATUALIZADO: Usando script-listagem.js e chamando carregarImoveis -->
-    <script src="script-listagem.js" defer></script>
-    <script src="main.js" defer></script>
-    <script src="menu-mobile.js" defer></script>
     <div id="whatsapp-balao">
-      <a
-        href="https://wa.me/557592112142"
-        target="_blank"
-        aria-label="Abrir WhatsApp"
-      >
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-          alt="WhatsApp Gabrielly Silva"
-        />
+      <a href="https://wa.me/557592112142" target="_blank" rel="noopener noreferrer" aria-label="Abrir WhatsApp">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="" width="34" height="34" loading="lazy" decoding="async" />
       </a>
     </div>
-    <footer
-      style="
-        background: rgba(58, 26, 26, 0.6);
-        color: rgba(255, 255, 255, 0.7);
-        text-align: center;
-        padding: 1.5rem 1rem;
-        margin-top: auto;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        position: relative;
-        bottom: 0;
-        width: 100%;
-      "
-    >
-      <p style="margin-bottom: 0.5rem; font-size: 0.9rem">
-        &copy; 2026 Gabrielly Silva - Corretora de Imóveis
-      </p>
-      <p style="font-size: 0.8rem; opacity: 0.6">
-        Desenvolvido por
-        <a
-          href="https://www.instagram.com/abr3u.dev/"
-          target="_blank"
-          style="
-            color: #c9a961;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s ease;
-          "
-          onmouseover="this.style.color = '#fff'"
-          onmouseout="this.style.color = '#c9a961'"
-          >Ruan Abreu</a
-        >
-      </p>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div><img class="footer-logo" src="./img/logo.jpg" alt="Logo Gabrielly Silva Corretora de Imóveis" width="96" height="72" loading="lazy" decoding="async" /><h2 class="footer-title">Gabrielly Silva</h2><p>CRECI 26.012</p></div>
+        <nav class="footer-links" aria-label="Links rápidos"><h2 class="footer-heading">Links</h2><a href="index.html">Início</a><a href="servicos.html">Serviços</a><a href="locacao.html">Locação</a><a href="vendas.html">Vendas</a><a href="sobre.html">Sobre</a><a href="contato.html">Contato</a></nav>
+        <div class="footer-contact"><h2 class="footer-heading">Contato</h2><a href="https://wa.me/557592112142" target="_blank" rel="noopener noreferrer">WhatsApp: (75) 9 9211-2142</a><a href="mailto:gabriellycorretora1@gmail.com">Email: gabriellycorretora1@gmail.com</a><a href="https://www.instagram.com/gabrielly_corretoraa/" target="_blank" rel="noopener noreferrer">Instagram: @gabrielly_corretoraa</a></div>
+      </div>
+      <div class="footer-bottom"><span>&copy; 2026 Gabrielly Silva - Corretora de Imóveis.</span><span class="developer-credit">Desenvolvido por <a href="https://www.instagram.com/abr3u.tech/" target="_blank" rel="noopener noreferrer">ABR3U TECH</a>.</span></div>
     </footer>
   </body>
 </html>
+
+
+
+

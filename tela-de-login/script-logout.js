@@ -22,10 +22,10 @@ async function logoutSeguro() {
 
     // 3. Redirecionar para login
     if (response.ok) {
-      window.location.href = "login.html?logout=success";
+      window.location.href = window.authRoutes?.login("logout=success") || "login.html?logout=success";
     } else {
       // Mesmo com erro, fazer logout local
-      window.location.href = "login.html?logout=forced";
+      window.location.href = window.authRoutes?.login("logout=forced") || "login.html?logout=forced";
     }
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
@@ -34,7 +34,7 @@ async function logoutSeguro() {
     // Logout forçado em caso de erro
     localStorage.removeItem("savedEmail");
     sessionStorage.clear();
-    window.location.href = "login.html";
+    window.location.href = window.authRoutes?.login() || "login.html";
   }
 }
 

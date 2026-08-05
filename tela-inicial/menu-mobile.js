@@ -1,29 +1,51 @@
-// Menu Hambúrguer - Script compartilhado
-document.addEventListener('DOMContentLoaded', () => {
-  const menuToggle = document.getElementById('menuToggle');
-  const navBar = document.getElementById('navBar');
-  
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menuToggle");
+  const navBar = document.getElementById("navBar");
+  const header = document.querySelector(".site-header");
+
+  const closeMenu = () => {
+    if (!menuToggle || !navBar) return;
+    menuToggle.classList.remove("active");
+    navBar.classList.remove("active");
+    menuToggle.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("menu-open");
+  };
+
   if (menuToggle && navBar) {
-    menuToggle.addEventListener('click', () => {
-      menuToggle.classList.toggle('active');
-      navBar.classList.toggle('active');
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.addEventListener("click", () => {
+      const isOpen = navBar.classList.toggle("active");
+      menuToggle.classList.toggle("active", isOpen);
+      menuToggle.setAttribute("aria-expanded", String(isOpen));
+      document.body.classList.toggle("menu-open", isOpen);
     });
-    
-    // Fecha o menu ao clicar em um link
-    const navLinks = navBar.querySelectorAll('a');
-    navLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        menuToggle.classList.remove('active');
-        navBar.classList.remove('active');
-      });
+
+    navBar.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
     });
-    
-    // Fecha o menu ao clicar fora dele
-    document.addEventListener('click', (e) => {
-      if (!navBar.contains(e.target) && !menuToggle.contains(e.target)) {
-        menuToggle.classList.remove('active');
-        navBar.classList.remove('active');
+
+    document.addEventListener("click", (event) => {
+      if (!navBar.contains(event.target) && !menuToggle.contains(event.target)) {
+        closeMenu();
       }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+  }
+
+  const updateHeader = () => {
+    if (header) header.classList.toggle("is-scrolled", window.scrollY > 10);
+  };
+
+  updateHeader();
+  window.addEventListener("scroll", updateHeader, { passive: true });
+
+  const loadingScreen = document.getElementById("loadingScreen");
+  if (loadingScreen) {
+    window.addEventListener("load", () => {
+      setTimeout(() => loadingScreen.classList.add("hide"), 350);
     });
   }
 });
