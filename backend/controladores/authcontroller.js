@@ -113,14 +113,16 @@ async function login(req, res) {
     // Enviar token via cookie HttpOnly
     const cookieOptions = {
       httpOnly: true,
-      secure: false, // Em desenvolvimento, permitir HTTP
+      secure:
+        process.env.NODE_ENV === "production" ||
+        process.env.FORCE_HTTPS === "true",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     };
 
     // Em desenvolvimento, não usar sameSite para permitir localhost/127.0.0.1
     if (process.env.NODE_ENV === "production") {
-      cookieOptions.sameSite = "lax";
+      cookieOptions.sameSite = "none";
     }
 
     console.log("🍪 Definindo cookie authToken com opções:", cookieOptions);

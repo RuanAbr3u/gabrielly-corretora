@@ -1013,6 +1013,20 @@ button {
   color: var(--color-primary);
 }
 
+.loading-container p {
+  position: relative;
+  margin: 0.85rem 0 0;
+  font-weight: 800;
+}
+
+.loading-container p::after {
+  content: "";
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: loadingDots 1.2s steps(4, end) infinite;
+}
+
 .loading-spinner,
 .loader {
   width: 56px;
@@ -1338,6 +1352,25 @@ button {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes loadingDots {
+  0% {
+    content: "";
+  }
+
+  25% {
+    content: ".";
+  }
+
+  50% {
+    content: "..";
+  }
+
+  75%,
+  100% {
+    content: "...";
   }
 }
 

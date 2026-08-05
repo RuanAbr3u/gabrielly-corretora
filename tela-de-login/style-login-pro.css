@@ -579,3 +579,317 @@ button:focus-visible,
     background: linear-gradient(135deg, rgba(45, 18, 18, 0.98) 0%, rgba(35, 12, 12, 0.99) 100%);
   }
 }
+
+/* ============================================
+   REFINO VISUAL 2026 - GABRIELLY CORRETORA
+   ============================================ */
+
+:root {
+  --login-primary: #0f2d23;
+  --login-primary-dark: #071d16;
+  --login-primary-soft: #1f4a39;
+  --login-gold: #d9b05f;
+  --login-gold-light: #f2d48a;
+  --login-surface: rgba(9, 31, 24, 0.9);
+  --login-text: #f7f7f2;
+  --login-muted: rgba(247, 247, 242, 0.68);
+}
+
+body {
+  min-height: 100svh;
+  overflow-y: auto;
+  background:
+    linear-gradient(135deg, rgba(7, 29, 22, 0.94), rgba(15, 45, 35, 0.9)),
+    url("../tela-inicial/img/1384171.jpg") center / cover fixed;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(217, 176, 95, 0.18), transparent 28rem),
+    radial-gradient(circle at 82% 76%, rgba(31, 74, 57, 0.32), transparent 30rem);
+}
+
+body::after {
+  display: none;
+}
+
+.login-container {
+  width: min(100%, 430px);
+  padding: clamp(1.35rem, 4vw, 2rem);
+  border: 1px solid rgba(217, 176, 95, 0.22);
+  border-radius: 18px;
+  background: var(--login-surface);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  text-align: center;
+}
+
+.login-container:hover {
+  transform: none;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  animation: none;
+}
+
+.login-logo {
+  width: 78px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.login-container h1 {
+  margin: 0;
+  color: var(--login-text);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 6vw, 2.55rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow: none;
+  animation: none;
+}
+
+.login-container h2 {
+  display: block;
+  margin: 0.45rem 0 1.35rem;
+  color: var(--login-gold-light);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  animation: none;
+}
+
+.login-container h2::after,
+.login-form h3::before,
+.form-group label::before {
+  display: none;
+}
+
+.login-form {
+  animation: none;
+}
+
+.login-form h3 {
+  margin: 0 0 1.15rem;
+  padding: 0 0 0.75rem;
+  color: var(--login-text);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  border-bottom: 1px solid rgba(217, 176, 95, 0.2);
+  font-size: 1.25rem;
+  justify-content: center;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 0.95rem;
+}
+
+.form-group label {
+  color: var(--login-text);
+  font-size: 0.84rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.form-group input {
+  min-height: 48px;
+  border: 1px solid rgba(217, 176, 95, 0.22);
+  border-radius: 10px;
+  color: var(--login-text);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.form-group input:hover,
+.form-group input:focus {
+  border-color: rgba(217, 176, 95, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  transform: none;
+  box-shadow: 0 0 0 4px rgba(217, 176, 95, 0.12);
+}
+
+.password-wrapper {
+  gap: 0.55rem;
+}
+
+.toggle-password {
+  min-height: 42px;
+  margin: 0;
+  border: 1px solid rgba(217, 176, 95, 0.34);
+  border-radius: 10px;
+  color: var(--login-gold-light);
+  background: rgba(217, 176, 95, 0.08);
+  letter-spacing: 0;
+}
+
+.toggle-password:hover {
+  transform: none;
+  background: rgba(217, 176, 95, 0.14);
+}
+
+.form-footer {
+  margin: 0.6rem 0 1rem;
+}
+
+.remember-me,
+.forgot,
+.security-info,
+footer p {
+  color: var(--login-muted);
+}
+
+.forgot {
+  margin: 0;
+}
+
+.forgot:hover {
+  color: var(--login-gold-light);
+  transform: none;
+}
+
+.login-form button[type="submit"] {
+  min-height: 50px;
+  padding: 0.85rem 1rem;
+  border-radius: 999px;
+  color: var(--login-primary-dark);
+  background: linear-gradient(135deg, var(--login-gold), var(--login-gold-light));
+  font-size: 1rem;
+  letter-spacing: 0;
+  box-shadow: 0 12px 26px rgba(217, 176, 95, 0.24);
+}
+
+.login-form button[type="submit"]:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, var(--login-gold-light), var(--login-gold));
+  box-shadow: 0 16px 32px rgba(217, 176, 95, 0.3);
+}
+
+.login-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(217, 176, 95, 0.14);
+}
+
+.security-info {
+  justify-content: center;
+  text-align: center;
+}
+
+.login-container > footer {
+  margin-top: 1rem !important;
+  padding: 1rem 0 0 !important;
+  text-align: center !important;
+  border-top-color: rgba(217, 176, 95, 0.14) !important;
+}
+
+.login-container > footer a {
+  color: var(--login-gold-light) !important;
+}
+
+@media (max-width: 520px) {
+  body {
+    align-items: stretch;
+    padding: 0.85rem;
+  }
+
+  .login-container {
+    align-self: center;
+    border-radius: 14px;
+  }
+
+  .form-footer {
+    align-items: stretch;
+  }
+
+  .forgot {
+    text-align: left;
+  }
+}
+
+/* Senha com olhinho dentro do campo */
+.password-wrapper {
+  position: relative;
+  display: block;
+}
+
+.password-wrapper input {
+  padding-right: 3.4rem;
+}
+
+.password-wrapper .toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: var(--login-gold-light);
+  background: transparent;
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+
+.login-form .password-wrapper .toggle-password {
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.password-wrapper .toggle-password:hover,
+.password-wrapper .toggle-password:focus {
+  background: rgba(217, 176, 95, 0.12);
+  transform: translateY(-50%);
+  box-shadow: none;
+}
+
+.eye-icon {
+  position: relative;
+  width: 17px;
+  height: 11px;
+  border: 1.7px solid currentColor;
+  border-radius: 999px / 720px;
+}
+
+.eye-icon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.toggle-password.is-visible .eye-icon::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  width: 21px;
+  height: 1.7px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateY(-50%) rotate(-35deg);
+}

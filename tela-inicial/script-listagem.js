@@ -7,6 +7,15 @@ let imagensAtuais = [];
 let indiceImagem = 0;
 let imoveisCarregados = [];
 
+function comTimeout(promise, ms, mensagem) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(mensagem)), ms);
+  });
+
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 function formatarAtributo(valor, singular, plural) {
   const num = Number(valor);
   if (Number.isNaN(num) || num <= 0) return "";
@@ -285,30 +294,38 @@ async function carregarImoveis(tipoImovel, containerId) {
   container.hidden = true;
   container.style.display = "none";
 
-  imoveisCarregados = await buscarImoveis(tipoFiltro);
-  popularFiltro(filtroBairro, imoveisCarregados.map((imovel) => imovel.bairro), "Todos os bairros");
-  popularFiltro(filtroCategoria, imoveisCarregados.map((imovel) => imovel.categoria), "Todas as categorias");
+  try {
+    imoveisCarregados = await comTimeout(buscarImoveis(tipoFiltro), 10000, "Tempo limite ao carregar imoveis.");
+    popularFiltro(filtroBairro, imoveisCarregados.map((imovel) => imovel.bairro), "Todos os bairros");
+    popularFiltro(filtroCategoria, imoveisCarregados.map((imovel) => imovel.categoria), "Todas as categorias");
 
-  const aplicarFiltros = () => {
-    const bairro = filtroBairro?.value || "";
-    const categoria = filtroCategoria?.value || "";
-    const filtrados = imoveisCarregados.filter((imovel) => {
-      return (!bairro || imovel.bairro === bairro) && (!categoria || imovel.categoria === categoria);
+    const aplicarFiltros = () => {
+      const bairro = filtroBairro?.value || "";
+      const categoria = filtroCategoria?.value || "";
+      const filtrados = imoveisCarregados.filter((imovel) => {
+        return (!bairro || imovel.bairro === bairro) && (!categoria || imovel.categoria === categoria);
+      });
+      renderizarImoveis(filtrados, container);
+    };
+
+    filtroBairro?.addEventListener("change", aplicarFiltros);
+    filtroCategoria?.addEventListener("change", aplicarFiltros);
+    container.addEventListener("click", (event) => {
+      const button = event.target.closest(".btn-vermais");
+      if (button) abrirModal(button.dataset.id);
     });
-    renderizarImoveis(filtrados, container);
-  };
 
-  filtroBairro?.addEventListener("change", aplicarFiltros);
-  filtroCategoria?.addEventListener("change", aplicarFiltros);
-  container.addEventListener("click", (event) => {
-    const button = event.target.closest(".btn-vermais");
-    if (button) abrirModal(button.dataset.id);
-  });
-
-  aplicarFiltros();
-  if (loading) loading.style.display = "none";
-  container.hidden = false;
-  container.style.display = "grid";
+    aplicarFiltros();
+  } catch (error) {
+    console.warn("Nao foi possivel carregar os imoveis:", error.message);
+    imoveisCarregados = [];
+    container.classList.remove("grid-imoveis-single");
+    container.innerHTML = '<p class="empty-state">Nao foi possivel carregar os imoveis agora. Tente novamente em instantes.</p>';
+  } finally {
+    if (loading) loading.style.display = "none";
+    container.hidden = false;
+    container.style.display = "grid";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

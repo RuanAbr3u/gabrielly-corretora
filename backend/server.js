@@ -40,23 +40,47 @@ app.use(
   }),
 );
 
-const allowedOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(",")
-  : [
-      "http://localhost:5500",
-      "http://127.0.0.1:5500",
-      "http://localhost:5501",
-      "http://127.0.0.1:5501",
-    ];
+const allowedOrigins = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+  "http://localhost:5501",
+  "http://127.0.0.1:5501",
+  "https://gabrielly-corretora.vercel.app",
+  "https://gabrielly-corretora.netlify.app",
+]);
+
+if (process.env.FRONTEND_URL) {
+  process.env.FRONTEND_URL.split(",")
+    .map((url) => url.trim())
+    .filter(Boolean)
+    .forEach((url) => allowedOrigins.add(url));
+}
+
+function origemPermitida(origin) {
+  if (!origin) return NODE_ENV === "development";
+  if (allowedOrigins.has(origin)) return true;
+
+  try {
+    const { hostname } = new URL(origin);
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.endsWith(".vercel.app") ||
+      hostname.endsWith(".netlify.app")
+    );
+  } catch (error) {
+    return false;
+  }
+}
 app.use(
   cors({
     origin: function (origin, callback) {
       // Em desenvolvimento, permite requisições sem origin (ex: Postman)
-      if (!origin && NODE_ENV === "development") {
-        callback(null, true);
-        return;
-      }
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (origemPermitida(origin)) {
         callback(null, true);
       } else {
         console.warn(`CORS bloqueado para origem: ${origin}`);

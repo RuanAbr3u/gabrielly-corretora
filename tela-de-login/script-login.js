@@ -187,13 +187,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const current = senhaInput.getAttribute("type");
       if (current === "password") {
         senhaInput.setAttribute("type", "text");
-        togglePasswordBtn.textContent = "Ocultar";
+        togglePasswordBtn.classList.add("is-visible");
         togglePasswordBtn.setAttribute("aria-label", "Ocultar senha");
+        togglePasswordBtn.setAttribute("title", "Ocultar senha");
         togglePasswordBtn.setAttribute("aria-pressed", "true");
       } else {
         senhaInput.setAttribute("type", "password");
-        togglePasswordBtn.textContent = "Mostrar";
+        togglePasswordBtn.classList.remove("is-visible");
         togglePasswordBtn.setAttribute("aria-label", "Mostrar senha");
+        togglePasswordBtn.setAttribute("title", "Mostrar senha");
         togglePasswordBtn.setAttribute("aria-pressed", "false");
       }
       senhaInput.focus();
