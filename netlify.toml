@@ -94,12 +94,12 @@
 
 [[redirects]]
   from = "/painel"
-  to = "/tela-de-login/painel.html"
+  to = "/painel/index.html"
   status = 200
 
 [[redirects]]
   from = "/login"
-  to = "/tela-de-login/login.html"
+  to = "/login/index.html"
   status = 200
 
 [[redirects]]

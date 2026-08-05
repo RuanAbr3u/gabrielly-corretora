@@ -103,11 +103,11 @@
     },
     {
       "source": "/painel",
-      "destination": "/tela-de-login/painel.html"
+      "destination": "/painel/index.html"
     },
     {
       "source": "/login",
-      "destination": "/tela-de-login/login.html"
+      "destination": "/login/index.html"
     },
     {
       "source": "/(.*)",
