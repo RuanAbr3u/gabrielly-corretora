@@ -40,11 +40,11 @@
       <div class="topbar-right">
         <div class="user-info">
           <span class="user-text"
-            >👤 Olá, <strong id="userEmail">Gabrielly Silva</strong></span
+            >Olá, <strong id="userEmail">Gabrielly Silva</strong></span
           >
         </div>
         <button class="logout-btn" onclick="logout()">
-          <span>🚪 Sair</span>
+          <span>Sair</span>
         </button>
       </div>
     </header>
@@ -52,22 +52,22 @@
     <div class="painel-container">
       <aside class="sidebar">
         <nav class="painel-nav">
-          <a class="painel-link-btn" href="../tela-gestao-financeira/index.html"
+          <a class="painel-link-btn" href="/financeiro/"
             >Gestão Financeira</a
           >
           <a
             class="painel-link-btn"
-            href="../tela-cadastro-atendimento/index.html"
+            href="/atendimentos/"
             >Cadastrar Atendimento</a
           >
           <a
             class="painel-link-btn"
-            href="../tela-cadastro-proprietario/index.html"
+            href="/proprietarios/"
             >Cadastrar Proprietário</a
           >
           <a
             class="painel-link-btn"
-            href="../tela-caracteristica-imovel/index.html"
+            href="/caracteristicas/"
             >Características de Imóvel</a
           >
         </nav>
@@ -79,25 +79,25 @@
             <div class="metric-value" id="totalImoveis">
               <span>0</span>
             </div>
-            <div class="metric-label">📊 Total de Imóveis</div>
+            <div class="metric-label">Total de Imóveis</div>
           </div>
           <div class="metric-card">
             <div class="metric-value" id="disponiveis">
               <span>0</span>
             </div>
-            <div class="metric-label">✅ Disponíveis</div>
+            <div class="metric-label">Disponíveis</div>
           </div>
           <div class="metric-card">
             <div class="metric-value" id="vendidos">
               <span>0</span>
             </div>
-            <div class="metric-label">🏆 Vendidos/Alugados</div>
+            <div class="metric-label">Vendidos/Alugados</div>
           </div>
           <div class="metric-card">
             <div class="metric-value" id="ultimos">
               <span>0</span>
             </div>
-            <div class="metric-label">📅 Últimos 7 dias</div>
+            <div class="metric-label">Últimos 7 dias</div>
           </div>
         </section>
         <!-- Barra de filtros e ações -->
@@ -209,14 +209,14 @@
               type="button"
               class="btn-filter btn-filter-primary"
             >
-              📊 Exportar CSV
+              Exportar CSV
             </button>
             <button
               id="limparFiltros"
               type="button"
               class="btn-filter btn-filter-secondary"
             >
-              🔄 Limpar Filtros
+              Limpar Filtros
             </button>
           </div>
         </section>
@@ -224,13 +224,13 @@
         <!-- Formulário de cadastro/edição de imóvel -->
         <section class="form-section">
           <div class="form-header">
-            <h2>📝 <span id="formTitle">Cadastrar Novo Imóvel</span></h2>
+            <h2><span id="formTitle">Cadastrar Novo Imóvel</span></h2>
             <button
               type="button"
               id="toggleForm"
               class="btn-filter btn-filter-secondary"
             >
-              ▲ Minimizar
+              Minimizar
             </button>
           </div>
 
@@ -241,7 +241,7 @@
 
               <!-- Informações Básicas -->
               <div class="form-group-container">
-                <h3 class="form-section-divider">📋 Informações Básicas</h3>
+                <h3 class="form-section-divider">Informações Básicas</h3>
 
                 <div class="form-row">
                   <div class="form-field">
@@ -291,7 +291,7 @@
                       id="btnAtualizarProprietarios"
                       class="btn-action"
                     >
-                      🔄 Atualizar
+                      Atualizar
                     </button>
                   </div>
                 </div>
@@ -299,7 +299,7 @@
 
               <!-- Localização -->
               <div class="form-group-container">
-                <h3 class="form-section-divider">📍 Localização</h3>
+                <h3 class="form-section-divider">Localização</h3>
 
                 <div class="form-row">
                   <div class="form-field">
@@ -315,7 +315,7 @@
                   <div class="form-field" style="flex: 0 0 auto">
                     <label>&nbsp;</label>
                     <button type="button" id="btnBuscarCep" class="btn-action">
-                      🔍 Buscar
+                      Buscar
                     </button>
                   </div>
                 </div>
@@ -344,7 +344,7 @@
                       id="btnAtualizarBairros"
                       class="btn-action"
                     >
-                      🔄 Atualizar
+                      Atualizar
                     </button>
                   </div>
                 </div>
@@ -361,7 +361,7 @@
 
               <!-- Valores -->
               <div class="form-group-container">
-                <h3 class="form-section-divider">💰 Valores</h3>
+                <h3 class="form-section-divider">Valores</h3>
 
                 <div class="form-row">
                   <div class="form-field">
@@ -390,7 +390,7 @@
 
               <!-- Características -->
               <div class="form-group-container">
-                <h3 class="form-section-divider">🏠 Características</h3>
+                <h3 class="form-section-divider">Características</h3>
 
                 <div class="form-row">
                   <div class="form-field">
@@ -421,7 +421,7 @@
 
                 <div class="form-row">
                   <div class="form-field">
-                    <label for="areaUtil">Área Útil (m²)</label>
+                    <label for="areaUtil">Área útil (m²)</label>
                     <input
                       type="number"
                       id="areaUtil"
@@ -475,7 +475,7 @@
 
               <!-- Descrição e Fotos -->
               <div class="form-group-container">
-                <h3 class="form-section-divider">📝 Descrição e Fotos</h3>
+                <h3 class="form-section-divider">Descrição e Fotos</h3>
 
                 <div class="form-field">
                   <label for="descricao">Descrição Completa *</label>
@@ -489,7 +489,7 @@
 
                 <div class="form-field">
                   <label for="imagens"
-                    >📸 Fotos do Imóvel (máximo 20 fotos)</label
+                    > Fotos do Imóvel (máximo 20 fotos)</label
                   >
                   <input type="file" id="imagens" accept="image/*" multiple />
                   <small style="color: #666; display: block; margin-top: 5px"
@@ -503,7 +503,7 @@
               <!-- Características Adicionais -->
               <div class="form-group-container">
                 <h3 class="form-section-divider">
-                  ✨ Características e Instalações
+                  Características e Instalações
                 </h3>
                 <div id="caracteristicas-dinamicas" class="checkbox-grid"></div>
               </div>
@@ -515,7 +515,7 @@
                   id="submitBtn"
                   class="btn-form btn-form-primary"
                 >
-                  ✅ Cadastrar Imóvel
+                  Cadastrar Imóvel
                 </button>
                 <button
                   type="button"
@@ -523,7 +523,7 @@
                   class="btn-form btn-form-secondary"
                   style="display: none"
                 >
-                  ❌ Cancelar
+                  Cancelar
                 </button>
               </div>
             </form>
@@ -532,7 +532,7 @@
 
         <section class="lista-section">
           <div class="lista-header">
-            <h2>🏘️ Imóveis Cadastrados</h2>
+            <h2>Imóveis Cadastrados</h2>
             <div class="lista-stats">
               <span class="lista-stat">
                 Exibindo:
@@ -593,9 +593,10 @@
           "
           onmouseover="this.style.color = '#fff'"
           onmouseout="this.style.color = '#c9a961'"
-          >Ruan Abreu</a
+          >ABR3U TECH</a
         >
       </p>
     </footer>
   </body>
 </html>
+

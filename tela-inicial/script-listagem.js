@@ -29,7 +29,7 @@ function formatarMoeda(valor) {
 }
 
 function escaparHtml(valor) {
-  return String(valor ?? "")
+  return String(valor || "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -38,7 +38,7 @@ function escaparHtml(valor) {
 }
 
 function normalizarTexto(valor) {
-  return String(valor ?? "")
+  return String(valor || "")
     .trim()
     .toLowerCase()
     .normalize("NFD")
@@ -62,7 +62,7 @@ function normalizarImovel(imovel) {
     descricao: imovel.descricao || "",
     tipoNegocio,
     categoria: imovel.categoria || "",
-    preco: imovel.valor ?? imovel.preco ?? 0,
+    preco: imovel.valor || imovel.preco || 0,
     bairro: imovel.bairro || "",
     cidade,
     estado,

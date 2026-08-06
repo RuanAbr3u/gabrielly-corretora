@@ -113,7 +113,30 @@ let editandoIndex = null;
 function salvarAtendimentos() {
   localStorage.setItem("atendimentos", JSON.stringify(atendimentos));
 }
-function carregarAtendimentos() {
+async function carregarAtendimentos() {
+  try {
+    if (window.carregarAtendimentosSupabase || window.carregarAtendimentos) {
+      const dadosSupabase = await (window.carregarAtendimentosSupabase || window.carregarAtendimentos)();
+      if (Array.isArray(dadosSupabase) && dadosSupabase.length > 0) {
+        atendimentos = dadosSupabase.map((item) => ({
+          id: item.id,
+          cliente: item.cliente || item.nomeCliente || item.nome_cliente || "",
+          data: item.data || item.dataContato || item.data_contato || "",
+          descricao: item.descricao || item.mensagem || item.observacoes || "",
+          documento: item.documento || "",
+          telefone: item.telefone || "",
+          imovelId: item.imovelId || item.imovel_id || "",
+          status: item.status || "novo",
+          notas: item.notas || [],
+        }));
+        salvarAtendimentos();
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao carregar atendimentos do Supabase:", error);
+  }
+
   const dados = localStorage.getItem("atendimentos");
   atendimentos = dados ? JSON.parse(dados) : [];
 }
@@ -187,18 +210,27 @@ function renderizarAtendimentos() {
 
 function adicionarEventosAtendimentos() {
   document.querySelectorAll(".excluir-btn").forEach((btn) => {
-    btn.onclick = function () {
+    btn.onclick = async function () {
       const idx = Number(this.getAttribute("data-idx"));
       if (confirm("Tem certeza que deseja excluir este atendimento?")) {
-        atendimentos.splice(idx, 1);
-        salvarAtendimentos();
-        renderizarAtendimentos();
-        mostrarMensagem("Atendimento excluído!");
+        const removido = atendimentos[idx];
+        try {
+          if (removido?.id && (window.deletarAtendimentoSupabase || window.deletarAtendimento)) {
+            await (window.deletarAtendimentoSupabase || window.deletarAtendimento)(removido.id);
+          }
+          atendimentos.splice(idx, 1);
+          salvarAtendimentos();
+          renderizarAtendimentos();
+          mostrarMensagem("Atendimento excluído!");
+        } catch (error) {
+          console.error("Erro ao excluir atendimento:", error);
+          mostrarMensagem("Erro ao excluir atendimento: " + (error.message || "Erro desconhecido"), true);
+        }
       }
     };
   });
   document.querySelectorAll(".editar-btn").forEach((btn) => {
-    btn.onclick = function () {
+    btn.onclick = async function () {
       const idx = Number(this.getAttribute("data-idx"));
       const a = atendimentos[idx];
       document.querySelector('input[name="cliente"]').value = a.cliente;
@@ -233,7 +265,7 @@ function adicionarEventosAtendimentos() {
 
 document
   .getElementById("atendimento-form")
-  .addEventListener("submit", function (e) {
+  .addEventListener("submit", async function (e) {
     e.preventDefault();
     const cliente = this.cliente.value.trim();
     const data = this.data.value;
@@ -302,6 +334,7 @@ document
       });
     }
 
+    try {
     if (editandoIndex !== null) {
       // Preservar notas existentes ao editar
       if (atendimentos[editandoIndex].notas) {
@@ -310,16 +343,48 @@ document
           ...atendimentoData.notas,
         ];
       }
+      atendimentoData.id = atendimentos[editandoIndex].id;
       atendimentos[editandoIndex] = atendimentoData;
+      if (window.salvarAtendimento) {
+        const salvo = await window.salvarAtendimento({
+          id: atendimentoData.id,
+          nomeCliente: atendimentoData.cliente,
+          telefone: atendimentoData.telefone,
+          email: "",
+          interesse: "imovel",
+          mensagem: atendimentoData.descricao,
+          status: atendimentoData.status,
+          dataContato: atendimentoData.data,
+          observacoes: atendimentoData.notas.map((nota) => nota.texto).join("\n"),
+        });
+        atendimentos[editandoIndex] = { ...atendimentoData, id: salvo.id || atendimentoData.id };
+      }
       editandoIndex = null;
       this.querySelector('button[type="submit"]').textContent = "Cadastrar";
     } else {
+      if (window.salvarAtendimento) {
+        const salvo = await window.salvarAtendimento({
+          nomeCliente: atendimentoData.cliente,
+          telefone: atendimentoData.telefone,
+          email: "",
+          interesse: "imovel",
+          mensagem: atendimentoData.descricao,
+          status: atendimentoData.status,
+          dataContato: atendimentoData.data,
+          observacoes: atendimentoData.notas.map((nota) => nota.texto).join("\n"),
+        });
+        atendimentoData.id = salvo.id;
+      }
       atendimentos.push(atendimentoData);
     }
     salvarAtendimentos();
     renderizarAtendimentos();
     this.reset();
     mostrarMensagem("Atendimento salvo com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar atendimento:", error);
+      mostrarMensagem("Erro ao salvar atendimento: " + (error.message || "Erro desconhecido"), true);
+    }
   });
 
 // Popula o select de imóveis com os dados do Supabase
@@ -332,7 +397,7 @@ async function carregarImoveisNoSelect() {
   try {
     // Carregar imóveis do Supabase
     const imoveis = await carregarImoveis();
-    console.log("📦 Imóveis carregados para select:", imoveis.length);
+    console.log(" Imóveis carregados para select:", imoveis.length);
 
     if (imoveis.length === 0) {
       const optAviso = document.createElement("option");
@@ -340,7 +405,7 @@ async function carregarImoveisNoSelect() {
       optAviso.textContent = "(Nenhum imóvel cadastrado)";
       optAviso.disabled = true;
       sel.appendChild(optAviso);
-      console.log("⚠️ Nenhum imóvel encontrado no banco");
+      console.log(" Nenhum imóvel encontrado no banco");
     } else {
       imoveis.forEach((im, i) => {
         const title = im.titulo || im.endereco || `Imóvel ${im.id}`;
@@ -349,10 +414,10 @@ async function carregarImoveisNoSelect() {
         opt.textContent = `${title} (${im.bairro || "sem bairro"})`;
         sel.appendChild(opt);
       });
-      console.log("✅ " + imoveis.length + " imóveis adicionados ao select");
+      console.log(" " + imoveis.length + " imóveis adicionados ao select");
     }
   } catch (error) {
-    console.error("❌ Erro ao carregar imóveis:", error);
+    console.error(" Erro ao carregar imóveis:", error);
     const optErro = document.createElement("option");
     optErro.value = "";
     optErro.textContent = "(Erro ao carregar imóveis)";
@@ -402,13 +467,15 @@ function mostrarMensagem(msg, erro = false) {
 }
 
 // Inicialização
-carregarAtendimentos();
-renderizarAtendimentos();
+(async function inicializarAtendimentos() {
+  await carregarAtendimentos();
+  renderizarAtendimentos();
+})();
 
 // Inicializar imóveis assincronamente
 (async function () {
   await carregarImoveisNoSelect();
-  console.log("✅ Imóveis carregados no select");
+  console.log(" Imóveis carregados no select");
 })();
 
 // ========== ESTATÍSTICAS E FILTROS (Consolidado de script-melhorias.js) ==========
@@ -560,7 +627,7 @@ function renderNotasHTML(notas) {
 
   let html = '<div class="notas-section">';
   html +=
-    '<strong style="color: var(--color-gold); font-size: 0.9rem;">📝 Notas e Lembretes:</strong>';
+    '<strong style="color: var(--color-gold); font-size: 0.9rem;"> Notas e Lembretes:</strong>';
 
   notas.forEach((nota) => {
     html += `
@@ -611,10 +678,19 @@ function adicionarEventosBotoes() {
     btn.onclick = function () {
       const idx = Number(this.getAttribute("data-idx"));
       if (confirm("Tem certeza que deseja excluir este atendimento?")) {
-        atendimentos.splice(idx, 1);
-        salvarAtendimentos();
-        buscarAtendimentos();
-        mostrarMensagem("Atendimento excluído!");
+        const removido = atendimentos[idx];
+        try {
+          if (removido?.id && (window.deletarAtendimentoSupabase || window.deletarAtendimento)) {
+            await (window.deletarAtendimentoSupabase || window.deletarAtendimento)(removido.id);
+          }
+          atendimentos.splice(idx, 1);
+          salvarAtendimentos();
+          buscarAtendimentos();
+          mostrarMensagem("Atendimento excluído!");
+        } catch (error) {
+          console.error("Erro ao excluir atendimento:", error);
+          mostrarMensagem("Erro ao excluir atendimento: " + (error.message || "Erro desconhecido"), true);
+        }
       }
     };
   });

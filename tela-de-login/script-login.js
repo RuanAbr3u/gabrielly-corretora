@@ -2,7 +2,7 @@ const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 const API_BASE_URL = isLocal
-  ? "http://localhost:3001"
+  ? "http://localhost:3000"
   : "https://gabrielly-corretora.onrender.com";
 const STRONG_PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;

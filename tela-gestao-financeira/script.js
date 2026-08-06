@@ -1,4 +1,4 @@
-document.getElementById('financeiro-form').addEventListener('submit', function(e) {
+document.getElementById('financeiro-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const tipo = this.tipo.value;
     const descricao = this.descricao.value.trim();
@@ -15,18 +15,30 @@ document.getElementById('financeiro-form').addEventListener('submit', function(e
         mostrarMensagem('Preencha todos os campos corretamente!', true);
         return;
     }
+    try {
     if (editandoIndex !== null) {
         // Atualizar lançamento existente
-        lancamentos[editandoIndex] = { tipo, descricao, categoria, valor, data, pendente };
+        lancamentos[editandoIndex] = { ...lancamentos[editandoIndex], tipo, descricao, categoria, valor, data, pendente };
+        if (window.salvarTransacao) {
+            lancamentos[editandoIndex] = await window.salvarTransacao(lancamentos[editandoIndex]);
+        }
         editandoIndex = null;
         this.querySelector('button[type="submit"]').textContent = 'Cadastrar';
     } else {
-        lancamentos.push({ tipo, descricao, categoria, valor, data, pendente });
+        let novoLancamento = { tipo, descricao, categoria, valor, data, pendente };
+        if (window.salvarTransacao) {
+            novoLancamento = await window.salvarTransacao(novoLancamento);
+        }
+        lancamentos.push(novoLancamento);
     }
     salvarLancamentos();
     renderizarLancamentos();
     this.reset();
     mostrarMensagem('Lançamento salvo com sucesso!');
+    } catch (error) {
+        console.error('Erro ao salvar lançamento:', error);
+        mostrarMensagem('Erro ao salvar lançamento: ' + (error.message || 'Erro desconhecido'), true);
+    }
 });
 
 // Funções de armazenamento e renderização
@@ -36,27 +48,40 @@ let editandoIndex = null;
 function salvarLancamentos() {
     try {
         if (!Array.isArray(lancamentos)) {
-            console.error('❌ lancamentos não é um array');
+            console.error(' lancamentos não é um array');
             lancamentos = [];
         }
         localStorage.setItem('lancamentosFinanceiros', JSON.stringify(lancamentos));
     } catch (error) {
-        console.error('❌ Erro ao salvar lançamentos:', error);
+        console.error(' Erro ao salvar lançamentos:', error);
     }
 }
 
-function carregarLancamentos() {
+async function carregarLancamentos() {
     try {
+        if (window.carregarTransacoes) {
+            const dadosSupabase = await window.carregarTransacoes();
+            if (Array.isArray(dadosSupabase) && dadosSupabase.length > 0) {
+                lancamentos = dadosSupabase.map((item) => ({
+                    ...item,
+                    valor: String(item.valor || 0),
+                    data: item.data || item.data_transacao || hojeISO(),
+                    pendente: typeof item.pendente === 'boolean' ? item.pendente : false,
+                }));
+                localStorage.setItem('lancamentosFinanceiros', JSON.stringify(lancamentos));
+                return;
+            }
+        }
         const dados = localStorage.getItem('lancamentosFinanceiros');
         lancamentos = dados ? JSON.parse(dados) : [];
         
         // Validar que é um array
         if (!Array.isArray(lancamentos)) {
-            console.warn('⚠️ Dados inválidos no localStorage, resetando...');
+            console.warn(' Dados inválidos no localStorage, resetando...');
             lancamentos = [];
         }
     } catch (error) {
-        console.error('❌ Erro ao carregar lançamentos:', error);
+        console.error(' Erro ao carregar lançamentos:', error);
         lancamentos = [];
     }
 }
@@ -64,7 +89,7 @@ function carregarLancamentos() {
 function renderizarLancamentos() {
     const tabela = document.querySelector('#tabela-lancamentos tbody');
     if (!tabela) {
-        console.error('❌ Tabela de lançamentos não encontrada');
+        console.error(' Tabela de lançamentos não encontrada');
         return;
     }
     tabela.innerHTML = '';
@@ -73,14 +98,14 @@ function renderizarLancamentos() {
     const filtrados = aplicarFiltros();
     
     if (!Array.isArray(filtrados)) {
-        console.error('❌ filtrados não é um array');
+        console.error(' filtrados não é um array');
         return;
     }
     
     filtrados.forEach((l, idx) => {
         // Validar objeto
         if (!l || typeof l !== 'object') {
-            console.warn('⚠️ Lançamento inválido ignorado:', l);
+            console.warn(' Lançamento inválido ignorado:', l);
             return;
         }
         
@@ -102,13 +127,22 @@ function renderizarLancamentos() {
 
 function adicionarEventosLinhas() {
     document.querySelectorAll('.excluir-btn').forEach(btn => {
-        btn.onclick = function() {
+        btn.onclick = async function() {
             const idx = Number(this.getAttribute('data-idx'));
             if (confirm('Tem certeza que deseja excluir este lançamento?')) {
-                lancamentos.splice(idx, 1);
-                salvarLancamentos();
-                renderizarLancamentos();
-                mostrarMensagem('Lançamento excluído!');
+                const removido = lancamentos[idx];
+                try {
+                    if (window.deletarTransacao && removido && removido.id) {
+                        await window.deletarTransacao(removido.id);
+                    }
+                    lancamentos.splice(idx, 1);
+                    salvarLancamentos();
+                    renderizarLancamentos();
+                    mostrarMensagem('Lançamento excluído!');
+                } catch (error) {
+                    console.error('Erro ao excluir lançamento no Supabase:', error);
+                    mostrarMensagem('Erro ao excluir lançamento: ' + (error.message || 'Erro desconhecido'), true);
+                }
             }
         };
     });
@@ -228,11 +262,15 @@ function mostrarMensagem(msg, erro = false) {
 }
 
 // Inicialização
-carregarLancamentos();
-renderizarLancamentos();
-renderMetrics();
+inicializarFinanceiro();
 
 // Define data padrão (hoje) no input no formato ISO (YYYY-MM-DD) se estiver vazio
 function hojeISO(){ const d = new Date(); const yyyy = d.getFullYear(); const mm = String(d.getMonth()+1).padStart(2,'0'); const dd = String(d.getDate()).padStart(2,'0'); return `${yyyy}-${mm}-${dd}`; }
 const dataInput = document.querySelector('input[name="data"]');
 if (dataInput && !dataInput.value) dataInput.value = hojeISO();
+
+async function inicializarFinanceiro() {
+    await carregarLancamentos();
+    renderizarLancamentos();
+    renderMetrics();
+}

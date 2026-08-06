@@ -74,6 +74,26 @@
       "source": "/tela-de-login/painel.html",
       "destination": "/painel",
       "permanent": true
+    },
+    {
+      "source": "/tela-gestao-financeira/index.html",
+      "destination": "/financeiro",
+      "permanent": true
+    },
+    {
+      "source": "/tela-cadastro-atendimento/index.html",
+      "destination": "/atendimentos",
+      "permanent": true
+    },
+    {
+      "source": "/tela-cadastro-proprietario/index.html",
+      "destination": "/proprietarios",
+      "permanent": true
+    },
+    {
+      "source": "/tela-caracteristica-imovel/index.html",
+      "destination": "/caracteristicas",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -108,6 +128,22 @@
     {
       "source": "/login",
       "destination": "/login/index.html"
+    },
+    {
+      "source": "/financeiro",
+      "destination": "/financeiro/index.html"
+    },
+    {
+      "source": "/atendimentos",
+      "destination": "/atendimentos/index.html"
+    },
+    {
+      "source": "/proprietarios",
+      "destination": "/proprietarios/index.html"
+    },
+    {
+      "source": "/caracteristicas",
+      "destination": "/caracteristicas/index.html"
     },
     {
       "source": "/(.*)",

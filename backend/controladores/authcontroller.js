@@ -7,10 +7,15 @@ console.log(
   "🔧 SUPABASE_SERVICE_KEY:",
   process.env.SUPABASE_SERVICE_KEY ? "✅ Definida" : "❌ Não definida",
 );
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_KEY ||
+  process.env.SUPABASE_KEY ||
+  process.env.SUPABASE_ANON_KEY;
+
 // Inicializar Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY,
+  supabaseKey,
 );
 
 // ✅ VALIDAR FORÇA DE SENHA

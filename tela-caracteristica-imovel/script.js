@@ -10,7 +10,8 @@ document.getElementById('caracteristica-form').addEventListener('submit', async 
         console.log('💾 Adicionando característica:', caracteristica);
         
         // Verificar duplicidade no Supabase
-        const existentes = await DB.caracteristicas.listar();
+        await aguardarDBCaracteristicas();
+        const existentes = await listarCaracteristicasSeguro();
         const jaExiste = existentes.some(c => c.nome.toLowerCase() === caracteristica.toLowerCase());
         
         if (jaExiste) {
@@ -19,7 +20,11 @@ document.getElementById('caracteristica-form').addEventListener('submit', async 
         }
         
         // Salvar no Supabase
-        await DB.caracteristicas.criar(caracteristica);
+        if (window.salvarCaracteristica || window.salvarCaracteristicaSupabase) {
+            await (window.salvarCaracteristica || window.salvarCaracteristicaSupabase)(caracteristica);
+        } else {
+            await DB.caracteristicas.criar(caracteristica);
+        }
         console.log('✅ Característica adicionada com sucesso!');
         
         // Recarregar lista completa
@@ -63,7 +68,12 @@ function adicionarEventosCaracteristica(li) {
             
             try {
                 // Excluir do Supabase
-                await DB.caracteristicas.deletar(id);
+                if (window.deletarCaracteristicaSupabase) {
+                    await window.deletarCaracteristicaSupabase(id);
+                } else {
+                    await aguardarDBCaracteristicas();
+                    await DB.caracteristicas.deletar(id);
+                }
                 console.log('✅ Característica excluída com sucesso do Supabase!');
                 
                 // Remover da lista visualmente
@@ -111,6 +121,67 @@ function mostrarMensagem(msg, erro = false) {
     setTimeout(() => { div.style.display = 'none'; }, 3000);
 }
 
+async function aguardarDBCaracteristicas(tentativas = 20) {
+    for (let i = 0; i < tentativas; i++) {
+        if (window.DB?.caracteristicas?.listar) return true;
+        await new Promise(resolve => setTimeout(resolve, 150));
+    }
+    throw new Error('Conexao com Supabase indisponivel.');
+}
+
+async function listarCaracteristicasViaRest() {
+    const supabase = window.APP_CONFIG?.supabase || window.CONFIG?.supabase;
+    const chave = supabase?.key || supabase?.anonKey;
+    if (!supabase?.url || !chave) return null;
+
+    const response = await fetch(`${supabase.url}/rest/v1/caracteristicas?select=*&order=nome.asc`, {
+        headers: {
+            apikey: chave,
+            Authorization: `Bearer ${chave}`
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Falha REST Supabase: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+async function listarCaracteristicasSeguro() {
+    try {
+        await aguardarDBCaracteristicas();
+        const dadosDB = await DB.caracteristicas.listar();
+        if (Array.isArray(dadosDB) && dadosDB.length > 0) {
+            return dadosDB;
+        }
+        console.warn('DB retornou lista vazia, tentando REST direta do Supabase.');
+    } catch (error) {
+        console.warn('Falha ao listar via DB, tentando REST:', error);
+    }
+
+    try {
+        const dadosRest = await listarCaracteristicasViaRest();
+        if (Array.isArray(dadosRest)) return dadosRest;
+    } catch (error) {
+        console.warn('Falha ao listar via REST, tentando cache local:', error);
+    }
+
+    try {
+        const cache = JSON.parse(localStorage.getItem('caracteristicas') || '[]');
+        return Array.isArray(cache)
+            ? cache.map((item, index) => ({
+                id: item.id || `local-${index}`,
+                nome: typeof item === 'string' ? item : item.nome,
+                created_at: item.created_at
+            })).filter(item => item.nome)
+            : [];
+    } catch (error) {
+        console.warn('Falha ao ler cache local de caracteristicas:', error);
+        return [];
+    }
+}
+
 // Carregar características salvas ao abrir a tela
 window.addEventListener('DOMContentLoaded', async function() {
     await carregarCaracteristicas();
@@ -129,7 +200,7 @@ async function carregarCaracteristicas() {
     
     try {
         console.log('📥 Carregando características do Supabase...');
-        const caracteristicas = await DB.caracteristicas.listar();
+        const caracteristicas = await listarCaracteristicasSeguro();
         console.log('✅ Características carregadas:', caracteristicas.length, caracteristicas);
         
         ul.innerHTML = '';

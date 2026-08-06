@@ -557,3 +557,563 @@ console.log(
     ].includes(k),
   ),
 );
+
+// Carregamento robusto para o painel: tenta DB, depois REST direta do Supabase,
+// e somente por ultimo usa localStorage.
+(function configurarCarregamentoRobustoImoveis() {
+  function carregarImoveisLocalSeguro() {
+    try {
+      return JSON.parse(localStorage.getItem("imoveis")) || [];
+    } catch (error) {
+      console.error("Erro ao acessar imoveis do localStorage:", error);
+      return [];
+    }
+  }
+
+  async function aguardarDBImoveis() {
+    for (let tentativa = 0; tentativa < 12; tentativa++) {
+      if (window.DB?.imoveis?.listar) return true;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    return false;
+  }
+
+  function normalizarImovelPainel(imovel) {
+    const status = String(imovel.status || imovel.disponibilidade || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    return {
+      id: imovel.id,
+      titulo: imovel.titulo,
+      descricao: imovel.descricao,
+      tipoNegocio: imovel.tipo_negocio || imovel.tipoNegocio || imovel.tipo,
+      tipo: imovel.tipo_negocio || imovel.tipoNegocio || imovel.tipo,
+      categoria: imovel.categoria,
+      preco: imovel.valor ? imovel.valor.toString() : imovel.preco ? imovel.preco.toString() : "0",
+      valor: imovel.valor || imovel.preco,
+      cep: imovel.cep,
+      cepImovel: imovel.cep,
+      endereco: imovel.endereco,
+      enderecoImovel: imovel.endereco,
+      numero: imovel.numero,
+      complemento: imovel.complemento,
+      bairro: imovel.bairro,
+      cidade: imovel.cidade,
+      estado: imovel.estado,
+      quartos: Number(imovel.quartos) || 0,
+      suites: Number(imovel.suites) || 0,
+      banheiros: Number(imovel.banheiros) || 0,
+      garagem: (imovel.vagas_garagem || imovel.vagas) > 0 ? "Com garagem" : "Sem garagem",
+      vagas: Number(imovel.vagas_garagem || imovel.vagas) || 0,
+      area: imovel.area || 0,
+      areaUtil: imovel.area_util || imovel.area || 0,
+      areaTotal: imovel.area_total || imovel.area || 0,
+      condominio: imovel.condominio || "",
+      valorCondominio: imovel.valor_condominio || 0,
+      valorIPTU: imovel.valor_iptu || 0,
+      proprietario: imovel.proprietario_id || (imovel.proprietarios ? imovel.proprietarios.id : "") || imovel.proprietario,
+      proprietarioNome: imovel.proprietario_nome || (imovel.proprietarios ? imovel.proprietarios.nome : ""),
+      proprietarioObj: imovel.proprietarios || null,
+      caracteristicas: Array.isArray(imovel.caracteristicas) ? imovel.caracteristicas : [],
+      imagens: imovel.imagens || imovel.fotos || [],
+      fotos: imovel.imagens || imovel.fotos || [],
+      disponibilidade: status === "ativo" || status === "disponivel" ? "Disponível" : "Vendido/Alugado",
+    };
+  }
+
+  async function carregarImoveisViaRest() {
+    const cfg = window.APP_CONFIG?.supabase || window.CONFIG?.supabase;
+    if (!cfg?.url || !cfg?.key) return [];
+
+    const response = await fetch(`${cfg.url}/rest/v1/imoveis?select=*&order=created_at.desc`, {
+      headers: {
+        apikey: cfg.key,
+        Authorization: `Bearer ${cfg.key}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Supabase REST ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  }
+
+  window.carregarImoveis = async function carregarImoveisRobusto() {
+    if (!USE_SUPABASE) return carregarImoveisLocalSeguro();
+
+    try {
+      if (await aguardarDBImoveis()) {
+        const data = await window.DB.imoveis.listar();
+        if (Array.isArray(data) && data.length > 0) {
+          return data.map(normalizarImovelPainel);
+        }
+      }
+    } catch (error) {
+      console.warn("Falha ao carregar imoveis via DB:", error);
+    }
+
+    try {
+      const data = await carregarImoveisViaRest();
+      if (data.length > 0) return data.map(normalizarImovelPainel);
+    } catch (error) {
+      console.warn("Falha ao carregar imoveis via REST:", error);
+    }
+
+    return carregarImoveisLocalSeguro();
+  };
+})();
+
+// Carregamento robusto para proprietarios e atendimentos usados nas telas auxiliares.
+(function configurarCarregamentoRobustoPainelAuxiliar() {
+  function obterConfigSupabase() {
+    const cfg = window.APP_CONFIG?.supabase || window.CONFIG?.supabase;
+    const key = cfg?.key || cfg?.anonKey;
+    return cfg?.url && key ? { url: cfg.url, key } : null;
+  }
+
+  async function aguardarDB(recurso) {
+    for (let tentativa = 0; tentativa < 12; tentativa++) {
+      if (window.DB?.[recurso]?.listar) return true;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    return false;
+  }
+
+  async function buscarRest(tabela, order = "created_at.desc") {
+    const cfg = obterConfigSupabase();
+    if (!cfg) return [];
+
+    const response = await fetch(`${cfg.url}/rest/v1/${tabela}?select=*&order=${order}`, {
+      headers: {
+        apikey: cfg.key,
+        Authorization: `Bearer ${cfg.key}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Supabase REST ${tabela} ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  async function salvarRest(tabela, payload, id = null) {
+    const cfg = obterConfigSupabase();
+    if (!cfg) {
+      throw new Error("Configuração do Supabase não encontrada.");
+    }
+
+    const url = id
+      ? `${cfg.url}/rest/v1/${tabela}?id=eq.${encodeURIComponent(id)}`
+      : `${cfg.url}/rest/v1/${tabela}`;
+    const response = await fetch(url, {
+      method: id ? "PATCH" : "POST",
+      headers: {
+        apikey: cfg.key,
+        Authorization: `Bearer ${cfg.key}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const detalhe = await response.text().catch(() => "");
+      throw new Error(`Falha ao salvar em ${tabela}: ${response.status} ${detalhe}`);
+    }
+
+    const data = await response.json().catch(() => []);
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error(`Supabase não retornou o registro salvo em ${tabela}.`);
+    }
+
+    return data[0];
+  }
+
+  function numeroPainel(valor) {
+    if (typeof valor === "number") return valor;
+    const texto = String(valor || "").trim();
+    if (!texto) return 0;
+    const limpo = texto
+      .replace(/R\$/g, "")
+      .replace(/\s/g, "")
+      .replace(/\./g, "")
+      .replace(",", ".");
+    return parseFloat(limpo) || 0;
+  }
+
+  function statusImovel(valor) {
+    const texto = String(valor || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    return texto.includes("disponivel") || texto.includes("ativo") ? "ativo" : "inativo";
+  }
+
+  function payloadImovel(imovel) {
+    return {
+      titulo: imovel.titulo || "",
+      descricao: imovel.descricao || "",
+      tipo_negocio: (imovel.tipoNegocio || imovel.tipo_negocio || imovel.tipo || "venda").toLowerCase(),
+      categoria: imovel.categoria || "Residencial",
+      valor: numeroPainel(imovel.preco || imovel.valor),
+      proprietario_id: imovel.proprietario_id || imovel.proprietario || null,
+      cep: imovel.cep || imovel.cepImovel || "",
+      endereco: imovel.endereco || imovel.enderecoImovel || "",
+      numero: imovel.numero || "",
+      complemento: imovel.complemento || "",
+      bairro: imovel.bairro || "",
+      cidade: imovel.cidade || "Feira de Santana",
+      estado: imovel.estado || "BA",
+      quartos: parseInt(imovel.quartos) || 0,
+      suites: parseInt(imovel.suites) || 0,
+      banheiros: parseInt(imovel.banheiros) || 0,
+      vagas_garagem: imovel.garagem === "Com garagem" ? parseInt(imovel.vagas) || 1 : 0,
+      area: numeroPainel(imovel.areaUtil || imovel.areaTotal || imovel.area),
+      area_util: numeroPainel(imovel.areaUtil || imovel.area),
+      area_total: numeroPainel(imovel.areaTotal || imovel.area),
+      condominio: imovel.condominio || "",
+      valor_condominio: numeroPainel(imovel.valorCondominio),
+      valor_iptu: numeroPainel(imovel.valorIPTU),
+      caracteristicas: Array.isArray(imovel.caracteristicas) ? imovel.caracteristicas : [],
+      imagens: imovel.imagens || imovel.fotos || [],
+      status: statusImovel(imovel.disponibilidade || imovel.status || "Disponível"),
+    };
+  }
+
+  async function deletarRest(tabela, id) {
+    const cfg = obterConfigSupabase();
+    if (!cfg) {
+      throw new Error("Configuração do Supabase não encontrada.");
+    }
+
+    const response = await fetch(`${cfg.url}/rest/v1/${tabela}?id=eq.${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: {
+        apikey: cfg.key,
+        Authorization: `Bearer ${cfg.key}`,
+        Prefer: "return=representation",
+      },
+    });
+
+    if (!response.ok) {
+      const detalhe = await response.text().catch(() => "");
+      throw new Error(`Falha ao excluir em ${tabela}: ${response.status} ${detalhe}`);
+    }
+
+    const removidos = await response.json().catch(() => []);
+    if (Array.isArray(removidos) && removidos.length === 0) {
+      throw new Error("Registro não removido. Verifique as permissões RLS de DELETE no Supabase.");
+    }
+
+    return true;
+  }
+
+  async function deletarBackend(recurso, id) {
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+    const baseUrl = isLocalhost
+      ? "http://localhost:3000"
+      : "https://gabrielly-corretora.onrender.com";
+    const token = sessionStorage.getItem("authToken");
+
+    const response = await fetch(`${baseUrl}/api/${recurso}/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new Error(payload?.message || `Backend ${response.status}: falha ao excluir ${recurso}`);
+    }
+
+    return true;
+  }
+
+  function removerLocal(chave, id) {
+    const dados = lerLocal(chave).filter((item) => item.id !== id);
+    localStorage.setItem(chave, JSON.stringify(dados));
+  }
+
+  function normalizarProprietario(p) {
+    return {
+      id: p.id,
+      nome: p.nome || "",
+      documento: p.cpf_cnpj || p.documento || "",
+      cpf_cnpj: p.cpf_cnpj || p.documento || "",
+      telefone: p.telefone || "",
+      email: p.email || "",
+      cep: p.cep || "",
+      rua: p.rua || p.endereco || "",
+      numero: p.numero || "",
+      complemento: p.complemento || "",
+      bairro: p.bairro || "",
+      cidade: p.cidade || "",
+      estado: p.estado || "",
+      observacoes: p.observacoes || "",
+      imovelId: p.imovel_id || p.imovelId || "",
+      imovel_id: p.imovel_id || p.imovelId || null,
+      created_at: p.created_at,
+      synced: p.synced,
+    };
+  }
+
+  function normalizarAtendimento(a) {
+    return {
+      id: a.id,
+      cliente: a.nome_cliente || a.cliente || a.nome || "",
+      nomeCliente: a.nome_cliente || a.cliente || a.nome || "",
+      nome_cliente: a.nome_cliente || a.cliente || a.nome || "",
+      data: a.data_contato || a.data || a.created_at?.slice(0, 10) || "",
+      dataContato: a.data_contato || a.data || "",
+      data_contato: a.data_contato || a.data || null,
+      descricao: a.descricao || a.mensagem || a.observacoes || "",
+      mensagem: a.mensagem || a.descricao || "",
+      documento: a.documento || a.cpf_cnpj || "",
+      telefone: a.telefone || "",
+      email: a.email || "",
+      imovelId: a.imovel_id || a.imovelId || "",
+      imovel_id: a.imovel_id || a.imovelId || null,
+      status: a.status || "novo",
+      notas: a.notas || [],
+      created_at: a.created_at,
+    };
+  }
+
+  function lerLocal(chave) {
+    try {
+      return JSON.parse(localStorage.getItem(chave) || "[]");
+    } catch (error) {
+      console.error(`Erro ao ler ${chave} do localStorage:`, error);
+      return [];
+    }
+  }
+
+  window.carregarProprietariosSupabase = async function carregarProprietariosSupabase() {
+    try {
+      if (await aguardarDB("proprietarios")) {
+        const data = await window.DB.proprietarios.listar();
+        if (Array.isArray(data) && data.length > 0) {
+          return data.map(normalizarProprietario);
+        }
+      }
+    } catch (error) {
+      console.warn("Falha ao carregar proprietarios via DB, tentando REST:", error);
+    }
+
+    try {
+      const data = await buscarRest("proprietarios", "nome.asc");
+      if (Array.isArray(data) && data.length > 0) {
+        return data.map(normalizarProprietario);
+      }
+    } catch (error) {
+      console.warn("Falha ao carregar proprietarios via REST:", error);
+    }
+
+    return lerLocal("proprietarios_backup").map(normalizarProprietario);
+  };
+
+  window.carregarAtendimentosSupabase = async function carregarAtendimentosSupabase() {
+    try {
+      if (await aguardarDB("atendimentos")) {
+        const data = await window.DB.atendimentos.listar();
+        if (Array.isArray(data) && data.length > 0) {
+          return data.map(normalizarAtendimento);
+        }
+      }
+    } catch (error) {
+      console.warn("Falha ao carregar atendimentos via DB, tentando REST:", error);
+    }
+
+    try {
+      const data = await buscarRest("atendimentos", "created_at.desc");
+      if (Array.isArray(data) && data.length > 0) {
+        return data.map(normalizarAtendimento);
+      }
+    } catch (error) {
+      console.warn("Falha ao carregar atendimentos via REST:", error);
+    }
+
+    return lerLocal("atendimentos").map(normalizarAtendimento);
+  };
+
+  window.carregarCaracteristicasSupabase = async function carregarCaracteristicasSupabase() {
+    try {
+      if (await aguardarDB("caracteristicas")) {
+        const data = await window.DB.caracteristicas.listar();
+        if (Array.isArray(data) && data.length > 0) {
+          return data;
+        }
+      }
+    } catch (error) {
+      console.warn("Falha ao carregar características via DB, tentando REST:", error);
+    }
+
+    try {
+      const data = await buscarRest("caracteristicas", "nome.asc");
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    } catch (error) {
+      console.warn("Falha ao carregar características via REST:", error);
+    }
+
+    return lerLocal("caracteristicas");
+  };
+
+  window.salvarImovelSupabase = async function salvarImovelSupabase(imovel) {
+    const payload = payloadImovel(imovel);
+    const idValido = imovel.id && !String(imovel.id).startsWith("imovel-");
+    const salvo = await salvarRest("imoveis", payload, idValido ? imovel.id : null);
+    return { ...imovel, id: salvo.id };
+  };
+
+  window.salvarProprietarioSupabase = async function salvarProprietarioSupabase(proprietario) {
+    const payload = {
+      nome: proprietario.nome || "",
+      cpf_cnpj: proprietario.cpf_cnpj || proprietario.documento || "",
+      telefone: proprietario.telefone || "",
+      email: proprietario.email || "",
+      cep: proprietario.cep || "",
+      rua: proprietario.rua || "",
+      numero: proprietario.numero || "",
+      complemento: proprietario.complemento || "",
+      bairro: proprietario.bairro || "",
+      cidade: proprietario.cidade || "",
+      estado: proprietario.estado || "",
+      observacoes: proprietario.observacoes || "",
+    };
+    if (!payload.nome || !payload.cpf_cnpj) {
+      throw new Error("Nome e CPF/CNPJ são obrigatórios.");
+    }
+    const salvo = await salvarRest("proprietarios", payload, proprietario.id || null);
+    return normalizarProprietario(salvo);
+  };
+
+  window.salvarAtendimentoSupabase = async function salvarAtendimentoSupabase(atendimento) {
+    const payload = {
+      nome_cliente: atendimento.nomeCliente || atendimento.cliente || "",
+      telefone: atendimento.telefone || "",
+      email: atendimento.email || "",
+      mensagem: atendimento.mensagem || atendimento.descricao || "",
+      status: atendimento.status || "novo",
+      origem: atendimento.origem || "Painel",
+      imovel_id: atendimento.imovelId || atendimento.imovel_id || null,
+      observacoes: atendimento.observacoes || "",
+    };
+    if (!payload.nome_cliente || !payload.telefone) {
+      throw new Error("Nome e telefone são obrigatórios.");
+    }
+    const salvo = await salvarRest("atendimentos", payload, atendimento.id || null);
+    return normalizarAtendimento(salvo);
+  };
+
+  window.salvarTransacaoSupabase = async function salvarTransacaoSupabase(transacao) {
+    const payload = {
+      tipo: transacao.tipo,
+      descricao: transacao.descricao || "",
+      categoria: transacao.categoria || "outras",
+      valor: numeroPainel(transacao.valor),
+      data_transacao: transacao.data || transacao.data_transacao || new Date().toISOString().slice(0, 10),
+      pendente: transacao.pendente !== false,
+    };
+    const salvo = await salvarRest("financeiro", payload, transacao.id || null);
+    return {
+      id: salvo.id,
+      tipo: salvo.tipo,
+      descricao: salvo.descricao,
+      categoria: salvo.categoria,
+      valor: salvo.valor,
+      data: salvo.data_transacao || salvo.data,
+      pendente: salvo.pendente,
+    };
+  };
+
+  window.salvarCaracteristicaSupabase = async function salvarCaracteristicaSupabase(nome) {
+    const salvo = await salvarRest("caracteristicas", { nome });
+    return salvo;
+  };
+
+  window.deletarProprietarioSupabase = async function deletarProprietarioSupabase(id) {
+    if (!id) throw new Error("ID do proprietário não informado.");
+
+    try {
+      await deletarRest("proprietarios", id);
+      removerLocal("proprietarios_backup", id);
+      return true;
+    } catch (error) {
+      console.warn("Falha ao excluir proprietário via REST, tentando backend:", error);
+      await deletarBackend("proprietarios", id);
+      removerLocal("proprietarios_backup", id);
+      return true;
+    }
+  };
+
+  window.deletarAtendimentoSupabase = async function deletarAtendimentoSupabase(id) {
+    if (!id) throw new Error("ID do atendimento não informado.");
+
+    try {
+      await deletarRest("atendimentos", id);
+      removerLocal("atendimentos", id);
+      return true;
+    } catch (error) {
+      console.warn("Falha ao excluir atendimento via REST, tentando backend:", error);
+      await deletarBackend("atendimentos", id);
+      removerLocal("atendimentos", id);
+      return true;
+    }
+  };
+
+  window.deletarCaracteristicaSupabase = async function deletarCaracteristicaSupabase(id) {
+    if (!id) throw new Error("ID da característica não informado.");
+
+    try {
+      await deletarRest("caracteristicas", id);
+      removerLocal("caracteristicas", id);
+      return true;
+    } catch (error) {
+      console.warn("Falha ao excluir característica via REST:", error);
+      throw error;
+    }
+  };
+
+  window.deletarImovelSupabase = async function deletarImovelSupabase(id) {
+    if (!id) throw new Error("ID do imóvel não informado.");
+    try {
+      await deletarRest("imoveis", id);
+      removerLocal("imoveis", id);
+      return true;
+    } catch (error) {
+      console.warn("Falha ao excluir imóvel via REST, tentando backend:", error);
+      await deletarBackend("imoveis", id);
+      removerLocal("imoveis", id);
+      return true;
+    }
+  };
+
+  window.deletarTransacaoSupabase = async function deletarTransacaoSupabase(id) {
+    if (!id) throw new Error("ID do lançamento não informado.");
+    await deletarRest("financeiro", id);
+    removerLocal("transacoes", id);
+    return true;
+  };
+
+  window.carregarProprietarios = window.carregarProprietariosSupabase;
+  window.carregarAtendimentos = window.carregarAtendimentosSupabase;
+  window.carregarCaracteristicas = window.carregarCaracteristicasSupabase;
+  window.salvarImovel = window.salvarImovelSupabase;
+  window.salvarProprietario = window.salvarProprietarioSupabase;
+  window.salvarAtendimento = window.salvarAtendimentoSupabase;
+  window.salvarTransacao = window.salvarTransacaoSupabase;
+  window.salvarCaracteristica = window.salvarCaracteristicaSupabase;
+  window.deletarProprietario = window.deletarProprietarioSupabase;
+  window.deletarAtendimento = window.deletarAtendimentoSupabase;
+  window.deletarImovel = window.deletarImovelSupabase;
+  window.deletarTransacao = window.deletarTransacaoSupabase;
+})();

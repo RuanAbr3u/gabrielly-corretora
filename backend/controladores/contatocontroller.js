@@ -1,12 +1,19 @@
 const { createClient } = require("@supabase/supabase-js");
 const { Resend } = require("resend");
 
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_KEY ||
+  process.env.SUPABASE_KEY ||
+  process.env.SUPABASE_ANON_KEY;
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY,
+  supabaseKey,
 );
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 if (!process.env.RESEND_API_KEY) {
   console.error("RESEND_API_KEY não configurada");
@@ -115,6 +122,16 @@ const enviarContato = async (req, res) => {
 
     // Enviar emails usando Resend
     try {
+      if (!resend) {
+        return res.status(200).json({
+          success: true,
+          message:
+            "Mensagem recebida com sucesso! Entraremos em contato em breve.",
+          contatoId: contatoSalvo.id,
+          warning: "Notificacao por email indisponivel no ambiente local.",
+        });
+      }
+
       const emailResult = await resend.emails.send({
         from: "Gabrielly Silva <onboarding@resend.dev>",
         to: ["Gabriellycorretora1@gmail.com"],

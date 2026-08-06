@@ -2,11 +2,11 @@ const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 const API_BASE_URL = isLocal
-  ? "http://localhost:3001"
+  ? "http://localhost:3000"
   : "https://gabrielly-corretora.onrender.com";
 
 async function fetchWithAuth(url, options = {}) {
-  // ✅ Usar URL absoluta se API_BASE_URL for fornecido
+  //  Usar URL absoluta se API_BASE_URL for fornecido
   const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
 
   // Adicionar Authorization header se token existir no sessionStorage
@@ -25,7 +25,7 @@ async function fetchWithAuth(url, options = {}) {
     credentials: "include",
   });
 
-  // ✅ Se 401, assumir token expirado
+  //  Se 401, assumir token expirado
   if (response.status === 401) {
     console.warn("Token expirado, redirecionando para login");
     // Limpar qualquer dado em localStorage (compatibilidade)
@@ -73,11 +73,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const paginationEl = document.createElement("div");
   paginationEl.className = "pagination";
 
-  // ✅ SEGURANÇA: Autenticação obrigatória antes de renderizar painel
+  //  SEGURANÇA: Autenticação obrigatéria antes de renderizar painel
   // Validar JWT com backend usando cookies HttpOnly ou Authorization header
   try {
     console.log(
-      "🔐 Validando autenticação com:",
+      " Validando autenticação com:",
       `${API_BASE_URL}/api/auth/validar`,
     );
 
@@ -86,9 +86,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const storedToken = sessionStorage.getItem("authToken");
     if (storedToken) {
       authHeaders["Authorization"] = `Bearer ${storedToken}`;
-      console.log("🔑 Usando token do sessionStorage via Authorization header");
+      console.log(" Usando token do sessionStorage via Authorization header");
     } else {
-      console.log("🍪 Tentando autenticação via cookie");
+      console.log(" Tentando autenticação via cookie");
     }
 
     const resp = await fetch(`${API_BASE_URL}/api/auth/validar`, {
@@ -97,21 +97,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       headers: authHeaders,
     });
 
-    console.log("📡 Status da resposta:", resp.status, resp.statusText);
+    console.log(" Status da resposta:", resp.status, resp.statusText);
 
     let data;
     try {
       data = await resp.json();
-      console.log("📊 Dados recebidos:", data);
+      console.log(" Dados recebidos:", data);
     } catch (e) {
-      console.error("❌ Erro ao parsear JSON:", e);
-      console.log("📝 Resposta bruta:", await resp.text());
+      console.error(" Erro ao parsear JSON:", e);
+      console.log(" Resposta bruta:", await resp.text());
       throw e;
     }
 
     if (!resp.ok || !data.success) {
-      console.warn("❌ Autenticação falhou:", data);
-      console.log("⏳ Redirecionando para login em 2 segundos...");
+      console.warn(" Autenticação falhou:", data);
+      console.log(" Redirecionando para login em 2 segundos...");
       // Sessão inválida, redirecionar para login
       setTimeout(() => {
         window.location.href = window.authRoutes?.login("session=invalid") || "login.html?session=invalid";
@@ -119,14 +119,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       throw new Error("Sessão inválida");
     }
 
-    // ✅ Exibir nome do usuário autenticado
+    //  Exibir nome do usuário autenticado
     const userEmailSpan = document.getElementById("userEmail");
     if (userEmailSpan && data.usuario) {
       userEmailSpan.textContent = data.usuario.nome || "Gabrielly Silva";
     }
 
     console.log(
-      "✅ Usuário autenticado:",
+      " Usuário autenticado:",
       data.usuario.nome || data.usuario.email,
     );
 
@@ -135,8 +135,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       sessionStorage.setItem("userName", data.usuario.nome);
     }
   } catch (err) {
-    console.error("❌ Erro na autenticação:", err);
-    console.log("⏳ Redirecionando para login em 2 segundos...");
+    console.error(" Erro na autenticação:", err);
+    console.log(" Redirecionando para login em 2 segundos...");
     // Redirecionar para login em qualquer erro
     setTimeout(() => {
       window.location.href = window.authRoutes?.login("error=auth_failed") || "login.html?error=auth_failed";
@@ -150,18 +150,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function carregarCaracteristicasDinamicas() {
     const div = document.getElementById("caracteristicas-dinamicas");
     if (!div) {
-      console.warn("⚠️ Elemento caracteristicas-dinamicas não encontrado");
+      console.warn(" Elemento caracteristicas-dinamicas não encontrado");
       return;
     }
 
-    div.innerHTML = "⏳ Carregando características...";
+    div.innerHTML = " Carregando características...";
 
     try {
       // Aguardar DB estar disponível (até 5 segundos)
       let tentativas = 0;
       while ((!window.DB || !window.DB.caracteristicas) && tentativas < 10) {
         console.warn(
-          `⚠️ DB não está pronto, aguardando... (${tentativas + 1}/10)`,
+          ` DB não está pronto, aguardando... (${tentativas + 1}/10)`,
         );
         await new Promise((resolve) => setTimeout(resolve, 500));
         tentativas++;
@@ -171,12 +171,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         throw new Error("DB indisponível após aguardar");
       }
 
-      // Carregar características do Supabase
-      const caracteristicas = await DB.caracteristicas.listar();
+      // Carregar características do Supabase com fallback REST.
+      let caracteristicas = [];
+      if (window.carregarCaracteristicasSupabase) {
+        caracteristicas = await window.carregarCaracteristicasSupabase();
+      } else if (window.carregarCaracteristicas) {
+        caracteristicas = await window.carregarCaracteristicas();
+      } else {
+        caracteristicas = await DB.caracteristicas.listar();
+      }
 
       const lista =
         caracteristicas && caracteristicas.length > 0
-          ? caracteristicas.map((c) => c.nome)
+          ? caracteristicas.map((c) => (typeof c === "string" ? c : c.nome)).filter(Boolean)
           : [
               "Área de serviço",
               "Cozinha",
@@ -210,7 +217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         div.appendChild(label);
       });
 
-      console.log("⚠️ Usando características padrão por erro");
+      console.log(" Usando características padrão por erro");
     }
   }
 
@@ -245,7 +252,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      btnBuscarCep.textContent = "⏳ Buscando...";
+      btnBuscarCep.textContent = "Buscando...";
       btnBuscarCep.disabled = true;
 
       try {
@@ -280,12 +287,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
           }
 
-          showToast("✅ Endereço encontrado!", "success");
+          showToast(" Endereço encontrado!", "success");
         }
       } catch (error) {
         console.error("Erro ao buscar CEP:", error);
       } finally {
-        btnBuscarCep.textContent = "🔍 Buscar CEP";
+        btnBuscarCep.textContent = " Buscar CEP";
         btnBuscarCep.disabled = false;
       }
     });
@@ -297,7 +304,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!selectBairro) return;
 
     try {
-      // ✅ SEGURANÇA: Lista de bairros (sem logs em produção)
+      //  SEGURANÇA: Lista de bairros (sem logs em produção)
       const bairrosFeiraDeSantana = [
         "Acupe",
         "Aeroporto",
@@ -374,7 +381,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       console.log(
-        `✅ ${bairrosFeiraDeSantana.length} bairros carregados no select`,
+        ` ${bairrosFeiraDeSantana.length} bairros carregados no select`,
       );
       showToast(
         `${bairrosFeiraDeSantana.length} bairros carregados com sucesso!`,
@@ -382,7 +389,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         2000,
       );
     } catch (error) {
-      console.error("❌ Erro ao carregar bairros:", error);
+      console.error(" Erro ao carregar bairros:", error);
       showToast("Erro ao carregar bairros", "error", 3000);
     }
   }
@@ -405,10 +412,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       console.log(
-        `✅ ${proprietarios.length} proprietários carregados no select`,
+        ` ${proprietarios.length} proprietários carregados no select`,
       );
     } catch (error) {
-      console.error("❌ Erro ao carregar proprietários no select:", error);
+      console.error(" Erro ao carregar proprietários no select:", error);
       selectProprietario.innerHTML =
         '<option value="">Erro ao carregar proprietários</option>';
     }
@@ -446,7 +453,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // O usuário digita normalmente e vê a formatação: 100 = R$ 1,00 | 10000 = R$ 100,00
   const aplicarMascaraMoeda = (input) => {
     input.addEventListener("input", (e) => {
-      // Remove tudo que não é número
+      // Remove tudo que não ? número
       let valor = e.target.value.replace(/\D/g, "");
 
       if (!valor) {
@@ -582,7 +589,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Utility: confirm modal (returns Promise)
   function showConfirmModal(message) {
-    console.log("❓ Modal de confirmação:", message);
+    console.log(" Modal de confirmação:", message);
     return new Promise((resolve) => {
       const modal = document.getElementById("confirmModal");
       const msg = document.getElementById("confirmMessage");
@@ -590,27 +597,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       const no = document.getElementById("confirmNo");
 
       if (!modal || !msg || !yes || !no) {
-        console.error("❌ Elementos do modal não encontrados!");
+        console.error(" Elementos do modal não encontrados!");
         return resolve(false);
       }
 
-      console.log("✅ Modal aberto");
+      console.log(" Modal aberto");
       msg.textContent = message || "Tem certeza?";
       modal.setAttribute("aria-hidden", "false");
 
       function cleanup() {
-        console.log("🔒 Modal fechado");
+        console.log(" Modal fechado");
         modal.setAttribute("aria-hidden", "true");
         yes.removeEventListener("click", onYes);
         no.removeEventListener("click", onNo);
       }
       function onYes() {
-        console.log("✅ Usuário confirmou");
+        console.log(" Usuário confirmou");
         cleanup();
         resolve(true);
       }
       function onNo() {
-        console.log("❌ Usuário cancelou");
+        console.log(" Usuário cancelou");
         cleanup();
         resolve(false);
       }
@@ -653,7 +660,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const logo = new Image();
 
         logo.onload = () => {
-          console.log("✅ Logo carregada com sucesso!");
+          console.log(" Logo carregada com sucesso!");
 
           // Calcula o tamanho da logo (25% da largura da imagem, mantendo proporção)
           const logoWidth = img.width * 0.25;
@@ -691,13 +698,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         logo.onerror = () => {
-          console.warn("⚠️ Logo PNG não encontrada, tentando JPG...");
+          console.warn(" Logo PNG não encontrada, tentando JPG...");
 
           // Tenta carregar como JPG
           const logoJpg = new Image();
 
           logoJpg.onload = () => {
-            console.log("✅ Logo JPG carregada com sucesso!");
+            console.log(" Logo JPG carregada com sucesso!");
 
             const logoWidth = img.width * 0.1; // Reduzido para 10%
             const logoHeight = (logoJpg.height / logoJpg.width) * logoWidth;
@@ -730,7 +737,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           logoJpg.onerror = () => {
             console.warn(
-              "⚠️ Logo não encontrada (nem PNG nem JPG), usando marca d'água de texto",
+              " Logo não encontrada (nem PNG nem JPG), usando marca d'água de texto",
             );
 
             // MARCA D'ÁGUA DE TEXTO MELHORADA
@@ -738,7 +745,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Texto principal
             const titulo = "GABRIELLY SILVA";
-            const subtitulo = "CORRETORA DE IMÓVEIS";
+            const subtitulo = "CORRETORA DE IMOVEIS";
             const creci = "CRECI 26.012";
 
             // Fontes (todas reduzidas)
@@ -799,7 +806,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       };
 
       img.onerror = () => {
-        console.error("❌ Erro ao carregar imagem principal");
+        console.error(" Erro ao carregar imagem principal");
         resolve(imagemSrc);
       };
 
@@ -807,17 +814,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Image preview com marca d'água
+  // Image preview sem marca d'agua gravada na imagem.
+  // A marca exibida no site fica apenas pelo CSS publico (.property-watermark).
   if (inputImagens && preview) {
-    console.log("✅ Event listener de imagens configurado");
+    console.log(" Event listener de imagens configurado");
     inputImagens.addEventListener("change", async (e) => {
       console.log(
-        "📸 Evento change disparado! Arquivos:",
+        " Evento change disparado! Arquivos:",
         e.target.files.length,
       );
 
       if (!preview) {
-        console.error("❌ preview não está disponível!");
+        console.error(" preview não está disponível!");
         return;
       }
 
@@ -825,46 +833,43 @@ document.addEventListener("DOMContentLoaded", async () => {
       const files = Array.from(e.target.files);
 
       if (!Array.isArray(files) || files.length === 0) {
-        console.log("⚠️ Nenhum arquivo selecionado");
+        console.log(" Nenhum arquivo selecionado");
         return;
       }
 
       for (const file of files) {
-        console.log("🖼️ Processando imagem:", file.name, "tamanho:", file.size);
+        console.log(" Processando imagem:", file.name, "tamanho:", file.size);
         const reader = new FileReader();
-        reader.onload = async () => {
+        reader.onload = () => {
           try {
-            // Adiciona marca d'água
-            console.log("⏳ Adicionando marca d'água...");
-            const imagemComMarca = await adicionarMarcaDagua(reader.result);
             const img = document.createElement("img");
-            img.src = imagemComMarca;
-            img.dataset.marcaDagua = imagemComMarca; // Armazena a versão com marca d'água
+            img.src = reader.result;
+            img.dataset.imagemOriginal = reader.result;
             preview.appendChild(img);
             console.log(
-              "✅ Imagem adicionada ao preview. Total no preview:",
+              " Imagem adicionada ao preview. Total no preview:",
               preview.children.length,
             );
           } catch (error) {
-            console.error("❌ Erro ao processar imagem:", error);
+            console.error(" Erro ao processar imagem:", error);
           }
         };
         reader.onerror = (error) => {
-          console.error("❌ Erro ao ler arquivo:", error);
+          console.error(" Erro ao ler arquivo:", error);
         };
         reader.readAsDataURL(file);
       }
     });
   } else {
     console.error(
-      "❌ inputImagens ou preview não encontrado para event listener",
+      " inputImagens ou preview não encontrado para event listener",
     );
   }
 
   // Carousel helpers
   function criarCarrossel(imagens) {
     if (!Array.isArray(imagens) || imagens.length === 0) {
-      console.warn("⚠️ Nenhuma imagem válida para carrossel");
+      console.warn(" Nenhuma imagem válida para carrossel");
       return `<div class="galeria"><p>Sem imagens</p></div>`;
     }
     const imagensHtml = imagens
@@ -895,10 +900,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load and render with filters + pagination
   async function renderizarImoveis() {
     try {
-      listaImoveis.innerHTML = "";
-      console.log("🔄 Iniciando renderização de imóveis...");
+      listaImoveis.innerHTML = `
+        <div class="panel-loading-state">
+          <span class="panel-loading-spinner" aria-hidden="true"></span>
+          <span>Carregando imoveis...</span>
+        </div>
+      `;
+      console.log(" Iniciando renderização de imóveis...");
       const imoveis = await window.carregarImoveis();
-      console.log("📦 Imóveis carregados:", imoveis.length, imoveis);
+      console.log(" Imóveis carregados:", imoveis.length, imoveis);
       const filterPrecoMin = document.getElementById("filterPrecoMin");
       const filterPrecoMax = document.getElementById("filterPrecoMax");
 
@@ -924,8 +934,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       };
 
-      console.log("🔍 Filtros ativos:", filters);
-      console.log("📊 Total antes de filtrar:", imoveis.length);
+      console.log(" Filtros ativos:", filters);
+      console.log(" Total antes de filtrar:", imoveis.length);
 
       const filtered = imoveis.filter((imovel) => {
         if (
@@ -950,20 +960,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         return true;
       });
 
-      console.log("✅ Total após filtrar:", filtered.length);
+      console.log(" Total após filtrar:", filtered.length);
 
       itemsPerPage = perPageSelect ? Number(perPageSelect.value) : itemsPerPage;
       const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
       if (currentPage > totalPages) currentPage = totalPages;
       const start = (currentPage - 1) * itemsPerPage;
       const pageItems = filtered.slice(start, start + itemsPerPage);
+      listaImoveis.innerHTML = "";
 
       if (filtered.length === 0) {
         listaImoveis.innerHTML = `<p style="grid-column: 1 / -1; color: #400000; text-align: center;">Nenhum imóvel encontrado.</p>`;
       }
 
       console.log(
-        "📄 Renderizando página",
+        " Renderizando página",
         currentPage,
         "- Itens:",
         pageItems.length,
@@ -973,7 +984,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
           const imovel = pageItems[idx];
           const index = start + idx;
-          console.log(`🏠 Renderizando imóvel ${index + 1}:`, imovel.titulo);
+          console.log(` Renderizando imóvel ${index + 1}:`, imovel.titulo);
           const card = document.createElement("div");
           card.className = "imovel-card";
           const statusClass =
@@ -1000,7 +1011,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               : formatarDisplay(imovel.preco);
           const galeriaHtml = criarCarrossel(imovel.imagens);
           const bairroHtml = imovel.bairro
-            ? `<p><strong>📍 Bairro:</strong> ${imovel.bairro}</p>`
+            ? `<p><strong>Bairro:</strong> ${imovel.bairro}</p>`
             : "";
 
           // Usar proprietarioObj que já vem do banco de dados (se existir)
@@ -1009,7 +1020,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             proprietarioObj = imovel.proprietarioObj || null;
 
             // Log de debug
-            console.log(`🔍 Buscando proprietário para imóvel ${imovel.id}:`, {
+            console.log(` Buscando proprietário para imóvel ${imovel.id}:`, {
               proprietarioObj,
               proprietario_id: imovel.proprietario_id,
               proprietario_nome: imovel.proprietario_nome,
@@ -1037,10 +1048,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                   ) || null;
               }
 
-              console.log(`  └─ Proprietário encontrado:`, proprietarioObj);
+              console.log("Proprietário encontrado:", proprietarioObj);
             }
           } catch (error) {
-            console.warn("⚠️ Erro ao carregar proprietário:", error);
+            console.warn(" Erro ao carregar proprietário:", error);
             proprietarioObj = null;
           }
 
@@ -1081,26 +1092,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             const emailHtml = proprietarioObj.email
               ? `<br><strong>Email:</strong> ${proprietarioObj.email}`
               : "";
-            proprietarioHtml = `<p style="background: rgba(201, 169, 97, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-gold);"><strong>👤 Proprietário: ${proprietarioObj.nome}</strong>${docHtml}${tel}${emailHtml}</p>`;
+            proprietarioHtml = `<p style="background: rgba(201, 169, 97, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-gold);"><strong>Proprietário: ${proprietarioObj.nome}</strong>${docHtml}${tel}${emailHtml}</p>`;
             console.log(
-              `  └─ Proprietário renderizado com dados completos: ${proprietarioObj.nome}`,
+              `Proprietário renderizado com dados completos: ${proprietarioObj.nome}`,
             );
           } else if (imovel.proprietario_nome) {
-            proprietarioHtml = `<p style="background: rgba(201, 169, 97, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-gold);"><strong>👤 Proprietário: ${imovel.proprietario_nome}</strong></p>`;
+            proprietarioHtml = `<p style="background: rgba(201, 169, 97, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-gold);"><strong>Proprietário: ${imovel.proprietario_nome}</strong></p>`;
             console.log(
-              `  └─ Proprietário renderizado via proprietario_nome: ${imovel.proprietario_nome}`,
+              `Proprietário renderizado via proprietario_nome: ${imovel.proprietario_nome}`,
             );
           } else if (
             imovel.proprietario &&
             typeof imovel.proprietario === "string"
           ) {
-            proprietarioHtml = `<p style=\"background: rgba(201, 169, 97, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-gold);\"><strong>👤 Proprietário: ${imovel.proprietario}</strong></p>`;
+            proprietarioHtml = `<p style=\"background: rgba(201, 169, 97, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--color-gold);\"><strong>Proprietário: ${imovel.proprietario}</strong></p>`;
             console.log(
-              `  └─ Proprietário renderizado via proprietario (fallback): ${imovel.proprietario}`,
+              `Proprietário renderizado via proprietario (fallback): ${imovel.proprietario}`,
             );
           } else {
             console.warn(
-              `  └─ ⚠️ NENHUM PROPRIETÁRIO ENCONTRADO PARA ${imovel.id}`,
+              `NENHUM PROPRIETÁRIO ENCONTRADO PARA ${imovel.id}`,
               {
                 proprietarioObj,
                 proprietario_nome: imovel.proprietario_nome,
@@ -1110,7 +1121,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           const areaHtml =
             imovel.areaUtil || imovel.areaTotal
-              ? `<p><strong>📐 Área:</strong> ${imovel.areaUtil ? imovel.areaUtil + "m² útil" : ""} ${imovel.areaTotal ? " / " + imovel.areaTotal + "m² total" : ""}</p>`
+              ? `<p><strong>Área:</strong> ${imovel.areaUtil ? imovel.areaUtil + "m? ?til" : ""} ${imovel.areaTotal ? " / " + imovel.areaTotal + "m? total" : ""}</p>`
               : "";
 
           // Montagem do HTML do condomínio (nome + valor)
@@ -1126,9 +1137,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 : "";
 
             if (nomeCondominio && valorCondominio) {
-              condominioHtml = `<p><strong>🏢 Condomínio/Prédio:</strong> ${nomeCondominio} - ${valorCondominio}</p>`;
+              condominioHtml = `<p><strong>Condomínio/Prédio:</strong> ${nomeCondominio} - ${valorCondominio}</p>`;
             } else if (nomeCondominio) {
-              condominioHtml = `<p><strong>🏢 Condomínio/Prédio:</strong> ${nomeCondominio}</p>`;
+              condominioHtml = `<p><strong>Condomínio/Prédio:</strong> ${nomeCondominio}</p>`;
             } else if (valorCondominio) {
               condominioHtml = `<p><strong>Condomínio/Prédio:</strong> ${valorCondominio}</p>`;
             }
@@ -1143,10 +1154,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             ? `<p style="color: #999; font-size: 12px; margin-top: -5px; margin-bottom: 8px;"><strong>ID:</strong> ${idCurto}</p>`
             : "";
 
-          card.innerHTML = `\n        ${galeriaHtml}\n        <div class="info">\n          <h3 style="color: #5a1a1a; margin-bottom: 10px;">${imovel.titulo}</h3>\n          ${idHtml}\n          ${proprietarioHtml}\n          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 10px 0;">\n            <p><strong>🏷️ Tipo:</strong> ${imovel.tipoNegocio === "venda" ? "Venda" : "Locação"}</p>\n            <p><strong>🏠 Categoria:</strong> ${imovel.categoria}</p>\n            <p><strong>🛏️ Quartos:</strong> ${imovel.quartos}${imovel.suites > 0 ? ` (${imovel.suites} suíte${imovel.suites > 1 ? "s" : ""})` : ""}</p>\n            <p><strong>🚿 Banheiros:</strong> ${imovel.banheiros}</p>\n            <p><strong>🚗 Garagem:</strong> ${garagemInfo}</p>\n          </div>\n          ${areaHtml}\n          ${bairroHtml}\n          <p style="font-size: 18px; font-weight: bold; color: #5a1a1a; margin: 10px 0;"><strong>💰 Preço:</strong> ${precoHtml}</p>\n          ${condominioHtml}\n          ${iptuHtml}\n          <p class="status ${statusClass}" style="display: inline-block; padding: 5px 10px; border-radius: 4px; margin: 10px 0;"><strong>Status:</strong> ${imovel.disponibilidade}</p>\n          <p style="color: #666; font-size: 14px;"><strong>Descrição:</strong> ${imovel.descricao ? imovel.descricao.substring(0, 100) : ""}...</p>\n          <div style="display: flex; gap: 5px; margin-top: 10px;">\n            <button class="editar-btn" data-index="${index}" style="flex: 1;">✏️ Editar</button>\n            <button class="duplicar-btn" data-index="${index}" style="flex: 1; background: #c9a961;">📋 Duplicar</button>\n            <button class="remover-btn" data-index="${index}" style="flex: 1;">🗑️ Remover</button>\n          </div>\n        </div>\n      `;
+          card.innerHTML = `\n        ${galeriaHtml}\n        <div class="info">\n          <h3 style="color: #5a1a1a; margin-bottom: 10px;">${imovel.titulo}</h3>\n          ${idHtml}\n          ${proprietarioHtml}\n          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 10px 0;">\n            <p><strong>Tipo:</strong> ${imovel.tipoNegocio === "venda" ? "Venda" : "Locação"}</p>\n            <p><strong>Categoria:</strong> ${imovel.categoria}</p>\n            <p><strong>Quartos:</strong> ${imovel.quartos}${imovel.suites > 0 ? ` (${imovel.suites} suíte${imovel.suites > 1 ? "s" : ""})` : ""}</p>\n            <p><strong>Banheiros:</strong> ${imovel.banheiros}</p>\n            <p><strong>Garagem:</strong> ${garagemInfo}</p>\n          </div>\n          ${areaHtml}\n          ${bairroHtml}\n          <p style="font-size: 18px; font-weight: bold; color: #5a1a1a; margin: 10px 0;"><strong>Preço:</strong> ${precoHtml}</p>\n          ${condominioHtml}\n          ${iptuHtml}\n          <p class="status ${statusClass}" style="display: inline-block; padding: 5px 10px; border-radius: 4px; margin: 10px 0;"><strong>Status:</strong> ${imovel.disponibilidade}</p>\n          <p style="color: #666; font-size: 14px;"><strong>Descrição:</strong> ${imovel.descricao ? imovel.descricao.substring(0, 100) : ""}...</p>\n          <div style="display: flex; gap: 5px; margin-top: 10px;">\n            <button class="editar-btn" data-index="${index}" style="flex: 1;">Editar</button>\n            <button class="duplicar-btn" data-index="${index}" style="flex: 1; background: #c9a961;">Duplicar</button>\n            <button class="remover-btn" data-index="${index}" style="flex: 1;">Remover</button>\n          </div>\n        </div>\n      `;
           listaImoveis.appendChild(card);
         } catch (error) {
-          console.error("❌ Erro ao renderizar imóvel:", error);
+          console.error(" Erro ao renderizar imóvel:", error);
         }
       }
 
@@ -1160,7 +1171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderPagination(totalPages);
       renderMetrics();
     } catch (error) {
-      console.error("❌ Erro geral na renderização:", error);
+      console.error(" Erro geral na renderização:", error);
       listaImoveis.innerHTML = `<p style="grid-column: 1 / -1; color: #d9534f; text-align: center;">Erro ao carregar imóveis: ${error.message}</p>`;
     }
   }
@@ -1277,39 +1288,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function removerImovel(e) {
-    console.log("🗑️ Remover imóvel clicado!", e.target);
+    console.log(" Remover imóvel clicado!", e.target);
     const index = Number(e.target.dataset.index);
-    console.log("📍 Index do imóvel:", index);
+    console.log(" Index do imóvel:", index);
 
     const imoveis = await window.carregarImoveis();
-    console.log("📦 Total de imóveis carregados:", imoveis.length);
+    console.log(" Total de imóveis carregados:", imoveis.length);
 
     const imovel = imoveis[index];
     if (!imovel) {
-      console.error("❌ Imóvel não encontrado no index:", index);
+      console.error(" Imóvel não encontrado no index:", index);
       showToast("Erro: Imóvel não encontrado!", "error");
       return;
     }
 
-    console.log("🏠 Imóvel a ser removido:", imovel);
+    console.log(" Imóvel a ser removido:", imovel);
     const titulo = imovel.titulo || "este imóvel";
 
     showConfirmModal(`Deseja realmente remover o imóvel "${titulo}"?`).then(
       async (ok) => {
         if (!ok) {
-          console.log("❌ Remoção cancelada pelo usuário");
+          console.log(" Remoção cancelada pelo usuário");
           return;
         }
 
-        console.log("🔄 Deletando imóvel ID:", imovel.id);
+        console.log(" Deletando imóvel ID:", imovel.id);
         try {
           await window.deletarImovel(imovel.id);
-          console.log("✅ Imóvel deletado com sucesso!");
+          console.log(" Imóvel deletado com sucesso!");
           showToast("Imóvel removido com sucesso!", "success");
           await renderizarImoveis();
-          console.log("✅ Lista atualizada!");
+          console.log(" Lista atualizada!");
         } catch (error) {
-          console.error("❌ Erro ao deletar imóvel:", error);
+          console.error(" Erro ao deletar imóvel:", error);
           showToast("Erro ao remover imóvel: " + error.message, "error");
         }
       },
@@ -1399,7 +1410,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       imovel.imagens.forEach((src) => {
         const img = document.createElement("img");
         img.src = src;
-        img.dataset.marcaDagua = src; // Marca que já tem marca d'água
+        img.dataset.imagemOriginal = src;
         preview.appendChild(img);
       });
     }
@@ -1424,9 +1435,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
-    console.log("🚀 Formulário submetido!");
+    console.log(" Formulário submetido!");
 
-    // Validação dos campos obrigatórios
+    // Validação dos campos obrigatérios
     const camposObrigatorios = [
       { id: "tipoNegocio", nome: "Tipo de Negócio" },
       { id: "titulo", nome: "Título" },
@@ -1449,11 +1460,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
     if (erro) {
-      console.error("❌ Campos obrigatórios faltando:", msgErro);
-      showToast("Preencha os campos obrigatórios:" + msgErro, "error", 4000);
+      console.error(" Campos obrigatérios faltando:", msgErro);
+      showToast("Preencha os campos obrigatérios:" + msgErro, "error", 4000);
       return;
     }
-    console.log("✅ Validação passou! Processando dados...");
+    console.log(" Validação passou! Processando dados...");
     try {
       const limparValor = (id) => {
         const campo = document.getElementById(id);
@@ -1481,7 +1492,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             proprietarioNome = propObj.nome;
           }
         } catch (e) {
-          console.warn("⚠️ Erro ao buscar nome do proprietário:", e);
+          console.warn(" Erro ao buscar nome do proprietário:", e);
         }
       }
 
@@ -1511,27 +1522,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       let imagensBase64 = [];
-      // Processa imagens com marca d'água
+      // Processa imagens originais. A marca d'agua fica somente no CSS do site.
       if (imagens && imagens.length > 0) {
-        // Pega as imagens com marca d'água do preview
         const imagensPreview = preview.querySelectorAll("img");
         if (imagensPreview.length > 0) {
           imagensBase64 = Array.from(imagensPreview).map(
-            (img) => img.dataset.marcaDagua || img.src,
+            (img) => img.dataset.imagemOriginal || img.src,
           );
         } else {
-          // Fallback: adiciona marca d'água caso o preview não tenha carregado
           imagensBase64 = await Promise.all(
             Array.from(imagens).map(
               (file) =>
                 new Promise((resolve) => {
                   const reader = new FileReader();
-                  reader.onload = async () => {
-                    const imagemComMarca = await adicionarMarcaDagua(
-                      reader.result,
-                    );
-                    resolve(imagemComMarca);
-                  };
+                  reader.onload = () => resolve(reader.result);
                   reader.readAsDataURL(file);
                 }),
             ),
@@ -1546,7 +1550,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
       checkboxes.forEach((cb) => caracteristicasSelecionadas.push(cb.value));
       console.log(
-        "📋 Características selecionadas:",
+        " Características selecionadas:",
         caracteristicasSelecionadas,
       );
 
@@ -1588,7 +1592,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       };
 
       // Usar adapter para salvar
-      console.log("📝 Salvando imóvel:", novoImovel);
+      console.log(" Salvando imóvel:", novoImovel);
       await window.salvarImovel(novoImovel);
 
       if (editandoIndex !== null) {
@@ -1611,7 +1615,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       editandoIndex = null;
       renderizarImoveis();
     } catch (err) {
-      console.error("❌ Erro completo:", err);
+      console.error(" Erro completo:", err);
       const msgErro = err.message || err.toString();
       showToast(`Erro ao salvar: ${msgErro}`, "error", 5000);
     }
@@ -1879,7 +1883,7 @@ document.addEventListener("DOMContentLoaded", function () {
           formContainer.style.opacity = "1";
           formContainer.style.transform = "scaleY(1)";
         }, 10);
-        toggleFormBtn.innerHTML = "▲ Minimizar";
+        toggleFormBtn.innerHTML = "Minimizar";
         toggleFormBtn.classList.remove("btn-filter-primary");
         toggleFormBtn.classList.add("btn-filter-secondary");
       } else {
@@ -1889,7 +1893,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
           formContainer.style.display = "none";
         }, 500);
-        toggleFormBtn.innerHTML = "▼ Expandir Formulário";
+        toggleFormBtn.innerHTML = "Expandir Formulário";
         toggleFormBtn.classList.remove("btn-filter-secondary");
         toggleFormBtn.classList.add("btn-filter-primary");
       }
@@ -2020,7 +2024,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const submitBtn = document.getElementById("submitBtn");
     if (submitBtn) {
       const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = "⏳ Salvando...";
+      submitBtn.innerHTML = "Salvando...";
       submitBtn.disabled = true;
       submitBtn.classList.add("loading");
       return function () {
@@ -2056,44 +2060,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-
-  // ===== SCROLL TO TOP =====
-  const scrollToTopBtn = document.createElement("button");
-  scrollToTopBtn.innerHTML = "↑";
-  scrollToTopBtn.className = "scroll-to-top";
-  scrollToTopBtn.style.cssText = `
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #5a1a1a, #3d1010);
-    color: white;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 9999;
-  `;
-  document.body.appendChild(scrollToTopBtn);
-
-  window.addEventListener("scroll", function () {
-    if (window.pageYOffset > 300) {
-      scrollToTopBtn.style.opacity = "1";
-      scrollToTopBtn.style.visibility = "visible";
-    } else {
-      scrollToTopBtn.style.opacity = "0";
-      scrollToTopBtn.style.visibility = "hidden";
-    }
-  });
-
-  scrollToTopBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
 
   // ===== LOG DE ATIVIDADES =====
   window.logActivity = function (action, details) {
@@ -2132,5 +2098,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  console.log("✅ Melhorias profissionais carregadas com sucesso!");
+  console.log(" Melhorias profissionais carregadas com sucesso!");
 });
+
+
+

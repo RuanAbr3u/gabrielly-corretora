@@ -63,6 +63,30 @@
   force = true
 
 [[redirects]]
+  from = "/tela-gestao-financeira/index.html"
+  to = "/financeiro"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-cadastro-atendimento/index.html"
+  to = "/atendimentos"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-cadastro-proprietario/index.html"
+  to = "/proprietarios"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tela-caracteristica-imovel/index.html"
+  to = "/caracteristicas"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/"
   to = "/tela-inicial/index.html"
   status = 200
@@ -100,6 +124,26 @@
 [[redirects]]
   from = "/login"
   to = "/login/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/financeiro"
+  to = "/financeiro/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/atendimentos"
+  to = "/atendimentos/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/proprietarios"
+  to = "/proprietarios/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/caracteristicas"
+  to = "/caracteristicas/index.html"
   status = 200
 
 [[redirects]]

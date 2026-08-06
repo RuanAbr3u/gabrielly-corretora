@@ -176,7 +176,12 @@ function handleDocumentoInput(e) {
 async function carregarProprietarios() {
     try {
         console.log('📥 Carregando proprietários do Supabase...');
-        const dados = await DB.proprietarios.listar();
+        let dados = [];
+        if (window.carregarProprietariosSupabase) {
+            dados = await window.carregarProprietariosSupabase();
+        } else if (window.DB?.proprietarios?.listar) {
+            dados = await DB.proprietarios.listar();
+        }
         console.log('✅ Dados recebidos:', dados);
         console.log('📊 Total de registros:', dados?.length || 0);
         
@@ -380,7 +385,13 @@ function adicionarEventosProprietarios() {
             if (confirm(`Tem certeza que deseja excluir ${proprietario.nome}?`)) {
                 try {
                     console.log('🗑️ Excluindo proprietário:', proprietario.id, proprietario.nome);
-                    await DB.proprietarios.deletar(proprietario.id);
+                    if (window.deletarProprietarioSupabase) {
+                        await window.deletarProprietarioSupabase(proprietario.id);
+                    } else if (window.deletarProprietario) {
+                        await window.deletarProprietario(proprietario.id);
+                    } else {
+                        await DB.proprietarios.deletar(proprietario.id);
+                    }
                     console.log('✅ Proprietário excluído com sucesso');
                     
                     await carregarProprietarios();
@@ -517,7 +528,10 @@ document.getElementById('proprietario-form').addEventListener('submit', async fu
         if (editandoIndex !== null) {
             // Atualizar
             const proprietarioAtual = proprietarios[editandoIndex];
-            await DB.proprietarios.atualizar(proprietarioAtual.id, proprietarioData);
+            await (window.salvarProprietario || window.salvarProprietarioSupabase)({
+                ...proprietarioData,
+                id: proprietarioAtual.id
+            });
             editandoIndex = null;
             this.querySelector('button[type="submit"]').textContent = 'Cadastrar';
             mostrarMensagem('Proprietário atualizado com sucesso!');
@@ -532,7 +546,7 @@ document.getElementById('proprietario-form').addEventListener('submit', async fu
             }
             
             // Criar novo
-            await DB.proprietarios.criar(proprietarioData);
+            await (window.salvarProprietario || window.salvarProprietarioSupabase)(proprietarioData);
             mostrarMensagem('Proprietário cadastrado com sucesso!');
         }
         
