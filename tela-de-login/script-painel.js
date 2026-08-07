@@ -2,8 +2,8 @@ const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 const API_BASE_URL = isLocal
-  ? "http://localhost:3000"
-  : "https://gabrielly-corretora.onrender.com";
+  ? `http://${window.location.hostname}:3000`
+  : window.APP_CONFIG?.urls?.api || "https://gabrielly-corretora.onrender.com";
 
 async function fetchWithAuth(url, options = {}) {
   //  Usar URL absoluta se API_BASE_URL for fornecido
@@ -1121,7 +1121,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           const areaHtml =
             imovel.areaUtil || imovel.areaTotal
-              ? `<p><strong>Área:</strong> ${imovel.areaUtil ? imovel.areaUtil + "m? ?til" : ""} ${imovel.areaTotal ? " / " + imovel.areaTotal + "m? total" : ""}</p>`
+              ? `<p><strong>&Aacute;rea:</strong> ${imovel.areaUtil ? imovel.areaUtil + "m&sup2; &uacute;til" : ""}${imovel.areaUtil && imovel.areaTotal ? " / " : ""}${imovel.areaTotal ? imovel.areaTotal + "m&sup2; total" : ""}</p>`
               : "";
 
           // Montagem do HTML do condomínio (nome + valor)
@@ -2100,6 +2100,3 @@ document.addEventListener("DOMContentLoaded", function () {
 
   console.log(" Melhorias profissionais carregadas com sucesso!");
 });
-
-
-

@@ -818,8 +818,8 @@ console.log(
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1";
     const baseUrl = isLocalhost
-      ? "http://localhost:3000"
-      : "https://gabrielly-corretora.onrender.com";
+      ? `http://${window.location.hostname}:3000`
+      : window.APP_CONFIG?.urls?.api || "https://gabrielly-corretora.onrender.com";
     const token = sessionStorage.getItem("authToken");
 
     const response = await fetch(`${baseUrl}/api/${recurso}/${encodeURIComponent(id)}`, {

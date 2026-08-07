@@ -2,22 +2,42 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuToggle = document.getElementById("menuToggle");
   const navBar = document.getElementById("navBar");
   const header = document.querySelector(".site-header");
+  let menuScrollY = 0;
 
   const closeMenu = () => {
     if (!menuToggle || !navBar) return;
     menuToggle.classList.remove("active");
     navBar.classList.remove("active");
     menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Abrir menu");
     document.body.classList.remove("menu-open");
+    document.body.style.removeProperty("top");
+    document.body.style.removeProperty("position");
+    document.body.style.removeProperty("width");
+    window.scrollTo(0, menuScrollY);
+  };
+
+  const openMenu = () => {
+    if (!menuToggle || !navBar) return;
+    menuScrollY = window.scrollY || window.pageYOffset || 0;
+    menuToggle.classList.add("active");
+    navBar.classList.add("active");
+    menuToggle.setAttribute("aria-expanded", "true");
+    menuToggle.setAttribute("aria-label", "Fechar menu");
+    document.body.classList.add("menu-open");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${menuScrollY}px`;
+    document.body.style.width = "100%";
   };
 
   if (menuToggle && navBar) {
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.addEventListener("click", () => {
-      const isOpen = navBar.classList.toggle("active");
-      menuToggle.classList.toggle("active", isOpen);
-      menuToggle.setAttribute("aria-expanded", String(isOpen));
-      document.body.classList.toggle("menu-open", isOpen);
+      if (navBar.classList.contains("active")) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
     });
 
     navBar.querySelectorAll("a").forEach((link) => {

@@ -6,8 +6,15 @@ const SUPABASE_URL =
 const SUPABASE_ANON_KEY =
   process.env.SUPABASE_ANON_KEY ||
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFscHBnZWhtc2xmamZmc2ZyYXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNjE1MTYsImV4cCI6MjA4MzYzNzUxNn0.yDsPc0icyI3pNugua_nL7JKBlObWd0LTEW9bGG5N1eA";
+const SITE_URL = process.env.SITE_URL || "https://gabriellycorretora.vercel.app";
+const API_BASE_URL =
+  process.env.API_BASE_URL || "https://gabrielly-corretora.onrender.com";
 
 const configContent = `const CONFIG = {
+  urls: {
+    site: "${SITE_URL}",
+    api: "${API_BASE_URL}",
+  },
   supabase: {
     url: "${SUPABASE_URL}",
     key: "${SUPABASE_ANON_KEY}",
@@ -27,6 +34,7 @@ const configContent = `const CONFIG = {
 };
 
 Object.freeze(CONFIG);
+Object.freeze(CONFIG.urls);
 Object.freeze(CONFIG.supabase);
 Object.freeze(CONFIG.app);
 Object.freeze(CONFIG.contato);
